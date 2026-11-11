@@ -2864,6 +2864,8 @@
       condicaoPagamentoPdv: 'A Vista',
       formaCheckoutVitrine: 'Pix',
       chartInstance: null,
+      chartLojaId: null,
+      chartQtds: [],
       html5QrCode: null,
       scannerTarget: 'pdv',
       fotoBase64Temp: '',
@@ -4210,8 +4212,11 @@
       }
     }
 
+    let _sincronizandoLojaAtiva = false;
     async function sincronizarDadosLojaAtivaDrive(silencioso = false) {
       if (!ESTADO.lojaAtivaId) return;
+      if (_sincronizandoLojaAtiva) return;
+      _sincronizandoLojaAtiva = true;
       try {
         if (!silencioso) {
           const subtitulo = DatabaseAdapter.isSupabase()
@@ -4252,6 +4257,7 @@
           Swal.fire('Aviso', 'Erro ao sincronizar loja: ' + e.message, 'warning');
         }
       } finally {
+        _sincronizandoLojaAtiva = false;
         if (!silencioso) esconderCarregandoBanco();
       }
     }
@@ -4393,6 +4399,12 @@
       localStorage.removeItem('CLARA_SESSAO');
       ESTADO.usuarioLogado = null;
       ESTADO.lojaAtivaId = null;
+
+      if (ESTADO.chartInstance) {
+        try { ESTADO.chartInstance.destroy(); } catch (eChart) {}
+        ESTADO.chartInstance = null;
+      }
+      ESTADO.chartLojaId = null;
 
       const sidebar = document.getElementById('sidebarDesktop');
       if (sidebar) sidebar.style.display = 'none';
@@ -4865,9 +4877,6 @@
           break;
         case 'dashboard':
           renderizarDashboard();
-          if (DatabaseAdapter.isSupabase() && ESTADO.lojaAtivaId) {
-            sincronizarDadosLojaAtivaDrive(true).then(() => renderizarDashboard()).catch(() => {});
-          }
           break;
         case 'loja-online':
           carregarFormularioConfigLoja();
@@ -4880,9 +4889,6 @@
           break;
         case 'pedidos':
           renderizarPedidos();
-          if (DatabaseAdapter.isSupabase() && ESTADO.lojaAtivaId) {
-            sincronizarDadosLojaAtivaDrive(true).then(() => renderizarPedidos()).catch(() => {});
-          }
           break;
         case 'produtos':
           renderizarProdutosEstoque();
@@ -5222,7 +5228,7 @@
         ESTADO.lojaAtivaId = loja.id;
         configurarInterfaceLojista();
         navegar('dashboard');
-        if (ESTADO.urlGoogleScript) {
+        if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
           await sincronizarDadosLojaAtivaDrive(false);
         }
         Swal.fire({
@@ -6831,12 +6837,35 @@
 
       const corTema = (getComputedStyle(document.documentElement).getPropertyValue('--cor-tema') || '').trim() || '#2563EB';
 
+      ESTADO.chartQtds = dataQtds;
+
+      // Se o gráfico já existe para esta loja, verifica se os dados mudaram
+      if (ESTADO.chartInstance && ESTADO.chartLojaId === ESTADO.lojaAtivaId) {
+        const curLabels = ESTADO.chartInstance.data.labels || [];
+        const curData = (ESTADO.chartInstance.data.datasets && ESTADO.chartInstance.data.datasets[0] && ESTADO.chartInstance.data.datasets[0].data) || [];
+        const sameLabels = curLabels.length === labels.length && curLabels.every((l, idx) => l === labels[idx]);
+        const sameData = curData.length === dataValores.length && curData.every((v, idx) => v === dataValores[idx]);
+
+        if (sameLabels && sameData) {
+          // Dados absolutamente inalterados: ignora sem piscar ou recriar
+          return;
+        }
+
+        // Dados alterados (ex: nova venda): atualiza in-place suavemente sem destruir o canvas
+        ESTADO.chartInstance.data.labels = labels;
+        ESTADO.chartInstance.data.datasets[0].data = dataValores;
+        ESTADO.chartInstance.update('none');
+        return;
+      }
+
       if (ESTADO.chartInstance) {
         try {
           ESTADO.chartInstance.destroy();
         } catch (eChart) {}
         ESTADO.chartInstance = null;
       }
+
+      ESTADO.chartLojaId = ESTADO.lojaAtivaId;
 
       const ctx = canvas.getContext('2d');
       const gradient = ctx.createLinearGradient(0, 0, 0, 240);
@@ -6886,7 +6915,7 @@
                 label: function (context) {
                   const valor = context.parsed.y || 0;
                   const idx = context.dataIndex;
-                  const qtd = dataQtds[idx] || 0;
+                  const qtd = (ESTADO.chartQtds && ESTADO.chartQtds[idx]) || 0;
                   return [
                     'Total: ' + formatarMoeda(valor),
                     'Vendas: ' + qtd + ' realizada(s)'

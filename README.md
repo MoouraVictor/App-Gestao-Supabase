@@ -239,6 +239,9 @@ O sistema possui telas protegidas e exige login obrigatório:
 
 ## 📜 Histórico de Versões
 
+- **Versão 4.0.2 (11/11/2026):** Eliminação do ciclo assíncrono infinito na navegação do Dashboard e Pedidos, otimização in-place do gráfico Chart.js (sem recriações de canvas ou tremor) e mutex de concorrência na sincronização de dados.
+- **Versão 4.0.1 (11/11/2026):** Mapeamento do status de novos pedidos online da vitrine para `'Pendente'`, fluxo assíncrono com bloqueio preventivo de erro 400 no Supabase e eliminação do registro anônimo "Produto sem nome" no ranking de mais desejados na sacola.
+- **Versão 4.0.0 (11/11/2026):** Migração completa para Supabase (PostgreSQL Multi-Tenant), stored procedures para transações atômicas ACID de vendas e estoque, storage de arquivos de mídia, telemetria em tempo real e camada de compatibilidade híbrida (`DatabaseAdapter`).
 - **Versão 3.8.2 (10/11/2026):** Exibição detalhada de Preço / Subtotal, Desconto (inclusive em promoções) e Preço Final na seção de vendas, carrinho do PDV, modal de detalhes da venda e comprovante impresso; bloqueio e travas rigorosas para não permitir adicionar ao carrinho itens sem estoque no Caixa.
 - **Versão 3.8.1 (09/11/2026):** Correção de corte no topo de modais em telas verticais de smartphones, homologação do modal de visualização master via ícone de olho e tela global de carregamento do banco de dados.
 - **Versão 3.8.0 (09/11/2026):** Módulo de nichos (Perfumaria, Brechó e Salão de Beleza), alertas de validade de lotes, cobrança humanizada no WhatsApp com Pix, módulo de despesas com apuração de Lucro Líquido Real e ficha de clientes.

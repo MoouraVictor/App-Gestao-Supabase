@@ -4,6 +4,40 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.0.2 — Eliminação do Ciclo Infinito de Renderização e Estabilização In-Place do Gráfico de Vendas
+**Data:** 11/11/2026  
+**Status:** Concluído e Homologado (Testes de Estabilidade e Atualização In-Place 100% Aprovados via Microsoft Edge Headless CDP)
+
+### 1. Eliminação do Ciclo Infinito de Sincronização Assíncrona no Dashboard e Pedidos:
+- **Causa Raiz Identificada:**
+  - Na função de navegação SPA `renderizarTela(telaId)`, as cláusulas `case 'dashboard'` e `case 'pedidos'` continham chamadas assíncronas em segundo plano: `sincronizarDadosLojaAtivaDrive(true).then(...)`.
+  - Ao resolver a busca no banco, a função `sincronizarDadosLojaAtivaDrive` invocava `renderizarTela(telaVisivel)` para atualizar o DOM com os dados mais recentes.
+  - Como a tela visível continuava sendo o Dashboard (ou Pedidos), essa chamada disparava recursivamente `sincronizarDadosLojaAtivaDrive` a cada segundo, criando uma fila ininterrupta de requisições de rede e renderizações em loop contínuo.
+- **Solução Implementada:**
+  - Remoção dos disparos assíncronos recursivos dentro do `switch` de `renderizarTela`. A navegação entre abas agora apenas renderiza a interface com base nos dados locais em memória de forma instantânea.
+  - Implementação de trava de concorrência (*mutex/lock*) `_sincronizandoLojaAtiva` na função `sincronizarDadosLojaAtivaDrive`, impedindo requisições simultâneas ou sobrepostas.
+  - Sincronização de rede reservada para momentos intencionais: login, clique no botão "Sincronizar", troca de ambiente pelo Painel Master e após mutações de dados (vendas, produtos, despesas).
+
+### 2. Otimização e Estabilização In-Place do Gráfico de Vendas dos Últimos 7 Dias (Chart.js):
+- **Causa Raiz Identificada:**
+  - A cada chamada da função `renderizarGraficoVendas7Dias`, o sistema destruía completamente a instância existente (`ESTADO.chartInstance.destroy()`) e criava um novo `new Chart(...)`.
+  - Esse processo reiniciava a animação do canvas do zero, gerando um efeito visual de tremor constante (*flickering*) na tela a cada atualização.
+- **Solução Implementada:**
+  - Gerenciamento inteligente de ciclo de vida da instância do Chart.js:
+    1. Se a instância já existe para a mesma loja ativa, os novos rótulos (`labels`) e valores calculados (`dataValores`) são comparados com os atuais.
+    2. Se os dados forem idênticos (sem novas vendas), a função retorna imediatamente sem tocar no canvas (`return`), com zero consumo de CPU ou repintura desnecessária.
+    3. Se houver novas vendas ou alterações, a instância existente é reaproveitada: os dados do dataset são atualizados e o gráfico executa um `.update('none')` suave, sem destruir o canvas e sem animações de entrada tremulantes.
+  - Limpeza e liberação apropriada de memória da instância do gráfico em `fazerLogout()`.
+
+### 3. Homologação Automatizada via Edge Headless CDP:
+- **Teste de Estabilidade e Ciclo de Renderização:**
+  - Monitoramento de contadores durante 5 segundos de inatividade: confirmada a estabilidade com exatamente 0 chamadas adicionais de sync ou recriação do gráfico (`chartRecreatedCount = 1`).
+  - Navegação entre telas (Dashboard -> Pedidos -> Dashboard): a instância do gráfico permaneceu intacta e sem recriação (`chartRecreatedCount = 1`).
+- **Teste de Atualização In-Place:**
+  - Ao registrar uma nova venda em tempo real, o gráfico atualizou seu dataset de R$ 210,00 para R$ 460,00 in-place sem recriar o canvas (`chartRecreatedCount = 1`).
+
+---
+
 ## 📌 Versão 4.0.1 — Correção no Registro de Pedidos Online da Vitrine e Filtro de Telemetria de Produtos na Sacola
 **Data:** 11/11/2026  
 **Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless)
