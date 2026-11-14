@@ -274,7 +274,7 @@
       </div>
     </div>
     <div class="flex items-center space-x-1.5 shrink-0">
-      <button onclick="sincronizarComDrive()" title="Sincronizar com Banco Google Drive"
+      <button onclick="sincronizarComDrive()" title="Sincronizar com Banco de Dados Supabase"
         class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 transition active:scale-95">
         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
       </button>
@@ -363,7 +363,7 @@
             do Administrador Master</span>
           <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">Gerenciador Geral de Lojas
           </h2>
-          <p class="text-xs text-slate-500">Crie lojas com banco de dados dedicado no Google Drive e controle acessos
+          <p class="text-xs text-slate-500">Gerencie lojas multi-tenant no Supabase e controle acessos
           </p>
         </div>
         <div class="flex items-center space-x-2 flex-wrap gap-y-2">
@@ -371,12 +371,6 @@
             class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3.5 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 transition">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
             <span>Sincronizar Lojas</span>
-          </button>
-          <button onclick="organizarPastasDriveMaster()"
-            title="Padroniza pastas no Google Drive: APP_CLARA_SISTEMA > [LOJA] > Banco e Imagens"
-            class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3.5 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 transition">
-            <i data-lucide="folder-cog" class="w-3.5 h-3.5"></i>
-            <span>Organizar Pastas no Drive</span>
           </button>
           <button onclick="abrirModalCriarLojaMaster()"
             class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center space-x-2 transition">
@@ -386,7 +380,7 @@
         </div>
       </div>
 
-      <!-- SELETOR DE PROVEDOR DE BANCO DE DADOS (SUPABASE vs GOOGLE DRIVE) -->
+      <!-- STATUS DO BANCO DE DADOS SUPABASE (POSTGRESQL MULTI-TENANT) -->
       <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-3xl p-5 md:p-6 text-white shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center space-x-3">
@@ -395,69 +389,22 @@
             </div>
             <div>
               <div class="flex items-center space-x-2">
-                <h3 class="text-sm font-bold text-white">Motor de Banco de Dados</h3>
-                <span id="badgeProvedorAtivo" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">⚡ Supabase Ativo</span>
+                <h3 class="text-sm font-bold text-white">Banco de Dados em Nuvem (PostgreSQL)</h3>
+                <span id="badgeProvedorAtivo" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">⚡ Supabase Conectado</span>
               </div>
-              <p class="text-[11px] text-slate-300">Escolha onde o sistema armazena e lê os dados das lojas, produtos e vendas.</p>
+              <p class="text-[11px] text-slate-300">Multi-tenant nativo com armazenamento em nuvem de fotos e transações ACID.</p>
             </div>
           </div>
-          <div class="flex items-center space-x-2 bg-slate-800/80 p-1 rounded-2xl border border-slate-700">
-            <button id="btnSelectSupabase" onclick="alternarProvedorBanco('SUPABASE')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-emerald-600 text-white shadow">
-              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-              <span>Supabase (Nuvem)</span>
-            </button>
-            <button id="btnSelectDrive" onclick="alternarProvedorBanco('DRIVE')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-400 hover:text-white">
-              <i data-lucide="folder" class="w-3.5 h-3.5"></i>
-              <span>Google Drive</span>
-            </button>
-          </div>
+          <button onclick="sincronizarComDrive(false)" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white shadow">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Sincronizar Todas as Lojas</span>
+          </button>
         </div>
         <div id="painelInfoSupabase" class="text-xs bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center space-x-2 text-slate-300">
             <i data-lucide="server" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-            <span>Endpoint: <code class="text-emerald-300 font-mono text-[11px]">https://bqdudddefgzzqppzxrbw.supabase.co</code> (PostgreSQL + RLS Multi-Tenant)</span>
+            <span>Endpoint: <code class="text-emerald-300 font-mono text-[11px]">https://bqdudddefgzzqppzxrbw.supabase.co</code> (PostgreSQL + RLS + Storage)</span>
           </div>
-          <button onclick="sincronizarComDrive(false)" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center space-x-1 shrink-0">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span>Sincronizar Agora</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- CARD DE CONEXÃO GOOGLE DRIVE MASTER (DESTAQUE NO PAINEL MASTER) -->
-      <div id="cardConexaoDriveMaster" class="hidden bg-white rounded-3xl p-5 md:p-6 border border-slate-200 shadow-sm space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <i data-lucide="cloud" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <h3 class="text-sm font-bold text-slate-900">Banco de Dados Master no Google Drive</h3>
-                <span id="badgeStatusDriveMaster"
-                  class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">Modo Local
-                  (Demo)</span>
-              </div>
-              <p class="text-[11px] text-slate-500" id="subtextoDriveMaster">Cole a URL do seu Google Apps Script para
-                conectar a planilha Master em nuvem.</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button onclick="desconectarDrive()" id="btnDesconectarDrive"
-              class="text-xs text-rose-500 font-semibold hover:underline hidden">Desconectar</button>
-          </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-2 pt-1">
-          <input type="url" id="inputUrlGoogleScriptMaster"
-            value="https://script.google.com/macros/s/AKfycbxdAsfbyER5B2nsEj9olnnsrn83R7yBfty6fF1RYW6lsahhhfm6cshfx063WXedBYN8cg/exec"
-            placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-            class="flex-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-blue-500">
-          <button onclick="conectarDriveViaMaster()"
-            class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1.5 transition active:scale-95 shadow-sm">
-            <i data-lucide="link" class="w-4 h-4"></i>
-            <span>Conectar Banco Google Drive</span>
-          </button>
         </div>
       </div>
 
@@ -1662,32 +1609,30 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- TELA 9: CONFIGURAÇÕES & GOOGLE DRIVE -->
+    <!-- TELA 9: CONFIGURAÇÕES EM NUVEM (SUPABASE) & BACKUP -->
     <!-- ===================================================================== -->
     <section id="tela-config" class="tela hidden p-4 md:p-8 space-y-6 max-w-5xl mx-auto w-full">
       <div>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Configurações & Google Drive</h2>
-        <p class="text-xs text-slate-500">Conecte o script do Google Apps Script para sincronização em nuvem</p>
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Nuvem & Backup</h2>
+        <p class="text-xs text-slate-500">Status da conexão Supabase (PostgreSQL) e ferramentas de backup</p>
       </div>
 
       <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">URL do Google Apps
-            Script (Web App)</label>
-          <div class="flex items-center space-x-2">
-            <input type="url" id="inputUrlGoogleScript"
-              value="https://script.google.com/macros/s/AKfycbxdAsfbyER5B2nsEj9olnnsrn83R7yBfty6fF1RYW6lsahhhfm6cshfx063WXedBYN8cg/exec"
-              placeholder="https://script.google.com/macros/s/.../exec"
-              class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono">
-            <button onclick="testarEConectarDrive()"
-              class="btn-tema font-bold px-4 py-2.5 rounded-xl text-xs">Conectar</button>
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+            <i data-lucide="cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Banco de Dados Supabase Conectado</h3>
+            <p class="text-xs text-slate-500">Os dados e imagens da loja estão sincronizados com a nuvem do Supabase.</p>
           </div>
         </div>
         <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-          <button onclick="desconectarDrive()" class="text-rose-500 font-semibold hover:underline">Voltar para Modo
-            Demonstração (Local)</button>
-          <button onclick="sincronizarComDrive()" class="text-blue-600 font-semibold hover:underline">Sincronizar
-            Agora</button>
+          <span class="text-slate-500 font-mono text-[11px]">Endpoint: https://bqdudddefgzzqppzxrbw.supabase.co</span>
+          <button onclick="sincronizarComDrive(false)" class="btn-tema font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Sincronizar Dados</span>
+          </button>
         </div>
       </div>
 
@@ -1985,7 +1930,7 @@
           <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-1">1. Controlador dos Dados &
             Isolamento</h4>
           <p>A loja em que o pedido é realizado atua como <b>Controladora</b> dos dados pessoais fornecidos. Cada loja
-            possui um ambiente exclusivo e segregado com banco de dados dedicado no Google Drive, impedindo qualquer
+            possui um ambiente exclusivo e segregado com banco de dados em nuvem no Supabase, impedindo qualquer
             acesso compartilhado ou cruzamento com outras empresas.</p>
         </div>
 
@@ -2054,7 +1999,7 @@
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
         <div>
           <h3 class="text-lg font-bold text-slate-900">Criar Nova Loja</h3>
-          <p class="text-xs text-slate-500">Gera um banco de dados dedicado no Google Drive</p>
+          <p class="text-xs text-slate-500">Cria uma nova loja com isolamento multi-tenant no Supabase</p>
         </div>
         <button onclick="fecharModalCriarLojaMaster()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"
             class="w-5 h-5"></i></button>
@@ -2189,13 +2134,9 @@
         
         <div class="space-y-2 bg-slate-50/70 p-3 rounded-2xl border border-slate-100">
           <div>
-            <span class="text-slate-400 block text-[10px] font-bold uppercase">Planilha Dedicada (Google Drive)</span>
+            <span class="text-slate-400 block text-[10px] font-bold uppercase">Banco de Dados em Nuvem</span>
             <div class="flex items-center justify-between gap-2 mt-0.5">
-              <span id="vLojaSpreadsheetId" class="font-mono text-[11px] text-slate-600 truncate">-</span>
-              <a id="vLojaLinkSheets" href="#" target="_blank" class="hidden shrink-0 text-indigo-600 hover:underline font-bold text-[10px] items-center space-x-1 bg-indigo-50 px-2 py-1 rounded-lg">
-                <i data-lucide="external-link" class="w-3 h-3"></i>
-                <span>Abrir Planilha</span>
-              </a>
+              <span id="vLojaSpreadsheetId" class="font-mono text-[11px] text-slate-600 truncate">PostgreSQL Multi-Tenant (Supabase)</span>
             </div>
           </div>
 
@@ -2808,7 +2749,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- TELA DE AVISO / CARREGAMENTO DE BANCO DE DADOS (GOOGLE DRIVE & NUVEM) -->
+  <!-- TELA DE AVISO / CARREGAMENTO DE BANCO DE DADOS (SUPABASE) -->
   <!-- ========================================================================= -->
   <div id="overlayCarregandoBanco"
     class="fixed inset-0 z-[100] bg-slate-900/75 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
@@ -2827,7 +2768,7 @@
       <!-- Mensagens dinâmicas -->
       <div class="space-y-1">
         <h3 id="txtCarregandoTitulo" class="text-base font-extrabold text-slate-900">Carregando Banco de Dados...</h3>
-        <p id="txtCarregandoSubtitulo" class="text-xs text-slate-500 leading-relaxed">Conectando ao Google Drive e sincronizando as informações. Aguarde um instante.</p>
+        <p id="txtCarregandoSubtitulo" class="text-xs text-slate-500 leading-relaxed">Conectando ao Supabase e sincronizando as informações. Aguarde um instante.</p>
       </div>
 
       <!-- Barra de progresso visual -->
@@ -2841,22 +2782,10 @@
   <!-- JAVASCRIPT GLOBAL DO ECOSSISTEMA -->
   <!-- ========================================================================= -->
   <script>
-    // URL Padrão do Google Apps Script (Sincronização em Nuvem Global)
-    const URL_GOOGLE_SCRIPT_PADRAO = 'https://script.google.com/macros/s/AKfycbxdAsfbyER5B2nsEj9olnnsrn83R7yBfty6fF1RYW6lsahhhfm6cshfx063WXedBYN8cg/exec';
-
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const ESTADO = {
       usuarioLogado: null,
       lojaAtivaId: null,
-      modoDrive: (function () {
-        const salvo = localStorage.getItem('CLARA_URL_GOOGLE_SCRIPT');
-        return salvo !== 'DESCONECTADO';
-      })(),
-      urlGoogleScript: (function () {
-        const salvo = localStorage.getItem('CLARA_URL_GOOGLE_SCRIPT');
-        if (salvo === 'DESCONECTADO') return '';
-        return salvo || URL_GOOGLE_SCRIPT_PADRAO;
-      })(),
       carrinhoPdv: [],
       carrinhoVitrine: [],
       modalidadeEntregaVitrine: 'Retirada',
@@ -2876,100 +2805,87 @@
     };
 
     // =========================================================================
-    // CAMADA DE ADAPTAÇÃO UNIVERSAL DO BANCO DE DADOS (DATABASE ADAPTER)
-    // Permite alternar instantaneamente entre Supabase (PostgreSQL) e Google Drive
+    // CAMADA DE BANCO DE DADOS EM NUVEM (SUPABASE / POSTGRESQL MULTI-TENANT)
+    // Transações ACID Atômicas, Telemetria em Tempo Real e Supabase Storage
     // =========================================================================
     const DatabaseAdapter = {
       SUPABASE_URL: 'https://bqdudddefgzzqppzxrbw.supabase.co',
       SUPABASE_ANON_KEY: 'sb_publishable_FDiz85yrcOf6ijPg6OuRNg_kD-9GU03',
-      supabase: null,
-
-      init() {
-        if (window.supabase && typeof window.supabase.createClient === 'function') {
+      _supabase: null,
+      get supabase() {
+        if (!this._supabase && window.supabase && typeof window.supabase.createClient === 'function') {
           try {
-            this.supabase = window.supabase.createClient(this.SUPABASE_URL, this.SUPABASE_ANON_KEY);
+            this._supabase = window.supabase.createClient(this.SUPABASE_URL, this.SUPABASE_ANON_KEY);
             console.log('⚡ Supabase Client SDK inicializado com sucesso.');
           } catch (e) {
             console.warn('Falha ao inicializar Supabase Client:', e);
           }
         }
+        return this._supabase;
+      },
+      set supabase(val) {
+        this._supabase = val;
+      },
+
+      init() {
+        return this.supabase;
       },
 
       getProvedorAtivo() {
-        const salvo = localStorage.getItem('CLARA_PROVEDOR_BANCO');
-        return salvo || 'SUPABASE';
+        return 'SUPABASE';
       },
 
-      setProvedorAtivo(provedor) {
-        localStorage.setItem('CLARA_PROVEDOR_BANCO', provedor);
-      },
+      setProvedorAtivo(provedor) {},
 
       isSupabase() {
-        if (!this.supabase && window.supabase && typeof window.supabase.createClient === 'function') {
-          this.init();
-        }
-        return this.getProvedorAtivo() === 'SUPABASE' && this.supabase !== null;
+        return this.supabase !== null;
       },
 
-      // 1. AUTENTICAÇÃO SEGURA (RPC POSTGRES OU GAS POST)
+      // 1. AUTENTICAÇÃO SEGURA (RPC POSTGRES SECURITY DEFINER)
       async autenticar(usuario, senha, senhaHash) {
-        if (this.isSupabase()) {
-          const { data, error } = await this.supabase.rpc('autenticar_usuario', {
-            p_usuario: usuario,
-            p_senha: senha || '',
-            p_senha_hash: senhaHash || ''
-          });
-          if (error) throw error;
-          return data;
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'login', usuario, senha, senhaHash })
-          });
-          return await resp.json();
-        }
+        const { data, error } = await this.supabase.rpc('autenticar_usuario', {
+          p_usuario: usuario,
+          p_senha: senha || '',
+          p_senha_hash: senhaHash || ''
+        });
+        if (error) throw error;
+        return data;
       },
 
       // 2. DADOS MASTER DE TODAS AS LOJAS
       async getDadosMaster() {
-        if (this.isSupabase()) {
-          const { data: lojas, error: errLojas } = await this.supabase
-            .from('lojas')
-            .select('*')
-            .order('nome_loja');
-          if (errLojas) throw errLojas;
-          return {
-            status: 'sucesso',
-            dados: lojas.map(l => ({
-              id: l.id,
-              nomeLoja: l.nome_loja,
-              login: l.login,
-              senha: l.senha_hash,
-              nomeResponsavel: l.nome_responsavel,
-              whatsapp: l.whatsapp,
-              status: l.status,
-              dataCriacao: l.created_at
-            }))
-          };
-        } else {
-          const resp = await fetch(`${ESTADO.urlGoogleScript}?acao=getDadosMaster`);
-          return await resp.json();
-        }
+        const { data: lojas, error: errLojas } = await this.supabase
+          .from('lojas')
+          .select('id, nome_loja, login, nome_responsavel, whatsapp, status, created_at')
+          .order('nome_loja');
+        if (errLojas) throw errLojas;
+        return {
+          status: 'sucesso',
+          dados: lojas.map(l => ({
+            id: l.id,
+            nomeLoja: l.nome_loja,
+            login: l.login,
+            senha: '••••••••',
+            nomeResponsavel: l.nome_responsavel,
+            whatsapp: l.whatsapp,
+            status: l.status,
+            dataCriacao: l.created_at
+          }))
+        };
       },
 
       // 3. DADOS COMPLETOS DA LOJA ATIVA
       async getDadosLoja(lojaId) {
-        if (this.isSupabase()) {
-          const [rLoja, rConfig, rProds, rClientes, rVendas, rDespesas] = await Promise.all([
-            this.supabase.from('lojas').select('*').eq('id', lojaId).maybeSingle(),
-            this.supabase.from('configuracoes_loja').select('*').eq('loja_id', lojaId).maybeSingle(),
-            this.supabase.from('produtos').select('*').eq('loja_id', lojaId),
-            this.supabase.from('clientes').select('*').eq('loja_id', lojaId),
-            this.supabase.from('vendas').select('*, itens:itens_venda(*)').eq('loja_id', lojaId).order('created_at', { ascending: false }),
-            this.supabase.from('despesas').select('*').eq('loja_id', lojaId).order('data_despesa', { ascending: false })
-          ]);
+        const [rLoja, rConfig, rProds, rClientes, rVendas, rDespesas] = await Promise.all([
+          this.supabase.from('lojas').select('id, nome_loja, login, nome_responsavel, whatsapp, status, created_at').eq('id', lojaId).maybeSingle(),
+          this.supabase.from('configuracoes_loja').select('*').eq('loja_id', lojaId).maybeSingle(),
+          this.supabase.from('produtos').select('*').eq('loja_id', lojaId),
+          this.supabase.from('clientes').select('*').eq('loja_id', lojaId),
+          this.supabase.from('vendas').select('*, itens:itens_venda(*)').eq('loja_id', lojaId).order('created_at', { ascending: false }),
+          this.supabase.from('despesas').select('*').eq('loja_id', lojaId).order('data_despesa', { ascending: false })
+        ]);
 
-          if (rLoja.error) throw rLoja.error;
+        if (rLoja.error) throw rLoja.error;
 
           const conf = rConfig.data || {};
           const configFormatada = {
@@ -3087,551 +3003,430 @@
             vendas: vendasFormatadas,
             despesas: despesasFormatadas
           };
-        } else {
-          const resp = await fetch(`${ESTADO.urlGoogleScript}?acao=getDadosLoja&lojaId=${encodeURIComponent(lojaId)}`);
-          return await resp.json();
-        }
       },
 
       // 4. VITRINE / E-COMMERCE PÚBLICO
       async getLojaPublica(lojaId) {
-        if (this.isSupabase()) {
-          const [rLoja, rConfig, rProds] = await Promise.all([
-            this.supabase.from('lojas').select('id, nome_loja, status, whatsapp').eq('id', lojaId).maybeSingle(),
-            this.supabase.from('configuracoes_loja').select('*').eq('loja_id', lojaId).maybeSingle(),
-            this.supabase.from('produtos').select('*').eq('loja_id', lojaId).eq('visivel_online', true)
-          ]);
+        const [rLoja, rConfig, rProds] = await Promise.all([
+          this.supabase.from('lojas').select('id, nome_loja, status, whatsapp').eq('id', lojaId).maybeSingle(),
+          this.supabase.from('configuracoes_loja').select('*').eq('loja_id', lojaId).maybeSingle(),
+          this.supabase.from('produtos').select('*').eq('loja_id', lojaId).eq('visivel_online', true)
+        ]);
 
-          if (!rLoja.data || rLoja.data.status === 'Bloqueada') {
-            return { status: 'erro', mensagem: 'Loja não encontrada ou inativa.' };
-          }
-
-          const conf = rConfig.data || {};
-          const prods = (rProds.data || []).map(p => ({
-            id: p.id,
-            nome: p.nome,
-            variacao: p.variacao || '',
-            categoria: p.categoria || 'Geral',
-            precoVenda: Number(p.preco_venda) || 0,
-            estoqueAtual: Number(p.estoque_atual) || 0,
-            fotoUrl: p.foto_url || '',
-            visivelOnline: true,
-            emPromocao: !!p.em_promocao,
-            precoPromocional: Number(p.preco_promocional) || 0,
-            destaque: !!p.destaque,
-            descricao: p.descricao || '',
-            somenteAVista: !!p.somente_a_vista,
-            tipoItem: (p.tipo_item === 'Serviço' || p.tipo_item === 'SERVICO') ? 'SERVICO' : 'PRODUTO',
-            condicaoPeca: p.condicao_peca || '',
-            medidas: p.medidas || '',
-            pecaUnica: !!p.peca_unica
-          }));
-
-          return {
-            status: 'sucesso',
-            loja: {
-              id: rLoja.data.id,
-              nomeLoja: rLoja.data.nome_loja,
-              whatsapp: rLoja.data.whatsapp || conf.whatsapp || '',
-              slogan: conf.slogan || '',
-              corPrimaria: conf.cor_primaria || '#2563EB',
-              corDestaque: conf.cor_destaque || '#EF4444',
-              corMenu: conf.cor_menu || '#0F172A',
-              corFundo: conf.cor_fundo || '#F8FAFC',
-              bannerAtivo: !!conf.banner_ativo,
-              bannerTexto: conf.banner_texto || '',
-              logoUrl: conf.logo_url || '',
-              chavePix: conf.chave_pix || '',
-              permiteDelivery: conf.permite_delivery !== false,
-              taxaEntrega: Number(conf.taxa_entrega) || 0,
-              modeloParcelamento: conf.modelo_parcelamento || 'MODELO_1',
-              valorMinimoParcela: Number(conf.valor_minimo_parcela) || 50,
-              maxParcelas: conf.max_parcelas_geral || 6,
-              faixas: conf.tabela_faixas_json || [],
-              produtos: prods
-            }
-          };
-        } else {
-          const resp = await fetch(`${ESTADO.urlGoogleScript}?acao=getLojaPublica&lojaId=${encodeURIComponent(lojaId)}`);
-          return await resp.json();
+        if (!rLoja.data || rLoja.data.status === 'Bloqueada') {
+          return { status: 'erro', mensagem: 'Loja não encontrada ou inativa.' };
         }
+
+        const conf = rConfig.data || {};
+        const prods = (rProds.data || []).map(p => ({
+          id: p.id,
+          nome: p.nome,
+          variacao: p.variacao || '',
+          categoria: p.categoria || 'Geral',
+          precoVenda: Number(p.preco_venda) || 0,
+          estoqueAtual: Number(p.estoque_atual) || 0,
+          fotoUrl: p.foto_url || '',
+          visivelOnline: true,
+          emPromocao: !!p.em_promocao,
+          precoPromocional: Number(p.preco_promocional) || 0,
+          destaque: !!p.destaque,
+          descricao: p.descricao || '',
+          somenteAVista: !!p.somente_a_vista,
+          tipoItem: (p.tipo_item === 'Serviço' || p.tipo_item === 'SERVICO') ? 'SERVICO' : 'PRODUTO',
+          condicaoPeca: p.condicao_peca || '',
+          medidas: p.medidas || '',
+          pecaUnica: !!p.peca_unica
+        }));
+
+        return {
+          status: 'sucesso',
+          loja: {
+            id: rLoja.data.id,
+            nomeLoja: rLoja.data.nome_loja,
+            whatsapp: rLoja.data.whatsapp || conf.whatsapp || '',
+            slogan: conf.slogan || '',
+            corPrimaria: conf.cor_primaria || '#2563EB',
+            corDestaque: conf.cor_destaque || '#EF4444',
+            corMenu: conf.cor_menu || '#0F172A',
+            corFundo: conf.cor_fundo || '#F8FAFC',
+            bannerAtivo: !!conf.banner_ativo,
+            bannerTexto: conf.banner_texto || '',
+            logoUrl: conf.logo_url || '',
+            chavePix: conf.chave_pix || '',
+            permiteDelivery: conf.permite_delivery !== false,
+            taxaEntrega: Number(conf.taxa_entrega) || 0,
+            modeloParcelamento: conf.modelo_parcelamento || 'MODELO_1',
+            valorMinimoParcela: Number(conf.valor_minimo_parcela) || 50,
+            maxParcelas: conf.max_parcelas_geral || 6,
+            faixas: conf.tabela_faixas_json || [],
+            produtos: prods
+          }
+        };
       },
 
-      // 5. PRODUTOS (SALVAR COM UPLOAD PARA STORAGE)
+      // 5. PRODUTOS (SALVAR COM UPLOAD PARA SUPABASE STORAGE)
       async salvarProduto(lojaId, p) {
-        if (this.isSupabase()) {
-          let fotoUrl = p.fotoUrl || '';
-          if (p.fotoBase64) {
-            fotoUrl = await this.uploadBase64('produtos', `${p.id || Date.now()}.jpg`, p.fotoBase64);
-          }
-          const tipoItemNorm = (p.tipoItem === 'SERVICO' || p.tipoItem === 'Serviço') ? 'Serviço' : 'Produto Físico';
-          const payload = {
-            id: p.id,
-            loja_id: lojaId,
-            nome: p.nome,
-            variacao: p.variacao || '',
-            codigo_barras: p.codigoBarras || '',
-            categoria: p.categoria || 'Geral',
-            preco_custo: Number(p.precoCusto) || 0,
-            margem_percentual: Number(p.margemPercentual) || 0,
-            preco_venda: Number(p.precoVenda) || 0,
-            estoque_atual: Number(p.estoqueAtual) || 0,
-            estoque_minimo: Number(p.estoqueMinimo) || 2,
-            foto_url: fotoUrl,
-            visivel_online: p.visivelOnline !== false,
-            em_promocao: !!p.emPromocao,
-            preco_promocional: Number(p.precoPromocional) || 0,
-            destaque: !!p.destaque,
-            descricao: p.descricao || '',
-            somente_a_vista: !!p.somenteAVista,
-            tipo_item: tipoItemNorm,
-            data_validade: (p.dataValidade && p.dataValidade.trim()) ? p.dataValidade : null,
-            condicao_peca: p.condicaoPeca || 'Não aplicável / Novo',
-            medidas: p.medidas || '',
-            peca_unica: !!p.pecaUnica,
-            consignante_nome: p.consignanteNome || '',
-            consignante_comissao: Number(p.consignanteComissao) || 0
-          };
-          const { error } = await this.supabase.from('produtos').upsert(payload);
-          if (error) throw error;
-          return { status: 'sucesso', id: p.id, fotoUrl };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'salvarProduto', lojaId, produto: p })
-          });
-          return await resp.json();
+        let fotoUrl = p.fotoUrl || '';
+        if (p.fotoBase64) {
+          fotoUrl = await this.uploadBase64('produtos', `${p.id || Date.now()}.jpg`, p.fotoBase64);
         }
+        const tipoItemNorm = (p.tipoItem === 'SERVICO' || p.tipoItem === 'Serviço') ? 'Serviço' : 'Produto Físico';
+        const payload = {
+          id: p.id,
+          loja_id: lojaId,
+          nome: p.nome,
+          variacao: p.variacao || '',
+          codigo_barras: p.codigoBarras || '',
+          categoria: p.categoria || 'Geral',
+          preco_custo: Number(p.precoCusto) || 0,
+          margem_percentual: Number(p.margemPercentual) || 0,
+          preco_venda: Number(p.precoVenda) || 0,
+          estoque_atual: Number(p.estoqueAtual) || 0,
+          estoque_minimo: Number(p.estoqueMinimo) || 2,
+          foto_url: fotoUrl,
+          visivel_online: p.visivelOnline !== false,
+          em_promocao: !!p.emPromocao,
+          preco_promocional: Number(p.precoPromocional) || 0,
+          destaque: !!p.destaque,
+          descricao: p.descricao || '',
+          somente_a_vista: !!p.somenteAVista,
+          tipo_item: tipoItemNorm,
+          data_validade: (p.dataValidade && p.dataValidade.trim()) ? p.dataValidade : null,
+          condicao_peca: p.condicaoPeca || 'Não aplicável / Novo',
+          medidas: p.medidas || '',
+          peca_unica: !!p.pecaUnica,
+          consignante_nome: p.consignanteNome || '',
+          consignante_comissao: Number(p.consignanteComissao) || 0
+        };
+        const { error } = await this.supabase.from('produtos').upsert(payload);
+        if (error) throw error;
+        return { status: 'sucesso', id: p.id, fotoUrl };
       },
 
       // 6. EXCLUIR PRODUTO
       async excluirProduto(lojaId, id) {
-        if (this.isSupabase()) {
-          const { error } = await this.supabase.from('produtos').delete().eq('loja_id', lojaId).eq('id', id);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'excluirProduto', lojaId, id })
-          });
-          return await resp.json();
-        }
+        const { error } = await this.supabase.from('produtos').delete().eq('loja_id', lojaId).eq('id', id);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       // 7. REGISTRAR VENDA ATÔMICA (RPC TRANSACIONAL COM BAIXA DE ESTOQUE OU PEDIDO ONLINE PENDENTE)
       async registrarVenda(lojaId, v) {
-        if (this.isSupabase()) {
-          let statusPedidoNorm = 'Aprovado';
-          if (v.status === 'Aguardando Aprovação' || v.status === 'Pendente' || v.status_pedido === 'Pendente' || v.status_pedido === 'Aguardando Aprovação' || v.tipo === 'PEDIDO_ONLINE' || v.origem === 'Loja Online') {
-            statusPedidoNorm = 'Pendente';
-          } else if (v.status === 'Finalizado' || v.status === 'Aprovado' || v.status === 'Atendido' || v.status_pedido === 'Aprovado') {
-            statusPedidoNorm = 'Aprovado';
-          } else if (v.status === 'Cancelada' || v.status === 'Cancelado' || v.status_pedido === 'Cancelada') {
-            statusPedidoNorm = 'Cancelada';
-          } else if (v.status === 'Entregue' || v.status_pedido === 'Entregue') {
-            statusPedidoNorm = 'Entregue';
-          } else if (v.status === 'Orçamento' || v.status_pedido === 'Orçamento') {
-            statusPedidoNorm = 'Orçamento';
-          }
+        let statusPedidoNorm = 'Aprovado';
+        if (v.status === 'Aguardando Aprovação' || v.status === 'Pendente' || v.status_pedido === 'Pendente' || v.status_pedido === 'Aguardando Aprovação' || v.tipo === 'PEDIDO_ONLINE' || v.origem === 'Loja Online') {
+          statusPedidoNorm = 'Pendente';
+        } else if (v.status === 'Finalizado' || v.status === 'Aprovado' || v.status === 'Atendido' || v.status_pedido === 'Aprovado') {
+          statusPedidoNorm = 'Aprovado';
+        } else if (v.status === 'Cancelada' || v.status === 'Cancelado' || v.status_pedido === 'Cancelada') {
+          statusPedidoNorm = 'Cancelada';
+        } else if (v.status === 'Entregue' || v.status_pedido === 'Entregue') {
+          statusPedidoNorm = 'Entregue';
+        } else if (v.status === 'Orçamento' || v.status_pedido === 'Orçamento') {
+          statusPedidoNorm = 'Orçamento';
+        }
 
-          // Sanitiza cliente_id para garantir integridade referencial com a tabela clientes
-          let clienteIdNorm = null;
-          if (v.clienteId && typeof v.clienteId === 'string') {
-            const cTrim = v.clienteId.trim();
-            if (cTrim && !cTrim.toUpperCase().includes('AVULSO') && cTrim !== 'null' && cTrim !== 'undefined') {
-              const dbRef = getDB();
-              const lojaRef = (dbRef.lojas || []).find(l => l.id === lojaId);
-              if (lojaRef && (lojaRef.clientes || []).some(cli => cli.id === cTrim)) {
-                clienteIdNorm = cTrim;
-              }
+        // Sanitiza cliente_id para garantir integridade referencial com a tabela clientes
+        let clienteIdNorm = null;
+        if (v.clienteId && typeof v.clienteId === 'string') {
+          const cTrim = v.clienteId.trim();
+          if (cTrim && !cTrim.toUpperCase().includes('AVULSO') && cTrim !== 'null' && cTrim !== 'undefined') {
+            const dbRef = getDB();
+            const lojaRef = (dbRef.lojas || []).find(l => l.id === lojaId);
+            if (lojaRef && (lojaRef.clientes || []).some(cli => cli.id === cTrim)) {
+              clienteIdNorm = cTrim;
             }
           }
+        }
 
-          const vendaPayload = {
-            id: v.id,
-            loja_id: lojaId,
-            tipo: v.tipo || (statusPedidoNorm === 'Pendente' ? 'PEDIDO_ONLINE' : 'Venda PDV'),
-            origem: v.origem || (statusPedidoNorm === 'Pendente' ? 'Loja Online' : 'PDV'),
-            cliente_id: clienteIdNorm,
-            cliente_nome: v.clienteNome || 'Cliente Balcão',
-            cliente_telefone: v.clienteTelefone || '',
-            total_bruto: Number(v.totalBruto) || 0,
-            taxa_entrega: Number(v.taxaEntrega) || 0,
-            desconto: Number(v.desconto) || 0,
-            total_liquido: Number(v.totalLiquido) || 0,
-            lucro_total: Number(v.lucroTotal) || 0,
-            forma_pagamento: v.formaPagamento || 'Dinheiro',
-            condicao_pagamento: v.condicaoPagamento || 'A Vista',
-            parcelas: Number(v.parcelas) || 1,
-            valor_parcela: Number(v.valorParcela) || 0,
-            status_financeiro: v.statusFinanceiro || (statusPedidoNorm === 'Pendente' ? 'Pendente' : 'Pago'),
-            valor_pago: Number(v.valorPago) || 0,
-            saldo_devedor: Number(v.saldoDevedor) !== undefined ? Number(v.saldoDevedor) : (Number(v.totalLiquido) || 0),
-            status_pedido: statusPedidoNorm,
-            modalidade_entrega: v.modalidadeEntrega || 'Retirada',
-            endereco_entrega: v.enderecoEntrega || '',
-            observacoes: v.observacoes || '',
-            data_vencimento: (v.dataVencimento && v.dataVencimento.trim()) ? v.dataVencimento : null,
-            profissional: v.profissional || ''
-          };
+        const vendaPayload = {
+          id: v.id,
+          loja_id: lojaId,
+          tipo: v.tipo || (statusPedidoNorm === 'Pendente' ? 'PEDIDO_ONLINE' : 'Venda PDV'),
+          origem: v.origem || (statusPedidoNorm === 'Pendente' ? 'Loja Online' : 'PDV'),
+          cliente_id: clienteIdNorm,
+          cliente_nome: v.clienteNome || 'Cliente Balcão',
+          cliente_telefone: v.clienteTelefone || '',
+          total_bruto: Number(v.totalBruto) || 0,
+          taxa_entrega: Number(v.taxaEntrega) || 0,
+          desconto: Number(v.desconto) || 0,
+          total_liquido: Number(v.totalLiquido) || 0,
+          lucro_total: Number(v.lucroTotal) || 0,
+          forma_pagamento: v.formaPagamento || 'Dinheiro',
+          condicao_pagamento: v.condicaoPagamento || 'A Vista',
+          parcelas: Number(v.parcelas) || 1,
+          valor_parcela: Number(v.valorParcela) || 0,
+          status_financeiro: v.statusFinanceiro || (statusPedidoNorm === 'Pendente' ? 'Pendente' : 'Pago'),
+          valor_pago: Number(v.valorPago) || 0,
+          saldo_devedor: Number(v.saldoDevedor) !== undefined ? Number(v.saldoDevedor) : (Number(v.totalLiquido) || 0),
+          status_pedido: statusPedidoNorm,
+          modalidade_entrega: v.modalidadeEntrega || 'Retirada',
+          endereco_entrega: v.enderecoEntrega || '',
+          observacoes: v.observacoes || '',
+          data_vencimento: (v.dataVencimento && v.dataVencimento.trim()) ? v.dataVencimento : null,
+          profissional: v.profissional || ''
+        };
 
-          const itensPayload = (v.itens || []).map(it => ({
-            id_item: it.id || ('ITM-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4)),
-            venda_id: v.id,
-            loja_id: lojaId,
-            produto_id: it.produtoId || null,
-            produto_nome: it.nome || 'Item',
-            variacao: it.variacao || '',
-            quantidade: Number(it.quantidade) || 1,
-            preco_custo_unitario: Number(it.precoCustoUnitario) || 0,
-            preco_original: Number(it.precoOriginal || it.precoCheioUnitario || it.precoVendaUnitario) || 0,
-            desconto_unitario: Number(it.descontoUnitario) || 0,
-            preco_venda_unitario: Number(it.precoVendaUnitario) || 0,
-            subtotal: Number(it.subtotal) || 0,
-            lucro_item: Number(it.lucroItem) || 0
-          }));
+        const itensPayload = (v.itens || []).map(it => ({
+          id_item: it.id || ('ITM-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4)),
+          venda_id: v.id,
+          loja_id: lojaId,
+          produto_id: it.produtoId || null,
+          produto_nome: it.nome || 'Item',
+          variacao: it.variacao || '',
+          quantidade: Number(it.quantidade) || 1,
+          preco_custo_unitario: Number(it.precoCustoUnitario) || 0,
+          preco_original: Number(it.precoOriginal || it.precoCheioUnitario || it.precoVendaUnitario) || 0,
+          desconto_unitario: Number(it.descontoUnitario) || 0,
+          preco_venda_unitario: Number(it.precoVendaUnitario) || 0,
+          subtotal: Number(it.subtotal) || 0,
+          lucro_item: Number(it.lucroItem) || 0
+        }));
 
-          // Se for pedido online pendente de aprovação, insere direto sem abater o estoque físico antes do lojista aprovar
-          if (statusPedidoNorm === 'Pendente') {
-            const { error: errVenda } = await this.supabase
-              .from('vendas')
-              .insert([vendaPayload]);
-            if (errVenda) throw errVenda;
+        // Se for pedido online pendente de aprovação, insere direto sem abater o estoque físico antes do lojista aprovar
+        if (statusPedidoNorm === 'Pendente') {
+          const { error: errVenda } = await this.supabase
+            .from('vendas')
+            .insert([vendaPayload]);
+          if (errVenda) throw errVenda;
 
-            if (itensPayload.length > 0) {
-              const { error: errItens } = await this.supabase
-                .from('itens_venda')
-                .insert(itensPayload);
-              if (errItens) throw errItens;
-            }
-            return { status: 'sucesso', id: v.id };
-          } else {
-            // Venda PDV ou Aprovada: insere e baixa estoque atomicamente via procedure
-            const { data, error } = await this.supabase.rpc('registrar_venda_completa', {
-              p_venda: vendaPayload,
-              p_itens: itensPayload
-            });
-            if (error) throw error;
-            return data;
+          if (itensPayload.length > 0) {
+            const { error: errItens } = await this.supabase
+              .from('itens_venda')
+              .insert(itensPayload);
+            if (errItens) throw errItens;
           }
+          return { status: 'sucesso', id: v.id };
         } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'registrarVenda', lojaId, venda: v })
+          // Venda PDV ou Aprovada: insere e baixa estoque atomicamente via procedure
+          const { data, error } = await this.supabase.rpc('registrar_venda_completa', {
+            p_venda: vendaPayload,
+            p_itens: itensPayload
           });
-          return await resp.json();
+          if (error) throw error;
+          return data;
         }
       },
 
       // 8. CANCELAR VENDA COM ESTORNO AUTOMÁTICO DE ESTOQUE
       async cancelarVenda(lojaId, vendaId, motivo) {
-        if (this.isSupabase()) {
-          const { data: vAtual } = await this.supabase
-            .from('vendas')
-            .select('status_pedido')
-            .eq('loja_id', lojaId)
-            .eq('id', vendaId)
-            .maybeSingle();
+        const { data: vAtual } = await this.supabase
+          .from('vendas')
+          .select('status_pedido')
+          .eq('loja_id', lojaId)
+          .eq('id', vendaId)
+          .maybeSingle();
 
-          const eraAprovada = vAtual && (vAtual.status_pedido === 'Aprovado' || vAtual.status_pedido === 'Finalizado');
+        const eraAprovada = vAtual && (vAtual.status_pedido === 'Aprovado' || vAtual.status_pedido === 'Finalizado');
 
-          if (eraAprovada) {
-            const { data, error } = await this.supabase.rpc('cancelar_venda_completa', {
-              p_loja_id: lojaId,
-              p_venda_id: vendaId,
-              p_motivo: motivo || 'Cancelada pelo lojista'
-            });
-            if (error) throw error;
-            return data;
-          } else {
-            const { error } = await this.supabase
-              .from('vendas')
-              .update({
-                status_pedido: 'Cancelada',
-                status_financeiro: 'Cancelada',
-                motivo_cancelamento: motivo || 'Cancelada pelo lojista'
-              })
-              .eq('loja_id', lojaId)
-              .eq('id', vendaId);
-            if (error) throw error;
-            return { status: 'sucesso' };
-          }
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'cancelarVenda', lojaId, vendaId, motivo })
+        if (eraAprovada) {
+          const { data, error } = await this.supabase.rpc('cancelar_venda_completa', {
+            p_loja_id: lojaId,
+            p_venda_id: vendaId,
+            p_motivo: motivo || 'Cancelada pelo lojista'
           });
-          return await resp.json();
+          if (error) throw error;
+          return data;
+        } else {
+          const { error } = await this.supabase
+            .from('vendas')
+            .update({
+              status_pedido: 'Cancelada',
+              status_financeiro: 'Cancelada',
+              motivo_cancelamento: motivo || 'Cancelada pelo lojista'
+            })
+            .eq('loja_id', lojaId)
+            .eq('id', vendaId);
+          if (error) throw error;
+          return { status: 'sucesso' };
         }
       },
 
       // 9. ATUALIZAR STATUS DE PEDIDO
       async atualizarStatusPedido(lojaId, pedidoId, novoStatus, itens = null) {
-        if (this.isSupabase()) {
-          const statusNorm = (novoStatus === 'Finalizado' || novoStatus === 'Aprovado' ? 'Aprovado' : (novoStatus === 'Aguardando Aprovação' ? 'Pendente' : novoStatus));
+        const statusNorm = (novoStatus === 'Finalizado' || novoStatus === 'Aprovado' ? 'Aprovado' : (novoStatus === 'Aguardando Aprovação' ? 'Pendente' : novoStatus));
 
-          // Ao aprovar o pedido online, baixa os itens do estoque físico no Supabase
-          if (statusNorm === 'Aprovado') {
-            let listaItens = itens;
-            if (!listaItens || listaItens.length === 0) {
-              const { data: itensDb } = await this.supabase
-                .from('itens_venda')
-                .select('produto_id, quantidade')
+        // Ao aprovar o pedido online, baixa os itens do estoque físico no Supabase
+        if (statusNorm === 'Aprovado') {
+          let listaItens = itens;
+          if (!listaItens || listaItens.length === 0) {
+            const { data: itensDb } = await this.supabase
+              .from('itens_venda')
+              .select('produto_id, quantidade')
+              .eq('loja_id', lojaId)
+              .eq('venda_id', pedidoId);
+            listaItens = itensDb || [];
+          }
+
+          for (const it of (listaItens || [])) {
+            const prodId = it.produto_id || it.produtoId;
+            const qtd = Number(it.quantidade) || 1;
+            if (prodId) {
+              const { data: prod } = await this.supabase
+                .from('produtos')
+                .select('estoque_atual')
+                .eq('id', prodId)
                 .eq('loja_id', lojaId)
-                .eq('venda_id', pedidoId);
-              listaItens = itensDb || [];
-            }
+                .maybeSingle();
 
-            for (const it of (listaItens || [])) {
-              const prodId = it.produto_id || it.produtoId;
-              const qtd = Number(it.quantidade) || 1;
-              if (prodId) {
-                const { data: prod } = await this.supabase
+              if (prod) {
+                const novoEstoque = Math.max(0, (Number(prod.estoque_atual) || 0) - qtd);
+                await this.supabase
                   .from('produtos')
-                  .select('estoque_atual')
+                  .update({ estoque_atual: novoEstoque })
                   .eq('id', prodId)
-                  .eq('loja_id', lojaId)
-                  .maybeSingle();
-
-                if (prod) {
-                  const novoEstoque = Math.max(0, (Number(prod.estoque_atual) || 0) - qtd);
-                  await this.supabase
-                    .from('produtos')
-                    .update({ estoque_atual: novoEstoque })
-                    .eq('id', prodId)
-                    .eq('loja_id', lojaId);
-                }
+                  .eq('loja_id', lojaId);
               }
             }
           }
-
-          const { error } = await this.supabase
-            .from('vendas')
-            .update({ status_pedido: statusNorm })
-            .eq('loja_id', lojaId)
-            .eq('id', pedidoId);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'atualizarStatusPedido', lojaId, pedidoId, novoStatus })
-          });
-          return await resp.json();
         }
+
+        const { error } = await this.supabase
+          .from('vendas')
+          .update({ status_pedido: statusNorm })
+          .eq('loja_id', lojaId)
+          .eq('id', pedidoId);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       // 10. BAIXA DE RECEBIMENTO
       async registrarRecebimento(lojaId, vendaId, valorRecebido, formaPagamento) {
-        if (this.isSupabase()) {
-          const { data: v, error: errV } = await this.supabase
-            .from('vendas')
-            .select('*')
-            .eq('loja_id', lojaId)
-            .eq('id', vendaId)
-            .single();
-          if (errV) throw errV;
-          const novoPago = (Number(v.valor_pago) || 0) + Number(valorRecebido);
-          const novoSaldo = Math.max(0, (Number(v.total_liquido) || 0) - novoPago);
-          const novoStatusFin = novoSaldo <= 0 ? 'Pago' : 'Parcial';
-          const { error: errUp } = await this.supabase.from('vendas').update({
-            valor_pago: novoPago,
-            saldo_devedor: novoSaldo,
-            status_financeiro: novoStatusFin
-          }).eq('loja_id', lojaId).eq('id', vendaId);
-          if (errUp) throw errUp;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'registrarRecebimento', lojaId, vendaId, valorRecebido, formaPagamento })
-          });
-          return await resp.json();
-        }
+        const { data: v, error: errV } = await this.supabase
+          .from('vendas')
+          .select('*')
+          .eq('loja_id', lojaId)
+          .eq('id', vendaId)
+          .single();
+        if (errV) throw errV;
+        const novoPago = (Number(v.valor_pago) || 0) + Number(valorRecebido);
+        const novoSaldo = Math.max(0, (Number(v.total_liquido) || 0) - novoPago);
+        const novoStatusFin = novoSaldo <= 0 ? 'Pago' : 'Parcial';
+        const { error: errUp } = await this.supabase.from('vendas').update({
+          valor_pago: novoPago,
+          saldo_devedor: novoSaldo,
+          status_financeiro: novoStatusFin
+        }).eq('loja_id', lojaId).eq('id', vendaId);
+        if (errUp) throw errUp;
+        return { status: 'sucesso' };
       },
 
       // 11. CLIENTES
       async salvarCliente(lojaId, c) {
-        if (this.isSupabase()) {
-          const payload = {
-            id: c.id,
-            loja_id: lojaId,
-            nome: c.nome,
-            telefone: c.telefone || '',
-            endereco: c.endereco || '',
-            documento: c.documento || '',
-            observacoes: c.observacoes || ''
-          };
-          const { error } = await this.supabase.from('clientes').upsert(payload);
-          if (error) throw error;
-          return { status: 'sucesso', id: c.id };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'salvarCliente', lojaId, cliente: c })
-          });
-          return await resp.json();
-        }
+        const payload = {
+          id: c.id,
+          loja_id: lojaId,
+          nome: c.nome,
+          telefone: c.telefone || '',
+          endereco: c.endereco || '',
+          documento: c.documento || '',
+          observacoes: c.observacoes || ''
+        };
+        const { error } = await this.supabase.from('clientes').upsert(payload);
+        if (error) throw error;
+        return { status: 'sucesso', id: c.id };
       },
 
       async excluirCliente(lojaId, id) {
-        if (this.isSupabase()) {
-          const { error } = await this.supabase.from('clientes').delete().eq('loja_id', lojaId).eq('id', id);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'excluirCliente', lojaId, id })
-          });
-          return await resp.json();
-        }
+        const { error } = await this.supabase.from('clientes').delete().eq('loja_id', lojaId).eq('id', id);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       // 12. DESPESAS
       async salvarDespesa(lojaId, d) {
-        if (this.isSupabase()) {
-          const payload = {
-            id: d.id,
-            loja_id: lojaId,
-            descricao: d.descricao,
-            categoria: d.categoria,
-            valor: Number(d.valor) || 0,
-            data_despesa: d.data || new Date().toISOString().split('T')[0],
-            observacoes: d.observacoes || ''
-          };
-          const { error } = await this.supabase.from('despesas').upsert(payload);
-          if (error) throw error;
-          return { status: 'sucesso', id: d.id };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'salvarDespesa', lojaId, despesa: d })
-          });
-          return await resp.json();
-        }
+        const payload = {
+          id: d.id,
+          loja_id: lojaId,
+          descricao: d.descricao,
+          categoria: d.categoria,
+          valor: Number(d.valor) || 0,
+          data_despesa: d.data || new Date().toISOString().split('T')[0],
+          observacoes: d.observacoes || ''
+        };
+        const { error } = await this.supabase.from('despesas').upsert(payload);
+        if (error) throw error;
+        return { status: 'sucesso', id: d.id };
       },
 
       async excluirDespesa(lojaId, id) {
-        if (this.isSupabase()) {
-          const { error } = await this.supabase.from('despesas').delete().eq('loja_id', lojaId).eq('id', id);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'excluirDespesa', lojaId, id })
-          });
-          return await resp.json();
-        }
+        const { error } = await this.supabase.from('despesas').delete().eq('loja_id', lojaId).eq('id', id);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       // 13. CONFIGURAÇÕES DA LOJA
       async salvarConfiguracoesLoja(lojaId, cfg) {
-        if (this.isSupabase()) {
-          let logoUrl = cfg.logoUrl || '';
-          if (cfg.logoBase64) {
-            logoUrl = await this.uploadBase64('logos', `${lojaId}.jpg`, cfg.logoBase64);
-          }
-          const payload = {
-            loja_id: lojaId,
-            slogan: cfg.slogan || '',
-            cor_primaria: cfg.corPrimaria || '#2563EB',
-            cor_destaque: cfg.corDestaque || '#EF4444',
-            cor_menu: cfg.corMenu || '#0F172A',
-            cor_fundo: cfg.corFundo || '#F8FAFC',
-            banner_ativo: !!cfg.bannerAtivo,
-            banner_texto: cfg.bannerTexto || '',
-            logo_url: logoUrl,
-            chave_pix: cfg.chavePix || '',
-            permite_delivery: cfg.permiteDelivery !== false,
-            taxa_entrega: Number(cfg.taxaEntrega) || 0,
-            modelo_parcelamento: cfg.modeloParcelamento || 'MODELO_1',
-            valor_minimo_parcela: Number(cfg.valorMinimoParcela) || 50,
-            max_parcelas_geral: Number(cfg.maxParcelas) || 6,
-            tabela_faixas_json: cfg.faixas || []
-          };
-          const { error } = await this.supabase.from('configuracoes_loja').upsert(payload);
-          if (error) throw error;
-          return { status: 'sucesso', logoUrl };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'salvarConfiguracaoLoja', lojaId, config: cfg })
-          });
-          return await resp.json();
+        let logoUrl = cfg.logoUrl || '';
+        if (cfg.logoBase64) {
+          logoUrl = await this.uploadBase64('logos', `${lojaId}.jpg`, cfg.logoBase64);
         }
+        const payload = {
+          loja_id: lojaId,
+          slogan: cfg.slogan || '',
+          cor_primaria: cfg.corPrimaria || '#2563EB',
+          cor_destaque: cfg.corDestaque || '#EF4444',
+          cor_menu: cfg.corMenu || '#0F172A',
+          cor_fundo: cfg.corFundo || '#F8FAFC',
+          banner_ativo: !!cfg.bannerAtivo,
+          banner_texto: cfg.bannerTexto || '',
+          logo_url: logoUrl,
+          chave_pix: cfg.chavePix || '',
+          permite_delivery: cfg.permiteDelivery !== false,
+          taxa_entrega: Number(cfg.taxaEntrega) || 0,
+          modelo_parcelamento: cfg.modeloParcelamento || 'MODELO_1',
+          valor_minimo_parcela: Number(cfg.valorMinimoParcela) || 50,
+          max_parcelas_geral: Number(cfg.maxParcelas) || 6,
+          tabela_faixas_json: cfg.faixas || []
+        };
+        const { error } = await this.supabase.from('configuracoes_loja').upsert(payload);
+        if (error) throw error;
+        return { status: 'sucesso', logoUrl };
       },
 
       // 14. AÇÕES MASTER
       async criarLoja(dadosLoja) {
-        if (this.isSupabase()) {
-          const lojaId = dadosLoja.id || ('LOJA-' + Math.floor(100000 + Math.random() * 900000));
-          const { error: errL } = await this.supabase.from('lojas').insert({
-            id: lojaId,
-            nome_loja: dadosLoja.nomeLoja,
-            login: dadosLoja.login,
-            senha_hash: dadosLoja.senha,
-            nome_responsavel: dadosLoja.nomeResponsavel || '',
-            whatsapp: dadosLoja.whatsapp || '',
-            status: dadosLoja.status || 'Ativa'
-          });
-          if (errL) throw errL;
+        const lojaId = dadosLoja.id || ('LOJA-' + Math.floor(100000 + Math.random() * 900000));
+        const { error: errL } = await this.supabase.from('lojas').insert({
+          id: lojaId,
+          nome_loja: dadosLoja.nomeLoja,
+          login: dadosLoja.login,
+          senha_hash: dadosLoja.senha,
+          nome_responsavel: dadosLoja.nomeResponsavel || '',
+          whatsapp: dadosLoja.whatsapp || '',
+          status: dadosLoja.status || 'Ativa'
+        });
+        if (errL) throw errL;
 
-          await this.supabase.from('configuracoes_loja').insert({
-            loja_id: lojaId,
-            slogan: dadosLoja.slogan || 'Os melhores produtos com as melhores condições',
-            cor_primaria: dadosLoja.corPrimaria || '#2563EB',
-            cor_destaque: dadosLoja.corDestaque || '#EF4444',
-            cor_menu: dadosLoja.corMenu || '#0F172A',
-            cor_fundo: dadosLoja.corFundo || '#F8FAFC'
-          });
+        await this.supabase.from('configuracoes_loja').insert({
+          loja_id: lojaId,
+          slogan: dadosLoja.slogan || 'Os melhores produtos com as melhores condições',
+          cor_primaria: dadosLoja.corPrimaria || '#2563EB',
+          cor_destaque: dadosLoja.corDestaque || '#EF4444',
+          cor_menu: dadosLoja.corMenu || '#0F172A',
+          cor_fundo: dadosLoja.corFundo || '#F8FAFC'
+        });
 
-          return { status: 'sucesso', lojaId };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'criarLoja', dadosLoja })
-          });
-          return await resp.json();
-        }
+        return { status: 'sucesso', lojaId };
       },
 
       async atualizarLojaMaster(lojaId, dados) {
-        if (this.isSupabase()) {
-          const updatePayload = {};
-          if (dados.nomeLoja !== undefined) updatePayload.nome_loja = dados.nomeLoja;
-          if (dados.login !== undefined) updatePayload.login = dados.login;
-          if (dados.senha !== undefined) updatePayload.senha_hash = dados.senha;
-          if (dados.nomeResponsavel !== undefined) updatePayload.nome_responsavel = dados.nomeResponsavel;
-          if (dados.whatsapp !== undefined) updatePayload.whatsapp = dados.whatsapp;
-          if (dados.status !== undefined) updatePayload.status = dados.status;
+        const updatePayload = {};
+        if (dados.nomeLoja !== undefined) updatePayload.nome_loja = dados.nomeLoja;
+        if (dados.login !== undefined) updatePayload.login = dados.login;
+        if (dados.senha !== undefined) updatePayload.senha_hash = dados.senha;
+        if (dados.nomeResponsavel !== undefined) updatePayload.nome_responsavel = dados.nomeResponsavel;
+        if (dados.whatsapp !== undefined) updatePayload.whatsapp = dados.whatsapp;
+        if (dados.status !== undefined) updatePayload.status = dados.status;
 
-          const { error } = await this.supabase.from('lojas').update(updatePayload).eq('id', lojaId);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'atualizarLojaMaster', lojaId, dados })
-          });
-          return await resp.json();
-        }
+        const { error } = await this.supabase.from('lojas').update(updatePayload).eq('id', lojaId);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       async excluirLoja(lojaId) {
-        if (this.isSupabase()) {
-          const { error } = await this.supabase.from('lojas').delete().eq('id', lojaId);
-          if (error) throw error;
-          return { status: 'sucesso' };
-        } else {
-          const resp = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'excluirLoja', lojaId })
-          });
-          return await resp.json();
-        }
+        const { error } = await this.supabase.from('lojas').delete().eq('id', lojaId);
+        if (error) throw error;
+        return { status: 'sucesso' };
       },
 
       // 15. TELEMETRIA DA VITRINE ONLINE
@@ -3718,7 +3513,7 @@
     // --- GERENCIADOR VISUAL DE CARREGAMENTO DO BANCO DE DADOS ---
     let timerCarregandoBancoSeguranca = null;
 
-    function mostrarCarregandoBanco(titulo = 'Carregando Banco de Dados...', subtitulo = 'Conectando ao Google Drive e sincronizando as informações...') {
+    function mostrarCarregandoBanco(titulo = 'Carregando Banco de Dados...', subtitulo = 'Conectando ao Supabase e sincronizando as informações...') {
       const overlay = document.getElementById('overlayCarregandoBanco');
       if (!overlay) return;
       const elTit = document.getElementById('txtCarregandoTitulo');
@@ -3752,7 +3547,7 @@
     const DADOS_INICIAIS = {
       master: {
         login: 'admin',
-        senha: '123',
+        senha: '',
         nome: 'Super Administrador'
       },
       lojas: [
@@ -3760,7 +3555,7 @@
           id: 'LOJA-1',
           nomeLoja: 'Mary Variedades',
           login: 'moda',
-          senha: '123',
+          senha: '',
           nomeResponsavel: 'Clara Designer',
           whatsapp: '(11) 98888-7777',
           slogan: 'Vestuário Feminino e Perfumaria',
@@ -3770,7 +3565,7 @@
           corFundo: '#F8FAFC',
           bannerAtivo: true,
           bannerTexto: '🎉 Bem-vinda à Mary Variedades! Confira nossas peças e novidades exclusivas.',
-          logoUrl: '',
+          logoUrl: 'https://bqdudddefgzzqppzxrbw.supabase.co/storage/v1/object/public/arquivos-lojas/logos/LOJA-1.jpg',
           chavePix: '',
           taxaEntrega: 0,
           permiteDelivery: true,
@@ -3778,7 +3573,6 @@
           valorMinimoParcela: 50.00,
           maxParcelas: 6,
           status: 'Ativa',
-          spreadsheetId: '1pOLzMIUgdJEXeL_gxbKcq1hJGwgAWNq2jbZ7uzGpp6M',
           produtos: [],
           clientes: [],
           vendas: []
@@ -3907,6 +3701,7 @@
 
     // --- AO CARREGAR A PÁGINA ---
     window.addEventListener('DOMContentLoaded', () => {
+      DatabaseAdapter.init();
       lucide.createIcons();
       inicializarBancoLocal();
       aplicarIdentidadeVisualLoja(getLojaAtiva());
@@ -3924,26 +3719,13 @@
         }
         abrirVitrineCliente();
 
-        // Se houver Supabase ou Google Script configurado, atualiza catálogo em nuvem
-        if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
-          carregarLojaPublicaDrive(lojaUrl);
-        }
+        // Sincroniza catálogo da vitrine pública com o Supabase
+        carregarLojaPublicaDrive(lojaUrl);
         return;
       }
 
-      // Restaura status de conexão com Supabase ou Google Drive
-      if (DatabaseAdapter.isSupabase()) {
-        atualizarStatusConexaoVisual(true);
-        atualizarInterfaceSeletorBanco();
-      } else if (ESTADO.urlGoogleScript) {
-        const inpM = document.getElementById('inputUrlGoogleScriptMaster');
-        const inpC = document.getElementById('inputUrlGoogleScript');
-        if (inpM) inpM.value = ESTADO.urlGoogleScript;
-        if (inpC) inpC.value = ESTADO.urlGoogleScript;
-        testarEConectarDrive(true);
-      } else {
-        atualizarStatusConexaoVisual(false);
-      }
+      // Restaura status de conexão com Supabase
+      atualizarStatusConexaoVisual(true);
 
       // Restaura sessão salva se houver
       const sessaoSalva = localStorage.getItem('CLARA_SESSAO');
@@ -3963,211 +3745,41 @@
     });
 
     // =========================================================================
-    // CONECTIVIDADE COM GOOGLE DRIVE MASTER & DEDICADO
+    // STATUS DE CONEXÃO SUPABASE
     // =========================================================================
-    function atualizarStatusConexaoVisual(conectado, dadosExtras = null) {
-      const isSupa = DatabaseAdapter.isSupabase();
-      ESTADO.modoDrive = conectado || isSupa;
+    function atualizarStatusConexaoVisual(conectado) {
       const dotD = document.getElementById('dotConexaoDesktop');
       const textD = document.getElementById('statusConexaoDesktop');
       const dotMob = document.getElementById('dotConexaoMobile');
       const textMob = document.getElementById('statusConexaoMobile');
-      const badgeM = document.getElementById('badgeStatusDriveMaster');
-      const subM = document.getElementById('subtextoDriveMaster');
-      const btnDesc = document.getElementById('btnDesconectarDrive');
 
-      if (isSupa) {
+      if (conectado) {
         if (dotD) dotD.className = 'w-2 h-2 rounded-full bg-emerald-400 badge-pulse';
-        if (textD) textD.textContent = '⚡ Supabase Conectado';
+        if (textD) textD.textContent = '⚡ Supabase';
         if (dotMob) dotMob.className = 'w-2 h-2 rounded-full bg-emerald-400 badge-pulse';
         if (textMob) textMob.textContent = '⚡ Supabase';
-
-        if (badgeM) {
-          badgeM.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-          badgeM.textContent = '⚡ Supabase Ativo';
-        }
-        if (subM) {
-          subM.textContent = '✅ Conectado ao Supabase (PostgreSQL + RLS). Operações em tempo real com baixa latência.';
-        }
-        if (btnDesc) btnDesc.classList.add('hidden');
-      } else if (conectado) {
-        if (dotD) dotD.className = 'w-2 h-2 rounded-full bg-emerald-500 badge-pulse';
-        if (textD) textD.textContent = 'Drive Conectado';
-        if (dotMob) dotMob.className = 'w-2 h-2 rounded-full bg-emerald-500 badge-pulse';
-        if (textMob) textMob.textContent = 'Drive Conectado';
-
-        if (badgeM) {
-          badgeM.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-          badgeM.textContent = 'Google Drive Ativo';
-        }
-        if (subM) {
-          const nomePlan = (dadosExtras && dadosExtras.nomePlanilhaMaster) ? `Planilha: "${dadosExtras.nomePlanilhaMaster}"` : 'Planilha Master Ativa';
-          const qtd = (dadosExtras && dadosExtras.qtdLojas !== undefined) ? ` • ${dadosExtras.qtdLojas} loja(s) no Drive` : '';
-          subM.textContent = `✅ Conectado com sucesso. ${nomePlan}${qtd}`;
-        }
-        if (btnDesc) btnDesc.classList.remove('hidden');
       } else {
         if (dotD) dotD.className = 'w-2 h-2 rounded-full bg-amber-500';
-        if (textD) textD.textContent = 'Modo Local';
+        if (textD) textD.textContent = 'Offline';
         if (dotMob) dotMob.className = 'w-2 h-2 rounded-full bg-amber-500';
-        if (textMob) textMob.textContent = 'Modo Local';
-
-        if (badgeM) {
-          badgeM.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
-          badgeM.textContent = 'Modo Local (Demo)';
-        }
-        if (subM) {
-          subM.textContent = 'Cole a URL do seu Google Apps Script para conectar a planilha Master em nuvem.';
-        }
-        if (btnDesc) btnDesc.classList.add('hidden');
+        if (textMob) textMob.textContent = 'Offline';
       }
-    }
-
-    function alternarProvedorBanco(novoProvedor) {
-      DatabaseAdapter.setProvedorAtivo(novoProvedor);
-      atualizarInterfaceSeletorBanco();
-      atualizarStatusConexaoVisual(true);
-      if (ESTADO.usuarioLogado) {
-        sincronizarComDrive(false);
-      }
-    }
-
-    function atualizarInterfaceSeletorBanco() {
-      const prov = DatabaseAdapter.getProvedorAtivo();
-      const btnSupa = document.getElementById('btnSelectSupabase');
-      const btnDrive = document.getElementById('btnSelectDrive');
-      const badge = document.getElementById('badgeProvedorAtivo');
-      const painelSupa = document.getElementById('painelInfoSupabase');
-      const cardDrive = document.getElementById('cardConexaoDriveMaster');
-
-      if (prov === 'SUPABASE') {
-        if (btnSupa) btnSupa.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-emerald-600 text-white shadow';
-        if (btnDrive) btnDrive.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-400 hover:text-white';
-        if (badge) {
-          badge.textContent = '⚡ Supabase Ativo';
-          badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-        }
-        if (painelSupa) painelSupa.classList.remove('hidden');
-        if (cardDrive) cardDrive.classList.add('hidden');
-      } else {
-        if (btnSupa) btnSupa.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-400 hover:text-white';
-        if (btnDrive) btnDrive.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-blue-600 text-white shadow';
-        if (badge) {
-          badge.textContent = '📁 Google Drive Ativo';
-          badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30';
-        }
-        if (painelSupa) painelSupa.classList.add('hidden');
-        if (cardDrive) cardDrive.classList.remove('hidden');
-      }
-    }
-
-    async function testarEConectarDrive(silencioso = false) {
-      const urlMaster = document.getElementById('inputUrlGoogleScriptMaster') ? document.getElementById('inputUrlGoogleScriptMaster').value.trim() : '';
-      const urlConfig = document.getElementById('inputUrlGoogleScript') ? document.getElementById('inputUrlGoogleScript').value.trim() : '';
-      const url = urlMaster || urlConfig || ESTADO.urlGoogleScript || URL_GOOGLE_SCRIPT_PADRAO;
-
-      if (!url) {
-        if (!silencioso) Swal.fire('Atenção', 'Informe a URL do aplicativo da web do Google Apps Script.', 'warning');
-        return false;
-      }
-
-      try {
-        if (!silencioso) {
-          mostrarCarregandoBanco('Testando Conexão...', 'Verificando comunicação com o Google Apps Script no Drive...');
-        }
-        const resp = await fetch(url + (url.includes('?') ? '&' : '?') + 'acao=ping');
-        const json = await resp.json();
-
-        if (json.status === 'sucesso') {
-          ESTADO.urlGoogleScript = url;
-          localStorage.setItem('CLARA_URL_GOOGLE_SCRIPT', url);
-          atualizarStatusConexaoVisual(true, json);
-
-          if (!silencioso) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Google Drive Conectado!',
-              html: `Conexão bem sucedida com o Google Apps Script!<br><br><b>Planilha Master:</b> ${json.nomePlanilhaMaster || 'Ativa'}<br><b>Lojas no Drive:</b> ${json.qtdLojas || 0}`
-            });
-          }
-
-          // Se estiver no Painel Master, sincroniza as lojas do Drive
-          if (ESTADO.usuarioLogado && ESTADO.usuarioLogado.perfil === 'MASTER') {
-            await sincronizarLojasMasterDrive(true);
-          } else if (ESTADO.lojaAtivaId) {
-            await sincronizarDadosLojaAtivaDrive(true);
-          }
-          return true;
-        } else {
-          throw new Error(json.mensagem || 'Resposta inválida.');
-        }
-      } catch (err) {
-        atualizarStatusConexaoVisual(false);
-        if (!silencioso) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Falha na Conexão com Google Drive',
-            html: `Não foi possível comunicar com o Google Apps Script.<br><br><b>Verificações:</b><br>1. O script foi implantado como "Aplicativo da Web"?<br>2. O acesso foi definido para <b>"Qualquer pessoa"</b>?<br><br><span class="text-xs text-rose-500 font-mono">${err.message}</span>`
-          });
-        }
-        return false;
-      } finally {
-        if (!silencioso) esconderCarregandoBanco();
-      }
-    }
-
-    function conectarDriveViaMaster() {
-      const url = (document.getElementById('inputUrlGoogleScriptMaster') ? document.getElementById('inputUrlGoogleScriptMaster').value.trim() : '') || URL_GOOGLE_SCRIPT_PADRAO;
-      if (url) {
-        ESTADO.urlGoogleScript = url;
-        const inpC = document.getElementById('inputUrlGoogleScript');
-        if (inpC) inpC.value = url;
-      }
-      testarEConectarDrive(false);
-    }
-
-    function desconectarDrive() {
-      ESTADO.urlGoogleScript = '';
-      localStorage.setItem('CLARA_URL_GOOGLE_SCRIPT', 'DESCONECTADO');
-      if (document.getElementById('inputUrlGoogleScriptMaster')) document.getElementById('inputUrlGoogleScriptMaster').value = '';
-      if (document.getElementById('inputUrlGoogleScript')) document.getElementById('inputUrlGoogleScript').value = '';
-      atualizarStatusConexaoVisual(false);
-      Swal.fire('Modo Local', 'Desconectado do Google Drive. O sistema está utilizando o armazenamento local do navegador.', 'info');
     }
 
     async function sincronizarComDrive(silencioso = false) {
-      if (DatabaseAdapter.isSupabase()) {
-        if (ESTADO.usuarioLogado && ESTADO.usuarioLogado.perfil === 'MASTER') {
-          await sincronizarLojasMasterDrive(silencioso);
-        } else if (ESTADO.lojaAtivaId) {
-          await sincronizarDadosLojaAtivaDrive(silencioso);
-        } else {
-          atualizarStatusConexaoVisual(true);
-        }
-        return;
-      }
-
-      if (!ESTADO.urlGoogleScript) {
-        if (!silencioso) Swal.fire('Aviso', 'Conecte o Google Drive primeiro.', 'warning');
-        return;
-      }
-
       if (ESTADO.usuarioLogado && ESTADO.usuarioLogado.perfil === 'MASTER') {
         await sincronizarLojasMasterDrive(silencioso);
       } else if (ESTADO.lojaAtivaId) {
         await sincronizarDadosLojaAtivaDrive(silencioso);
       } else {
-        await testarEConectarDrive(silencioso);
+        atualizarStatusConexaoVisual(true);
       }
     }
 
     async function sincronizarLojasMasterDrive(silencioso = false) {
       try {
         if (!silencioso) {
-          const subtitulo = DatabaseAdapter.isSupabase()
-            ? 'Conectando ao Supabase e buscando dados de todas as lojas...'
-            : 'Conectando ao Google Drive e buscando dados de todas as lojas...';
-          mostrarCarregandoBanco('Sincronizando Lojas...', subtitulo);
+          mostrarCarregandoBanco('Sincronizando Lojas...', 'Conectando ao Supabase e buscando dados de todas as lojas...');
         }
         const json = await DatabaseAdapter.getDadosMaster();
 
@@ -4199,8 +3811,7 @@
           renderizarPainelMaster();
           atualizarStatusConexaoVisual(true);
           if (!silencioso && typeof Swal !== 'undefined' && Swal.fire) {
-            const fonte = DatabaseAdapter.isSupabase() ? 'Supabase (PostgreSQL)' : 'Google Drive';
-            Swal.fire('Sincronizado!', `${json.dados.length} loja(s) ativa(s) sincronizadas a partir do ${fonte}.`, 'success');
+            Swal.fire('Sincronizado!', `${json.dados.length} loja(s) ativa(s) sincronizadas a partir do Supabase.`, 'success');
           }
         }
       } catch (err) {
@@ -4219,10 +3830,7 @@
       _sincronizandoLojaAtiva = true;
       try {
         if (!silencioso) {
-          const subtitulo = DatabaseAdapter.isSupabase()
-            ? 'Carregando produtos, vendas, despesas e clientes do Supabase...'
-            : 'Carregando produtos, vendas, despesas e clientes do Google Drive...';
-          mostrarCarregandoBanco('Sincronizando Loja...', subtitulo);
+          mostrarCarregandoBanco('Sincronizando Loja...', 'Carregando produtos, vendas, despesas e clientes do Supabase...');
         }
         const json = await DatabaseAdapter.getDadosLoja(ESTADO.lojaAtivaId);
 
@@ -4248,8 +3856,7 @@
           }
           atualizarStatusConexaoVisual(true);
           if (!silencioso && typeof Swal !== 'undefined' && Swal.fire) {
-            const fonte = DatabaseAdapter.isSupabase() ? 'Supabase' : 'Google Drive';
-            Swal.fire('Sincronizado!', `Dados da loja atualizados a partir do ${fonte}.`, 'success');
+            Swal.fire('Sincronizado!', 'Dados da loja atualizados a partir do Supabase.', 'success');
           }
         }
       } catch (e) {
@@ -4382,15 +3989,11 @@
       if (usuarioObj.perfil === 'MASTER') {
         configurarInterfaceMaster();
         navegar('master');
-        if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
-          await sincronizarLojasMasterDrive(false);
-        }
+        await sincronizarLojasMasterDrive(false);
       } else {
         configurarInterfaceLojista();
         navegar('dashboard');
-        if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
-          await sincronizarDadosLojaAtivaDrive(false);
-        }
+        await sincronizarDadosLojaAtivaDrive(false);
       }
     }
 
@@ -4445,9 +4048,7 @@
       ESTADO.lojaAtivaId = null;
       configurarInterfaceMaster();
       navegar('master');
-      if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
-        sincronizarLojasMasterDrive(true);
-      }
+      sincronizarLojasMasterDrive(true);
     }
 
     function renderizarMenus(perfil) {
@@ -4474,7 +4075,7 @@
           </button>
           <button onclick="navegar('config')" class="nav-item-desktop w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-300 hover:bg-slate-800">
             <i data-lucide="cloud" class="w-4 h-4"></i>
-            <span>Google Drive Master</span>
+            <span>Nuvem & Backup</span>
           </button>
         `;
 
@@ -4485,7 +4086,7 @@
           </button>
           <button onclick="navegar('config')" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-semibold text-xs text-slate-300 hover:bg-slate-800">
             <i data-lucide="cloud" class="w-4 h-4"></i>
-            <span>Google Drive Master</span>
+            <span>Nuvem & Backup</span>
           </button>
         `;
 
@@ -5064,63 +4665,6 @@
       lucide.createIcons();
     }
 
-    async function organizarPastasDriveMaster() {
-      if (!ESTADO.urlGoogleScript) {
-        Swal.fire('Google Drive Não Conectado', 'Conecte a URL do Google Apps Script antes de organizar as pastas.', 'warning');
-        return;
-      }
-
-      const confirm = await Swal.fire({
-        title: 'Organizar Pastas no Drive?',
-        html: `<div class="text-left text-xs text-slate-600 space-y-2">
-                 <p>Esta ação irá padronizar a hierarquia de pastas do seu ecossistema no Google Drive:</p>
-                 <div class="bg-slate-100 p-3 rounded-xl border border-slate-200 font-mono text-[11px] space-y-1">
-                   <div>📁 <b>APP_CLARA_SISTEMA</b> (Pasta Geral do Projeto)</div>
-                   <div class="pl-4">├── 📊 <b>GESTÃO MASTER</b> (Planilha Master)</div>
-                   <div class="pl-4">└── 📁 <b>[LOJA-ID] Nome da Loja</b> (Pasta Exclusiva)</div>
-                   <div class="pl-8">├── 📊 <b>Banco de Dados - Nome</b> (Planilha Dedicada)</div>
-                   <div class="pl-8">└── 📁 <b>Imagens</b> (Fotos e Logo)</div>
-                 </div>
-                 <p class="text-[11px] text-slate-500">Nenhum arquivo ou dado é perdido ou alterado, apenas movido para as pastas corretas.</p>
-               </div>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, Organizar Pastas',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#4F46E5'
-      });
-
-      if (!confirm.isConfirmed) return;
-
-      try {
-        Swal.fire({
-          title: 'Organizando Pastas...',
-          text: 'Mapeando e alocando pastas e arquivos no Google Drive...',
-          allowOutsideClick: false,
-          didOpen: () => { Swal.showLoading(); }
-        });
-
-        const resp = await fetch(ESTADO.urlGoogleScript, {
-          method: 'POST',
-          body: JSON.stringify({ acao: 'organizarPastasDrive' })
-        });
-        const resJson = await resp.json();
-
-        if (resJson.status === 'sucesso') {
-          Swal.fire({
-            icon: 'success',
-            title: 'Pastas Organizadas!',
-            html: `A estrutura do seu Google Drive foi padronizada com sucesso!<br><br>
-                   <span class="text-xs text-slate-500">${resJson.mensagem || ''}</span>`
-          });
-        } else {
-          Swal.fire('Aviso', resJson.mensagem || 'Não foi possível concluir a organização.', 'warning');
-        }
-      } catch (err) {
-        Swal.fire('Erro', 'Falha ao organizar pastas no Drive: ' + err.message, 'error');
-      }
-    }
-
     function abrirModalCriarLojaMaster() {
       document.getElementById('formCriarLojaMaster').reset();
       document.getElementById('modalCriarLojaMaster').classList.remove('hidden');
@@ -5149,36 +4693,13 @@
       const novoId = 'LOJA-' + Date.now().toString().slice(-6);
       let sheetIdGerado = 'DEDICADA-' + novoId;
 
-      // Cria a loja no provedor ativo (Supabase ou Google Drive)
-      if (DatabaseAdapter.isSupabase()) {
-        try {
-          await DatabaseAdapter.criarLoja({ id: novoId, nomeLoja: nome, nomeResponsavel: resp, login: login, senha: senha, whatsapp: zap });
-        } catch (errSupa) {
-          console.warn('Aviso ao criar no Supabase:', errSupa);
-        }
-      } else if (ESTADO.urlGoogleScript) {
-        try {
-          Swal.fire({
-            title: 'Criando Banco Dedicado...',
-            text: `Gerando uma nova planilha exclusiva para "${nome}" no Google Drive...`,
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-          });
-
-          const respDrive = await fetch(ESTADO.urlGoogleScript, {
-            method: 'POST',
-            body: JSON.stringify({
-              acao: 'criarLoja',
-              dadosLoja: { id: novoId, nomeLoja: nome, nomeResponsavel: resp, login: login, senha: senha, whatsapp: zap }
-            })
-          });
-          const jsonDrive = await respDrive.json();
-          if (jsonDrive.status === 'sucesso' && jsonDrive.spreadsheetId) {
-            sheetIdGerado = jsonDrive.spreadsheetId;
-          }
-        } catch (errDrive) {
-          console.warn('Aviso ao criar no Drive:', errDrive);
-        }
+      // Cria a loja no Supabase (PostgreSQL)
+      try {
+        await DatabaseAdapter.criarLoja({ id: novoId, nomeLoja: nome, nomeResponsavel: resp, login: login, senha: senha, whatsapp: zap });
+      } catch (errSupa) {
+        console.error('Erro ao criar loja no Supabase:', errSupa);
+        Swal.fire('Erro', 'Não foi possível cadastrar a loja no Supabase: ' + errSupa.message, 'error');
+        return;
       }
 
       const novaLoja = {
@@ -5228,9 +4749,7 @@
         ESTADO.lojaAtivaId = loja.id;
         configurarInterfaceLojista();
         navegar('dashboard');
-        if (DatabaseAdapter.isSupabase() || ESTADO.urlGoogleScript) {
-          await sincronizarDadosLojaAtivaDrive(false);
-        }
+        await sincronizarDadosLojaAtivaDrive(false);
         Swal.fire({
           icon: 'info',
           title: 'Ambiente da Loja',
@@ -5561,7 +5080,7 @@
         configurarInterfaceLojista();
       }
 
-      // Sincroniza com o provedor ativo (Supabase ou Google Drive)
+      // Sincroniza com o Supabase (PostgreSQL)
       DatabaseAdapter.atualizarLojaMaster(id, {
         nomeLoja: nome,
         nomeResponsavel: resp,
@@ -5863,7 +5382,7 @@
     // 3. VITRINE / LOJA ONLINE DO CLIENTE (E-COMMERCE PÚBLICO)
     // =========================================================================
     async function carregarLojaPublicaDrive(lojaId) {
-      if (!DatabaseAdapter.isSupabase() && !ESTADO.urlGoogleScript) return;
+      if (!DatabaseAdapter.isSupabase()) return;
       try {
         mostrarCarregandoBanco('Carregando Loja Online...', 'Buscando catálogo de produtos atualizado...');
         const json = await DatabaseAdapter.getLojaPublica(lojaId);
@@ -8541,7 +8060,7 @@
       // 3. Persiste na base local
       saveDB(db);
 
-      // 4. Sincroniza cancelamento (Supabase com estorno atômico ou Google Drive)
+      // 4. Sincroniza cancelamento (Supabase com estorno atômico)
       DatabaseAdapter.cancelarVenda(loja.id, v.id, motivo).catch(err => console.warn('Erro ao sincronizar cancelamento:', err));
 
       // 5. Atualiza as telas

@@ -4,6 +4,40 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.1.0 — Descontinuação do Google Drive, Migração Total de Mídias para Supabase Storage e Blindagem de Segurança para Código Aberto
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% Supabase Puro, Mídias no Supabase Storage e Testes E2E Aprovados)
+
+### 1. Descontinuação Completa do Google Drive como Banco de Dados e Armazenamento de Imagens:
+- **Migração de 100% das Imagens para o Supabase Storage:**
+  - Todas as fotos de produtos (10 itens) e logotipos de lojas anteriormente hospedados no Google Drive (`lh3.googleusercontent.com`) foram baixados, convertidos e transferidos diretamente para o bucket público `arquivos-lojas` do Supabase Storage.
+  - Atualização dos registros nas tabelas `produtos` (`foto_url`) e `configuracoes_loja` (`logo_url`) no Supabase, garantindo URLs permanentes, alta velocidade de entrega CDN e eliminação total de links quebrados ou expirados do Google Drive.
+- **Arquivamento e Limpeza de Dependências Legadas:**
+  - O script backend `google_apps_script.js` e o guia `COMO_CONFIGURAR_GOOGLE_DRIVE.md` foram movidos para a pasta de arquivo `legado_google_drive/`.
+  - Remoção de variáveis legadas do frontend: `URL_GOOGLE_SCRIPT_PADRAO`, `modoDrive` e `urlGoogleScript` do objeto `ESTADO`.
+  - Remoção de todos os fallbacks `else { fetch(ESTADO.urlGoogleScript) }` da camada `DatabaseAdapter`. O sistema opera agora como uma aplicação 100% nativa em nuvem PostgreSQL / Supabase.
+  - Eliminação de campos obsoletos de inserção de URL do Google Script na tela de configurações (`tela-config`) e no Painel Master.
+
+### 2. Blindagem de Segurança para Abertura Pública do Repositório (Open Source):
+- **Criação do Script de Blindagem PostgreSQL (`security_hardening.sql`):**
+  - **Proteção da Coluna de Senhas (`senha_hash`):** Revogação de acesso irrestrito na tabela `lojas` para o perfil `anon` (usuários não autenticados da API pública). Concessão de `SELECT` apenas para colunas públicas seguras (`id, nome_loja, login, nome_responsavel, whatsapp, status, created_at`), impedindo que a chave pública anônima do Supabase exponha as senhas ou hashes das lojas.
+  - **Autenticação Segura via RPC:** Garantia de execução da procedure `autenticar_usuario` com `SECURITY DEFINER`, autenticando lojistas e administradores no backend sem vazar dados confidenciais.
+  - **Políticas RLS e Storage:** Criação de regras de Row Level Security (RLS) para as tabelas `produtos`, `vendas`, `itens_venda` e políticas de leitura pública e upload controlado no bucket `arquivos-lojas`.
+- **Higienização do Frontend:**
+  - Remoção de senhas estáticas preenchidas em `DADOS_INICIAIS` no arquivo `index.html`.
+  - Inicialização automática com getter do cliente Supabase (`DatabaseAdapter.init()`) em tempo de execução.
+
+### 3. Homologação Automatizada E2E via Edge Headless CDP:
+- **Cenário 1 — Login do Lojista (`moda` / `123`):**
+  - Autenticação validada via RPC `autenticar_usuario` no Supabase.
+  - Carregamento de 9 produtos com 100% das fotos e logotipo apontando para URLs do Supabase Storage (`https://bqdudddefgzzqppzxrbw.supabase.co/storage/v1/object/public/arquivos-lojas/...`).
+- **Cenário 2 — Login do Super Admin Master (`admin` / `123`):**
+  - Acesso ao Painel Master com sincronização de lojas diretamente do Supabase.
+- **Cenário 3 — Vitrine Pública do Cliente (`?loja=LOJA-1`):**
+  - Carregamento instantâneo do catálogo digital público e imagens servidas pelo Supabase Storage sem qualquer dependência externa do Google Drive.
+
+---
+
 ## 📌 Versão 4.0.2 — Eliminação do Ciclo Infinito de Renderização e Estabilização In-Place do Gráfico de Vendas
 **Data:** 11/11/2026  
 **Status:** Concluído e Homologado (Testes de Estabilidade e Atualização In-Place 100% Aprovados via Microsoft Edge Headless CDP)
