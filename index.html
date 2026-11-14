@@ -9775,6 +9775,15 @@
           <td class="py-2.5 px-3 text-right">
             ${totalDevedor > 0 ? `
               <span class="font-black text-rose-600 block">${formatarMoeda(totalDevedor)}</span>
+              <span class="text-[9px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200 inline-block">PENDENTE</span>
+            ` : `
+              <span class="text-slate-400 font-medium">R$ 0,00</span>
+            `}
+          </td>
+          <td class="py-2.5 px-3 text-right space-x-1.5 whitespace-nowrap">
+            <button onclick="abrirHistoricoCliente('${c.id}')" title="Ver Histórico Completo de Vendas" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center space-x-1 transition active:scale-95 cursor-pointer">
+              <i data-lucide="receipt" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Histórico</span>
               ${qtdVendas > 0 ? `<span class="bg-blue-200/80 text-blue-900 text-[9px] px-1.5 py-0.2 rounded-full font-black">${qtdVendas}</span>` : ''}
             </button>
             <button onclick="editarCliente('${c.id}')" title="Editar dados" class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg cursor-pointer transition">

@@ -4,6 +4,26 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.3.1 — Correção Emergencial do Sistema de Login (Sintaxe JavaScript)
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
+
+### 1. Diagnóstico do Problema:
+- Foi identificado que a tela de login não respondia ao envio de formulário com credenciais corretas (`admin` ou `moda`), impedindo o acesso.
+- A causa raiz foi um erro de sintaxe JavaScript (`SyntaxError: Unexpected token ';'`) ocorrido durante a substituição em lote na função de renderização de clientes (`renderizarClientesTabela`), onde um bloco de interpolação de template string `${totalDevedor > 0 ? ...}` havia sido parcialmente truncado.
+- Por conta dessa falha sintática, a engine do navegador abortava a execução de todo o bloco `<script>` principal da aplicação, impedindo o registro das funções de autenticação (`fazerLoginSubmit` e `autenticarCredenciais`).
+
+### 2. Ações Corretivas & Testes:
+- Restauração integral da interpolação e das colunas da tabela de clientes em `index.html`.
+- Execução de testes automatizados E2E ponta a ponta via Microsoft Edge Headless via protocolo Chrome DevTools (CDP):
+  - ✅ Carregamento inicial do script e runtime sem erros (`hasAutenticarCredenciais: true`, `hasFazerLoginSubmit: true`).
+  - ✅ Autenticação do Administrador Master (`admin` / `123`), transição imediata para a tela de gerenciamento de lojas (`tela-master`).
+  - ✅ Autenticação do Lojista (`moda` / `123`), carregamento e transição direta para a dashboard da loja ativa (`tela-dashboard`).
+  - ✅ Validação de credenciais incorretas com feedback visual e bloqueio de acesso.
+  - ✅ Validação de clique físico no botão de submissão do formulário na interface.
+
+---
+
 ## 📌 Versão 4.3.0 — Sistema Automatizado de Notificações de Vendas no Telegram (Bot Central da Plataforma e Bot do Lojista)
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
