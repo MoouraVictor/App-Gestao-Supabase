@@ -474,8 +474,14 @@
             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
               Token da API do Bot (BotFather)
             </label>
-            <input type="password" id="masterTelegramBotToken" placeholder="Ex: 7123456789:AAHxxxxx..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500">
+            <div class="relative">
+              <input type="password" id="masterTelegramBotToken" placeholder="Ex: 7123456789:AAHxxxxx..."
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500">
+              <button type="button" onclick="alternarVisibilidadeToken('masterTelegramBotToken', 'iconEyeMaster')"
+                class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5" title="Mostrar/Ocultar Token">
+                <i id="iconEyeMaster" data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
             <span class="text-[11px] text-slate-400 mt-1 block">Token HTTP gerado ao criar o bot no Telegram BotFather.</span>
           </div>
         </div>
@@ -1119,8 +1125,14 @@
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                   Token do Bot Próprio (BotFather)
                 </label>
-                <input type="password" id="cfgTelegramBotTokenCustom" placeholder="Deixe em branco para usar o bot oficial da plataforma"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-sky-500">
+                <div class="relative">
+                  <input type="password" id="cfgTelegramBotTokenCustom" placeholder="Deixe em branco para usar o bot oficial da plataforma"
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-xs font-mono focus:ring-2 focus:ring-sky-500">
+                  <button type="button" onclick="alternarVisibilidadeToken('cfgTelegramBotTokenCustom', 'iconEyeCustom')"
+                    class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5" title="Mostrar/Ocultar Token">
+                    <i id="iconEyeCustom" data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                </div>
                 <span class="text-[11px] text-slate-400 block">Deixe vazio para usar automaticamente o bot central padrão da plataforma.</span>
               </div>
             </details>
@@ -3224,7 +3236,21 @@
       },
 
       init() {
-        return this.supabase;
+        const client = this.supabase;
+        if (client) {
+          this.getConfigPlataforma().then(cfg => {
+            if (cfg && cfg.telegramBotToken) {
+              const db = getDB();
+              if (!db.configMaster) db.configMaster = {};
+              db.configMaster.telegramBotToken = cfg.telegramBotToken;
+              if (cfg.telegramBotUsername) db.configMaster.telegramBotUsername = cfg.telegramBotUsername;
+              saveDB(db);
+              localStorage.setItem('master_telegram_bot_token', cfg.telegramBotToken);
+              if (cfg.telegramBotUsername) localStorage.setItem('master_telegram_bot_username', cfg.telegramBotUsername);
+            }
+          }).catch(() => {});
+        }
+        return client;
       },
 
       getProvedorAtivo() {
@@ -3950,6 +3976,39 @@
         } catch (errStorage) {
           console.error('Falha no upload para Supabase Storage:', errStorage);
           return '';
+        }
+      },
+
+      // 17. CONFIGURAÇÕES GLOBAIS DA PLATAFORMA (BOT CENTRAL DO TELEGRAM)
+      async getConfigPlataforma() {
+        if (!this.supabase) return null;
+        try {
+          const { data, error } = await this.supabase
+            .from('configuracoes_plataforma')
+            .select('chave, valor');
+          if (error) return null;
+          const conf = {};
+          (data || []).forEach(row => {
+            if (row.chave === 'telegram_bot_token') conf.telegramBotToken = row.valor;
+            if (row.chave === 'telegram_bot_username') conf.telegramBotUsername = row.valor;
+          });
+          return conf;
+        } catch (e) {
+          return null;
+        }
+      },
+
+      async salvarConfigPlataforma(token, username) {
+        if (!this.supabase) return;
+        try {
+          const rows = [];
+          if (token !== undefined) rows.push({ chave: 'telegram_bot_token', valor: token });
+          if (username !== undefined) rows.push({ chave: 'telegram_bot_username', valor: username });
+          if (rows.length > 0) {
+            await this.supabase.from('configuracoes_plataforma').upsert(rows);
+          }
+        } catch (e) {
+          console.warn('[DatabaseAdapter] Falha ao persistir configuracoes_plataforma no Supabase:', e);
         }
       }
     };
@@ -5290,8 +5349,22 @@
       if (inputToken) inputToken.value = config.token || '';
     }
 
+    function alternarVisibilidadeToken(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        inp.type = 'password';
+        if (icon) icon.setAttribute('data-lucide', 'eye');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     function salvarConfigMasterTelegram() {
-      const username = (document.getElementById('masterTelegramBotUsername')?.value || '').trim().replace('@', '');
+      const username = (document.getElementById('masterTelegramBotUsername')?.value || '').trim().replace(/^@/, '');
       const token = (document.getElementById('masterTelegramBotToken')?.value || '').trim();
 
       const db = getDB();
@@ -5304,6 +5377,8 @@
       localStorage.setItem('master_telegram_bot_token', token);
       localStorage.setItem('clara_master_telegram_bot_username', username);
       localStorage.setItem('clara_master_telegram_bot_token', token);
+
+      DatabaseAdapter.salvarConfigPlataforma(token, username).catch(e => console.warn(e));
 
       Swal.fire({
         icon: 'success',
@@ -5955,6 +6030,27 @@
           icon: 'warning',
           title: 'Chat ID Obrigatório',
           html: 'Por favor, informe seu <b>Chat ID</b> para enviar a notificação de teste.<br><br><span class="text-xs text-slate-500">Dica: Inicie o bot <b>@userinfobot</b> no Telegram para descobrir seu ID numérico.</span>'
+        });
+        return;
+      }
+
+      const tokenEfetivo = (tokenCustom && tokenCustom.trim()) || (loja && loja.telegramBotTokenCustom && loja.telegramBotTokenCustom.trim()) || TelegramNotifier.getMasterConfig().token;
+      if (!tokenEfetivo) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Token do Bot Não Configurado',
+          html: `
+            <div class="text-left text-xs text-slate-600 space-y-2">
+              <p>O sistema ainda não possui o <b>Token do Bot</b> do Telegram configurado.</p>
+              <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1.5 text-amber-900">
+                <p class="font-bold flex items-center gap-1">
+                  <span>Como resolver:</span>
+                </p>
+                <p>• <b>Opção 1 (Bot Próprio do Lojista):</b> Abra a seção <i>"Configuração Avançada: Usar Token de Bot Próprio"</i> logo abaixo e informe o Token do seu bot.</p>
+                <p>• <b>Opção 2 (Bot Central):</b> Acesse o Painel Master (login <code>admin</code>) e configure o Bot Central da plataforma para que todas as lojas usem o mesmo bot automaticamente.</p>
+              </div>
+            </div>
+          `
         });
         return;
       }

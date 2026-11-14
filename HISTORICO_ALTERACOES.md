@@ -4,6 +4,25 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.3.2 — Blindagem de Segurança e Persistência do Bot Central do Telegram
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
+
+### 1. Diagnóstico do Erro de Token Ausente:
+- Ao testar a notificação na tela de configurações da loja (`tela-loja-online`), o sistema retornava: *"Não foi possível enviar a mensagem no Telegram. Detalhes: Nenhum token do Bot do Telegram configurado no sistema."*
+- **Causa Raiz:** O bot recém-criado (`@GestaoNotificaBot`) ainda não possuía seu token gravado na base de dados do lojista ou do master. Além disso, o token não deve ser escrito de forma estática no arquivo `index.html` (para prevenir vazamentos de segurança e bloqueio automático pelo GitHub Secret Scanning).
+- O sistema exigia que a configuração fosse propagada dinamicamente pela nuvem ou informada pelo operador.
+
+### 2. Ações Implementadas & Segurança da Informação:
+- **Zero Hardcode de Credenciais no HTML/GitHub:** O token do Bot NUNCA é inserido em texto plano dentro do repositório público, garantindo que terceiros não interceptem o bot, façam spam ou roubem dados de clientes.
+- **Persistência Segura em Nuvem (`configuracoes_plataforma.sql`):** Criado script SQL para provisionamento da tabela `configuracoes_plataforma` no Supabase com Row Level Security (RLS) para sincronizar o Bot Central (`@GestaoNotificaBot`) entre todos os lojistas e vitrines.
+- **Sincronização Direta na Loja:** A loja ativa (`LOJA-1`) teve seu token sincronizado no Supabase (`configuracoes_loja.telegram_bot_token_custom`).
+- **Melhoria da Experiência do Usuário (UX):**
+  - Adicionado botão de alternar visibilidade de senha (ícone de olho 👁️) nos campos de token do Master e do Lojista.
+  - Alerta guiado detalhado quando o usuário tenta testar uma notificação sem nenhum token configurado, orientando onde preencher.
+
+---
+
 ## 📌 Versão 4.3.1 — Correção Emergencial do Sistema de Login (Sintaxe JavaScript)
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
