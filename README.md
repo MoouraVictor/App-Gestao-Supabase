@@ -219,6 +219,7 @@ O sistema possui telas protegidas e exige login obrigatório:
 
 ## 📜 Histórico de Versões
 
+- **Versão 4.1.1 (14/11/2026):** Correção do roteamento inicial do Painel Master no login de admin e retorno direto ao sair da impersonação de loja; compressão automática de fotos de celulares via HTML5 Canvas (evitando estouro de cota de armazenamento local); filtros dinâmicos de período (Hoje, 7 Dias, Mês e Todas) no Gráfico de Vendas e nas Métricas da Vitrine Online.
 - **Versão 4.1.0 (14/11/2026):** Descontinuação definitiva do Google Drive, migração de 100% das imagens para o Supabase Storage (`arquivos-lojas`), blindagem de segurança PostgreSQL (`security_hardening.sql`) com proteção de `senha_hash` para liberação do repositório público no GitHub.
 - **Versão 4.0.2 (11/11/2026):** Eliminação do ciclo assíncrono infinito na navegação do Dashboard e Pedidos, otimização in-place do gráfico Chart.js (sem recriações de canvas ou tremor) e mutex de concorrência na sincronização de dados.
 - **Versão 4.0.1 (11/11/2026):** Mapeamento do status de novos pedidos online da vitrine para `'Pendente'`, fluxo assíncrono com bloqueio preventivo de erro 400 no Supabase e eliminação do registro anônimo "Produto sem nome" no ranking de mais desejados na sacola.

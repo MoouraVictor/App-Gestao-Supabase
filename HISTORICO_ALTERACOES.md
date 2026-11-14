@@ -4,6 +4,57 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.1.1 — Correção de Rotas Master, Compressão de Fotos Mobile e Filtros Dinâmicos de Período no Dashboard
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% dos cenários validados via Microsoft Edge Headless CDP)
+
+### 1. Correção de Roteamento no Login de Administrador Master (Bug 1):
+- **Causa Raiz Identificada:**
+  - Existia uma chamada residual à função `atualizarInterfaceSeletorBanco()` dentro de `configurarInterfaceMaster()`. Como essa função pertencia ao seletor legado do Google Drive (removido na v4.1.0), sua chamada disparava um erro em tempo de execução (`ReferenceError: atualizarInterfaceSeletorBanco is not defined`), abortando o fluxo de navegação antes de executar `navegar('master')`.
+  - Além disso, a tag `<section id="tela-dashboard">` estava sem a classe utilitária `hidden` no HTML inicial, fazendo com que o dashboard vazio permanecesse visível na tela.
+- **Solução Implementada:**
+  - Remoção da chamada legada em `configurarInterfaceMaster()`.
+  - Adição da classe `hidden` à seção `#tela-dashboard` na estrutura base do HTML, garantindo que nenhuma tela de loja seja exibida antes da resolução do perfil autenticado.
+  - Ao fazer login como `admin`, a aplicação agora redireciona com precisão e imediatamente para o Painel de Gerenciamento de Lojas (`tela-master`).
+
+### 2. Retorno Instantâneo ao Painel Master após Impersonação de Loja (Bug 2):
+- **Causa Raiz Identificada:**
+  - Ao entrar em uma loja pelo Painel Master e posteriormente clicar no banner fixo *"Voltar ao Painel Master"*, a função `retornarAoPainelMaster()` invocava `configurarInterfaceMaster()`, esbarrando no mesmo erro de referência e interrompendo o ciclo de renderização. O usuário ficava preso visualmente na loja até clicar manualmente no menu lateral.
+- **Solução Implementada:**
+  - Com a eliminação da chamada fantasma, `retornarAoPainelMaster()` agora redefine o estado da sessão no `localStorage` (`tipo: 'master'`), restaura o menu de navegação e chama diretamente `navegar('master')`.
+  - A transição do ambiente de loja de volta para a lista de lojas gerenciadas ocorre de forma instantânea em um único clique.
+
+### 3. Compressão de Imagens no Cliente e Correção no Salvamento de Produtos via Mobile (Bug 3):
+- **Causa Raiz Identificada:**
+  - Câmeras de celulares modernos capturam imagens de altíssima resolução (12 a 60 MP, pesando de 4MB a mais de 20MB). Ao carregar a foto no formulário, a string Base64 bruta excedia facilmente de 8MB a 25MB.
+  - O fluxo síncrono anterior tentava salvar o objeto completo no `localStorage` (`saveDB(db)`), o que estourava a cota de 5MB imposta pelos navegadores móveis (`DOMException: QuotaExceededError`), quebrando silenciosamente o manipulador do formulário e impedindo o salvamento.
+- **Solução Implementada:**
+  - Implementação da função `comprimirImagemBase64(file, maxDim = 1200, qualidade = 0.82)` utilizando HTML5 Canvas. Qualquer foto capturada pelo celular é redimensionada proporcionalmente (largura/altura máxima de 1200px) e convertida para JPEG otimizado (~120KB a 180KB), preservando a nitidez com redução de mais de 95% do peso.
+  - Envolvimento do método `saveDB(db)` em bloco `try/catch` defensivo, com aviso de fallback sem interromper o salvamento.
+  - Transformação da função `salvarProdutoSubmit` em fluxo assíncrono com feedback visual (`mostrarCarregandoBanco`), aguardando o upload para o bucket `arquivos-lojas` do Supabase Storage e substituindo a imagem temporária pela URL pública permanente do CDN antes de concluir o fechamento da modal.
+
+### 4. Filtros Dinâmicos de Período no Gráfico de Vendas e Métricas da Vitrine Online (Bug 4):
+- **Gráfico de Vendas (`#tela-dashboard`):**
+  - Adição de barra de botões de filtro com os períodos: **Hoje**, **Últimos 7 Dias**, **Este Mês** e **Todas**.
+  - Criação da função `setFiltroGraficoDashboard(periodo)` com agrupamento inteligente de dados:
+    - *Hoje:* Agrupamento hora a hora (ex.: 08h, 09h, 10h...) do dia corrente;
+    - *Últimos 7 Dias:* Agrupamento diário retroativo aos últimos 7 dias;
+    - *Este Mês:* Agrupamento dia a dia do primeiro ao último dia do mês corrente;
+    - *Todas:* Agrupamento mensal histórico consolidado.
+  - Atualização in-place do Chart.js, cálculo dinâmico do total faturado no badge superior (`#totalVendas7DiasBadge`) e do título da seção (`#tituloGraficoVendas`).
+- **Métricas da Vitrine Online (`#painelMetricasVitrine`):**
+  - Adição de barra de filtros de período sincronizada com o padrão visual da aba Vendas e Cobranças (**Hoje**, **Últimos 7 Dias**, **Este Mês** e **Todas**).
+  - Criação da função `setFiltroVitrineDashboard(periodo)` e `aplicarFiltroMetricasVitrine()`, armazenando o histórico em cache (`ESTADO.metricasVitrineCache`) e filtrando as agregações da view `vw_metricas_vitrine_resumo` por `data_referencia` no cliente em tempo real, sem novas requisições de rede.
+
+### 5. Homologação Automatizada E2E via Edge Headless CDP:
+- Script de teste ponta-a-ponta (`scratch/test_all_fixes.ps1`) executado com sucesso:
+  - **Teste 1:** Login como `admin` exibe exclusivamente a `tela-master`.
+  - **Teste 2:** Ao assumir uma loja e clicar em "Voltar ao Painel Master", o sistema retorna instantaneamente para a `tela-master`.
+  - **Teste 3:** Simulação de upload e compressão de foto de celular em produto: canvas gerou imagem compacta de 9KB, salvou o produto e sincronizou URL com o Supabase CDN.
+  - **Teste 4:** Alternância de filtros no gráfico e nas métricas da vitrine validada para todos os 4 períodos com atualização correta dos rótulos e somatórios.
+
+---
+
 ## 📌 Versão 4.1.0 — Descontinuação do Google Drive, Migração Total de Mídias para Supabase Storage e Blindagem de Segurança para Código Aberto
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% Supabase Puro, Mídias no Supabase Storage e Testes E2E Aprovados)
