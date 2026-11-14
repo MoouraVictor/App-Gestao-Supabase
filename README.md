@@ -219,6 +219,7 @@ O sistema possui telas protegidas e exige login obrigatório:
 
 ## 📜 Histórico de Versões
 
+- **Versão 4.2.0 (14/11/2026):** Módulo de Histórico Completo de Vendas do Cliente na aba Clientes com filtros de período (Hoje, 7 dias, Mês, Todas) e status financeiro (Quitadas, Pendentes, Canceladas), cards de resumo financeiro por cliente e links diretos para detalhes da venda; funcionalidade de atribuição de vendas online e balcão a clientes cadastrados com busca instantânea e atalho de cadastro pré-preenchido.
 - **Versão 4.1.1 (14/11/2026):** Correção do roteamento inicial do Painel Master no login de admin e retorno direto ao sair da impersonação de loja; compressão automática de fotos de celulares via HTML5 Canvas (evitando estouro de cota de armazenamento local); filtros dinâmicos de período (Hoje, 7 Dias, Mês e Todas) no Gráfico de Vendas e nas Métricas da Vitrine Online.
 - **Versão 4.1.0 (14/11/2026):** Descontinuação definitiva do Google Drive, migração de 100% das imagens para o Supabase Storage (`arquivos-lojas`), blindagem de segurança PostgreSQL (`security_hardening.sql`) com proteção de `senha_hash` para liberação do repositório público no GitHub.
 - **Versão 4.0.2 (11/11/2026):** Eliminação do ciclo assíncrono infinito na navegação do Dashboard e Pedidos, otimização in-place do gráfico Chart.js (sem recriações de canvas ou tremor) e mutex de concorrência na sincronização de dados.

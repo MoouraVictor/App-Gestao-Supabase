@@ -4,6 +4,52 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.2.0 — Histórico Completo de Vendas por Cliente e Atribuição de Pedidos Online a Clientes Cadastrados
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
+
+### 1. Histórico de Vendas Completo para Clientes Cadastrados (Aba Clientes):
+- **Aprimoramento da Tabela de Clientes (`tela-clientes`):**
+  - Adição de barra de busca instantânea (`buscaClientesTabela`) para filtrar por nome, WhatsApp ou endereço em tempo real.
+  - Inclusão das colunas **Total em Compras** (exibindo o montante total gasto pelo cliente e quantidade de pedidos) e **Saldo Devedor** (com alerta visual em destaque para clientes com débitos pendentes).
+  - Adição do botão **Histórico** (`abrirHistoricoCliente`) na linha de cada cliente cadastrado, exibindo o total de vendas realizadas como um contador visual.
+- **Novo Modal Exclusivo de Histórico do Cliente (`modalHistoricoCliente`):**
+  - **Identificação Visual:** Avatar dinâmico com iniciais do cliente, nome completo, link direto para WhatsApp, endereço e badge de identificador (`CLI-XXXX`).
+  - **Cards de Resumo Financeiro Consolidado:**
+    - *Total Vendido:* Soma total do histórico de compras do cliente;
+    - *Total Recebido:* Pagamentos liquidados e confirmados;
+    - *Saldo Devedor:* Valor total a receber deste cliente em vendas pendentes;
+    - *Total de Compras:* Contagem total de pedidos e vendas ativas.
+  - **Sistema Completo de Filtros Dinâmicos:**
+    - *Filtro de Período:* Alternância instantânea entre **Hoje**, **Últimos 7 dias**, **Este Mês** e **Todas**;
+    - *Filtro Financeiro:* Segmentação por **Todas**, **Quitadas**, **Deve (Pendentes)** e **Canceladas**.
+  - **Tabela Detalhada de Vendas:**
+    - ID da venda com link clicável (`#VND-...`) que abre diretamente o modal com todos os itens, cálculos e recibo (`modalDetalhesVenda`);
+    - Data e hora da compra;
+    - Origem da venda (Balcão, Loja Online, PDV);
+    - Forma e condição de pagamento (ex.: *Pix*, *Cartão 3x*, *Fiado*);
+    - Valor líquido da venda e saldo devedor individual;
+    - Badges de status: `QUITADA` (verde), `DEVE` (vermelho) ou `CANCELADA` (riscado);
+    - Botão "Itens" para visualização rápida.
+  - **Rodapé Totalizador:** Total vendido no período/filtro selecionado, saldo devedor do período e contador de registros.
+  - **Empilhamento Perfeito de Modais:** Abrir os detalhes de uma venda dentro do histórico sobrepõe suavemente o modal (`z-[60]` sobre `z-50`) e, ao fechar os detalhes, o usuário permanece exatamente onde estava no histórico do cliente.
+
+### 2. Atribuição de Vendas Online e de Balcão a Clientes Cadastrados (Aba Vendas & Cobranças):
+- **Identificação de Vínculo na Tabela de Cobrança (`renderizarCobranca`):**
+  - Se a venda já pertencer a um cliente cadastrado: exibe o nome do cliente, badge verde `Cadastrado` com atalho de 1 clique para abrir o histórico de compras do cliente e botão para editar/trocar o vínculo.
+  - Se a venda for de cliente avulso ou pedido online não cadastrado: exibe o botão em destaque `+ Atribuir Cliente` (`abrirModalAtribuirClienteVenda`).
+- **Novo Modal de Atribuição de Venda (`modalAtribuirCliente`):**
+  - Exibe resumo da venda selecionada (ID, Origem, Nome informado pelo comprador e Valor Total Líquido).
+  - Campo de busca em tempo real para localizar clientes por nome ou telefone.
+  - Seletor de clientes exibindo o nome, WhatsApp e total histórico já comprado por cada um na loja.
+  - Botão de atalho rápido `+ Novo Cliente` (`novoClienteDeAtribuicao`): caso o comprador online ainda não esteja cadastrado, abre a tela de cadastro com nome, telefone e endereço já preenchidos automaticamente a partir do pedido. Ao salvar o novo cliente, ele é automaticamente selecionado na modal de atribuição.
+  - Opção para atualizar o nome e telefone da venda para os dados oficiais do cadastro.
+- **Persistência Completa e Sincronização Supabase:**
+  - Criação do método `DatabaseAdapter.atribuirClienteVenda(lojaId, vendaId, clienteId, novoNome, novoTelefone)`, atualizando o campo `cliente_id` diretamente no PostgreSQL / Supabase e garantindo a integridade referencial com a tabela `clientes`.
+  - Atualização automática dos totais e saldos do cliente em todas as telas abertas.
+
+---
+
 ## 📌 Versão 4.1.1 — Correção de Rotas Master, Compressão de Fotos Mobile e Filtros Dinâmicos de Período no Dashboard
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% dos cenários validados via Microsoft Edge Headless CDP)
