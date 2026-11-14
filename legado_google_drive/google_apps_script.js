@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * CLARA GESTÃO - BACKEND MULTI-LOJAS (SAAS & E-COMMERCE) NO GOOGLE DRIVE
+ * GESTÃO MULTI-LOJAS E E-COMMERCE - BACKEND MULTI-LOJAS (SAAS & E-COMMERCE) NO GOOGLE DRIVE
  * ==============================================================================
  * Arquitetura com Banco de Dados Individual por Loja:
  * 1. Planilha Master: Gerencia Lojas, Usuários, Senhas e IDs das Planilhas de cada loja.
@@ -20,7 +20,7 @@ const SENHAS_MASTER_VALIDAS = ["admin123", "123", "admin"];
  */
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu("📁 Clara Gestão")
+    .createMenu("📁 Gestão Multi-lojas e E-Commerce")
     .addItem("Organizar Pastas no Drive", "menuOrganizarPastasDrive")
     .addItem("Executar Setup Inicial", "setupInicial")
     .addToUi();

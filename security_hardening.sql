@@ -1,5 +1,5 @@
 -- ============================================================================
--- CLARA GESTÃO — BLINDAGEM DE SEGURANÇA POSTGRESQL / SUPABASE
+-- GESTÃO MULTI-LOJAS E E-COMMERCE — BLINDAGEM DE SEGURANÇA POSTGRESQL / SUPABASE
 -- Execute este script no SQL Editor do Supabase (https://supabase.com/dashboard)
 -- ============================================================================
 

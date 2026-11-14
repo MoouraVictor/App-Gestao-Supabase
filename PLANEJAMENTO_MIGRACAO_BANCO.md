@@ -2,7 +2,7 @@
 ## Do Google Drive / Google Sheets para Supabase (PostgreSQL Multi-Tenant)
 
 > **Documento de Especificação Técnica & Roteiro de Execução**  
-> **Sistema:** Clara Gestão (SaaS Multi-Lojas, PDV, Vitrine Online & Finanças)  
+> **Sistema:** Gestão Multi-lojas e E-Commerce (SaaS Multi-Lojas, PDV, Vitrine Online & Finanças)  
 > **Status:** Aprovado para Execução em Fases  
 > **Público-alvo deste documento:** Desenvolvedores, Engenheiros de Software e Agentes de IA em sessões futuras.
 
@@ -26,7 +26,7 @@
 ## 1. Visão Geral & Contexto da Decisão
 
 ### 1.1 Cenário Atual
-O sistema **Clara Gestão** opera atualmente com:
+A plataforma **Gestão Multi-lojas e E-Commerce** opera atualmente com:
 - **Frontend SPA (Single Page Application):** HTML5, CSS3 (Tailwind + Custom) e JavaScript puro (`index.html`), hospedado estaticamente no **Netlify**.
 - **Backend:** Google Apps Script (`google_apps_script.js`), atuando como Web App REST (`doGet` e `doPost`).
 - **Banco de Dados:** Uma **Planilha Master** (`GESTÃO MASTER`) e uma **Planilha Dedicada** por loja dentro de pastas organizadas no **Google Drive** (`APP_CLARA_SISTEMA`).
@@ -111,7 +111,7 @@ O script SQL abaixo deve ser executado no **SQL Editor** do Dashboard do Supabas
 
 ```sql
 -- ==============================================================================
--- CLARA GESTÃO - SCHEMA RELACIONAL MULTI-TENANT (SUPABASE POSTGRESQL)
+-- GESTÃO MULTI-LOJAS E E-COMMERCE - SCHEMA RELACIONAL MULTI-TENANT (SUPABASE POSTGRESQL)
 -- ==============================================================================
 
 -- Habilita extensão para geração de UUIDs
@@ -526,7 +526,7 @@ Como já existem 2 lojas cadastradas em teste (`Mary Variedades` e outra loja) c
 O projeto será executado estritamente de forma gradual para garantir estabilidade:
 
 ### 🟩 Fase 1: Setup da Infraestrutura Supabase & Criação de Tabelas
-- [ ] Criar projeto gratuito no Supabase (`clara-gestao`);
+- [ ] Criar projeto gratuito no Supabase (`gestao-multilojas`);
 - [ ] Executar o script DDL SQL completo no SQL Editor;
 - [ ] Obter as chaves de API: `SUPABASE_URL` e `SUPABASE_ANON_KEY`;
 - [ ] Configurar políticas de Row Level Security (RLS) básicas.

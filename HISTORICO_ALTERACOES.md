@@ -4,6 +4,47 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.3.0 — Sistema Automatizado de Notificações de Vendas no Telegram (Bot Central da Plataforma e Bot do Lojista)
+**Data:** 14/11/2026  
+**Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
+
+### 1. Visão Geral da Funcionalidade:
+- Integração nativa e 100% automatizada com a **Telegram Bot API** (`sendMessage`), notificando instantaneamente o lojista sobre eventos vitais do negócio.
+- **Arquitetura Híbrida & Bot Central:**
+  - O Super Administrador configura o Bot Central da plataforma no painel Master (`masterTelegramBotUsername` e `masterTelegramBotToken`).
+  - O lojista precisa apenas iniciar o bot no Telegram e informar o seu número de **Chat ID** (obtido de forma guiada pelo `@userinfobot`).
+  - Lojistas avançados também contam com a opção de conectar seu próprio token de bot do BotFather.
+- **Coexistência Total (Zero Regressão):**
+  - O fluxo existente de envio manual de pedidos via WhatsApp pelo cliente final permanece 100% preservado e inalterado.
+  - As notificações do Telegram rodam de forma assíncrona e não-bloqueante (`fire-and-forget` resiliente), sem qualquer travamento da interface ou do checkout do cliente.
+
+### 2. Eventos Notificados:
+- 🛍️ **Novos Pedidos na Loja Online (Vitrine):** Alerta instantâneo contendo ID do pedido, nome e WhatsApp do cliente, modalidade de entrega (Retirada ou Delivery com endereço), lista detalhada de itens/variações com subtotais, taxa de entrega, total do pedido e forma/condição de pagamento.
+- ⚡ **Vendas Concluídas no Balcão (PDV):** Notificação imediata contendo ID da venda, identificação do cliente, condição de pagamento (À Vista ou parcelado), eventuais descontos concedidos, valor líquido final, saldo devedor lançado em contas a receber e lista de produtos vendidos.
+- ⚠️ **Cancelamento e Estorno de Vendas:** Notificação de auditoria disparada sempre que uma venda ou pedido for cancelado pelo lojista, informando ID da venda, nome do cliente, valor estornado, confirmação de retorno dos produtos ao estoque e motivo registrado pelo operador.
+
+### 3. Interface e Configuração para o Lojista (`tela-loja-online`):
+- **Nova Seção "2.1 Notificações Automáticas no Telegram":**
+  - Toggle inteligente para Ativar / Desativar notificações a qualquer momento.
+  - Passo a passo rápido e intuitivo com link direto para abrir a conversa com o bot central (`t.me/<bot_username>`) e bot de descoberta de ID (`@userinfobot`).
+  - Campo com máscara e validação para inserção do **Chat ID**.
+  - **Granularidade de Eventos:** Checkboxes independentes para escolher quais eventos notificar (Novos Pedidos Online, Vendas no Balcão e Cancelamento de Vendas).
+  - **Botão "Testar Notificação Agora":** Realiza um disparo imediato de teste com feedback visual detalhado via SweetAlert2 (indicando sucesso ou diagnóstico preciso, como bot não iniciado via `/start` ou token incorreto).
+  - Acordeão expansível para configuração opcional de Bot Próprio.
+
+### 4. Gestão Global para o Administrador Master (`tela-master`):
+- **Card "Bot Central de Notificações Telegram da Plataforma":**
+  - Configuração do `@username` e `Token HTTP` do Bot Central.
+  - Persistência híbrida no banco e `localStorage` (`clara_master_telegram_bot_username`, `clara_master_telegram_bot_token`).
+  - Propagação dinâmica para os links de ajuda das lojas gerenciadas.
+
+### 5. Motor JavaScript e Banco de Dados (`TelegramNotifier` & `DatabaseAdapter`):
+- Implementação do objeto `TelegramNotifier` com formatação rica em HTML com emojis, escape de caracteres especiais (`escapeHtml`), timestamp humanizado em horário de Brasília e despacho via `fetch` assíncrono.
+- Script de migração PostgreSQL criado em `telegram_notifications.sql` adicionando colunas `telegram_ativo`, `telegram_chat_id`, `telegram_notif_online`, `telegram_notif_pdv`, `telegram_notif_cancelamento` e `telegram_bot_token_custom` na tabela `configuracoes_loja`.
+- Implementação de fallback defensivo em `DatabaseAdapter.salvarConfiguracoesLoja`: se o lojista salvar as configurações antes de executar o script SQL no Supabase, a aplicação trata graciosamente a ausência das colunas e preserva os dados no armazenamento local sem emitir erros impeditivos.
+
+---
+
 ## 📌 Versão 4.2.0 — Histórico Completo de Vendas por Cliente e Atribuição de Pedidos Online a Clientes Cadastrados
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
@@ -592,7 +633,7 @@ Este documento registra todas as alterações, manutenções, implementações d
   - Implementada `organizarEstruturaPastasDrive()` no Google Apps Script para criar subpastas e alocar automaticamente a Master, as planilhas dedicadas e as imagens.
   - Implementada `obterPastaRaizSistema()`, `obterOuCriarPastaDaLoja(lojaId, nomeLoja)` e `obterOuCriarSubpastaImagensDaLoja(pastaLoja)`.
   - Atualizadas as rotinas de criação de loja (`criarNovaLojaComBancoDedicado`) e upload de imagens (`salvarImagemNoDrive(nomeArquivo, base44Data, lojaId)`).
-  - Adicionado menu nativo no Google Sheets (`📁 Clara Gestão > Organizar Pastas no Drive`).
+  - Adicionado menu nativo no Google Sheets (`📁 Gestão Multi-lojas e E-Commerce > Organizar Pastas no Drive`).
   - Adicionado botão interativo com confirmação no Painel Master da interface web (`Organizar Pastas no Drive`).
 
 ---

@@ -1,4 +1,4 @@
-# 🚀 Guia de Uso da Plataforma Multi-Lojas & E-Commerce Clara Gestão
+# 🚀 Guia de Uso da Plataforma Gestão Multi-lojas e E-Commerce
 
 Este documento apresenta o funcionamento da nova arquitetura **SaaS (Multi-Lojas)** com **Bancos de Dados Dedicados no Google Drive**, **Painel Master (Super Admin)**, **Customização de Marca** e **Loja Online Pública para Clientes**.
 
@@ -125,7 +125,7 @@ Ao fazer login como lojista, acesse a aba **`🎨 Loja Online & Marca`** para co
 
 O arquivo [`google_apps_script.js`](file:///c:/Users/victo/OneDrive/Documentos/APP%20CLARA/google_apps_script.js) já possui toda a lógica de gerenciamento de pastas e criação de planilhas dedicadas:
 
-1. Abra o [Google Drive](https://drive.google.com) e crie uma planilha para ser o seu **Banco de Dados Master** (ex: `Clara Gestão - Master`).
+1. Abra o [Google Drive](https://drive.google.com) e crie uma planilha para ser o seu **Banco de Dados Master** (ex: `Gestão Multi-lojas - Master`).
 2. Clique em **Extensões** > **Apps Script**, apague o conteúdo e cole o código do arquivo [`google_apps_script.js`](file:///c:/Users/victo/OneDrive/Documentos/APP%20CLARA/google_apps_script.js).
 3. Selecione a função **`setupInicial`** e clique em **Executar** (dê as permissões solicitadas pelo Google).
 4. Clique em **Implantar** > **Nova implantação** > **Aplicativo da Web**:

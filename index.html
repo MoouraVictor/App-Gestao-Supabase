@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plataforma Clara Gestão - Multi-Lojas & E-Commerce</title>
+  <title>Gestão Multi-lojas e E-Commerce</title>
 
   <!-- Tailwind CSS & Font -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -156,7 +156,7 @@
         class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
         <i data-lucide="store" class="w-8 h-8"></i>
       </div>
-      <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Clara Gestão</h2>
+      <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Gestão Multi-lojas e E-Commerce</h2>
       <p class="text-xs text-slate-500 mb-6">Plataforma Multi-Lojas & Catálogo Digital</p>
 
       <form id="formLogin" onsubmit="fazerLoginSubmit(event); return false;" class="space-y-4 text-left">
@@ -208,7 +208,7 @@
           <i id="sidebarLogoIcon" data-lucide="layers" class="w-5 h-5"></i>
         </div>
         <div class="truncate">
-          <h1 id="sidebarTituloLoja" class="text-sm font-bold text-white truncate">Clara Gestão</h1>
+          <h1 id="sidebarTituloLoja" class="text-sm font-bold text-white truncate">Gestão Multi-lojas e E-Commerce</h1>
           <p id="sidebarSubtituloLoja" class="text-[11px] text-slate-400 truncate">Painel de Controle</p>
         </div>
       </div>
@@ -269,7 +269,7 @@
         <i id="mobileHeaderIcon" data-lucide="store" class="w-4 h-4"></i>
       </div>
       <div class="truncate">
-        <h1 class="text-xs font-bold leading-tight truncate" id="nomeEmpresaMobile">Clara Gestão</h1>
+        <h1 class="text-xs font-bold leading-tight truncate" id="nomeEmpresaMobile">Gestão Multi-lojas e E-Commerce</h1>
         <p class="text-[10px] text-slate-400" id="perfilUsuarioMobile">Lojista</p>
       </div>
     </div>
@@ -302,7 +302,7 @@
             <i data-lucide="layers" class="w-4 h-4"></i>
           </div>
           <div class="truncate">
-            <h2 id="drawerTituloLoja" class="text-xs font-bold truncate">Clara Gestão</h2>
+            <h2 id="drawerTituloLoja" class="text-xs font-bold truncate">Gestão Multi-lojas e E-Commerce</h2>
             <span id="drawerPerfilBadge"
               class="text-[9px] font-extrabold text-blue-400 uppercase tracking-wider block">LOJISTA</span>
           </div>
@@ -432,6 +432,52 @@
           <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider block mb-1">Contas a Receber</span>
           <div id="masterTotalDevedor" class="text-2xl font-extrabold text-rose-600">R$ 0,00</div>
           <span class="text-[11px] text-rose-500 font-semibold">Dívidas em aberto</span>
+        </div>
+      </div>
+
+      <!-- Configurações Globais: Bot Central do Telegram da Plataforma -->
+      <div class="bg-white rounded-3xl p-5 md:p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-sky-50 flex items-center justify-center text-sky-500 shadow-sm">
+              <i data-lucide="bot" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>Bot Central de Notificações Telegram</span>
+                <span class="text-[10px] bg-sky-100 text-sky-700 font-extrabold px-2 py-0.5 rounded-full uppercase">Plataforma</span>
+              </h3>
+              <p class="text-xs text-slate-400">Configure o bot oficial do Telegram que enviará notificações automáticas de vendas para todos os lojistas.</p>
+            </div>
+          </div>
+          <button onclick="salvarConfigMasterTelegram()" type="button"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-sm active:scale-95 transition">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+            <span>Salvar Configuração Master</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+              Username do Bot Central (sem @)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">@</span>
+              <input type="text" id="masterTelegramBotUsername" placeholder="Ex: GestaoNotificaBot"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500">
+            </div>
+            <span class="text-[11px] text-slate-400 mt-1 block">O username configurado no @BotFather do Telegram.</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+              Token da API do Bot (BotFather)
+            </label>
+            <input type="password" id="masterTelegramBotToken" placeholder="Ex: 7123456789:AAHxxxxx..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500">
+            <span class="text-[11px] text-slate-400 mt-1 block">Token HTTP gerado ao criar o bot no Telegram BotFather.</span>
+          </div>
         </div>
       </div>
 
@@ -780,7 +826,7 @@
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nome de Exibição da
                 Loja *</label>
-              <input type="text" id="cfgNomeLoja" required placeholder="Ex: Clara Moda & Estilo"
+              <input type="text" id="cfgNomeLoja" required placeholder="Ex: Bela Moda & Estilo"
                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-blue-500">
             </div>
 
@@ -976,6 +1022,108 @@
               <input type="number" id="cfgTaxaEntrega" min="0" step="0.5" placeholder="0,00"
                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-blue-500">
             </div>
+          </div>
+        </div>
+
+        <!-- 2.1 Notificações Automáticas no Telegram -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-2xl bg-sky-50 flex items-center justify-center text-sky-500 shadow-sm shrink-0">
+                <i data-lucide="send" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>Notificações Automáticas no Telegram</span>
+                  <span class="text-[10px] bg-sky-100 text-sky-700 font-extrabold px-2 py-0.5 rounded-full uppercase">Novo</span>
+                </h3>
+                <p class="text-xs text-slate-500">Receba no seu Telegram avisos instantâneos de novos pedidos online, vendas no balcão e cancelamentos.</p>
+              </div>
+            </div>
+
+            <!-- Switch Ativar/Desativar -->
+            <label class="relative inline-flex items-center cursor-pointer select-none">
+              <input type="checkbox" id="cfgTelegramAtivo" onchange="alternarCamposTelegram()" class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+              <span class="ml-2.5 text-xs font-bold text-slate-700" id="labelTelegramStatus">Desativado</span>
+            </label>
+          </div>
+
+          <!-- Conteúdo configurável -->
+          <div id="painelTelegramConfig" class="space-y-4">
+            <!-- Guia de Conexão Rápida -->
+            <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-4 text-xs text-slate-700 space-y-2">
+              <span class="font-bold text-sky-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
+                <i data-lucide="info" class="w-4 h-4 text-sky-600"></i>
+                Como ativar em 3 passos rápidos:
+              </span>
+              <ol class="list-decimal list-inside space-y-1 text-slate-600 font-medium pl-1">
+                <li>Abra o bot oficial no Telegram: <a id="linkTelegramBotCentral" href="https://t.me/GestaoNotificaBot" target="_blank" class="font-bold text-sky-600 underline hover:text-sky-700 inline-flex items-center gap-0.5">@GestaoNotificaBot <i data-lucide="external-link" class="w-3 h-3"></i></a> e clique em <b>COMEÇAR (/start)</b>.</li>
+                <li>Para descobrir seu Chat ID numérico, abra o bot gratuito <a href="https://t.me/userinfobot" target="_blank" class="font-bold text-sky-600 underline hover:text-sky-700 inline-flex items-center gap-0.5">@userinfobot <i data-lucide="external-link" class="w-3 h-3"></i></a> e envie <code>/start</code>.</li>
+                <li>Copie o número do campo <b>Id</b> exibido e cole no campo abaixo. Depois clique em <b>Testar Notificação</b>!</li>
+              </ol>
+            </div>
+
+            <!-- Campos Chat ID e Teste -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Seu Chat ID do Telegram *
+                </label>
+                <div class="relative">
+                  <i data-lucide="message-square" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                  <input type="text" id="cfgTelegramChatId" placeholder="Ex: 123456789 (somente números)"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-sky-500">
+                </div>
+                <span class="text-[11px] text-slate-400 mt-1 block">Identificador numérico do seu chat pessoal ou grupo do Telegram.</span>
+              </div>
+
+              <div>
+                <button type="button" onclick="testarDisparoTelegram()"
+                  class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-sm active:scale-95 transition">
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>Testar Notificação</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Granularidade de Eventos -->
+            <div class="border-t border-slate-100 pt-3">
+              <span class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Quais eventos deseja receber:</span>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="flex items-center space-x-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white cursor-pointer transition">
+                  <input type="checkbox" id="cfgTelegramNotifOnline" checked class="rounded text-sky-600 focus:ring-sky-500">
+                  <span class="text-xs font-semibold text-slate-800">Novos Pedidos Online (Vitrine)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white cursor-pointer transition">
+                  <input type="checkbox" id="cfgTelegramNotifPdv" checked class="rounded text-sky-600 focus:ring-sky-500">
+                  <span class="text-xs font-semibold text-slate-800">Vendas no Balcão (PDV)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white cursor-pointer transition">
+                  <input type="checkbox" id="cfgTelegramNotifCancelamento" checked class="rounded text-sky-600 focus:ring-sky-500">
+                  <span class="text-xs font-semibold text-slate-800">Cancelamento de Vendas</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Opções Avançadas (Bot Personalizado) -->
+            <details class="group border border-slate-100 rounded-xl p-3 bg-slate-50/30">
+              <summary class="text-xs font-bold text-slate-500 cursor-pointer list-none flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Configuração Avançada: Usar Token de Bot Próprio (Opcional)</span>
+                </span>
+                <span class="text-[10px] text-slate-400 font-normal">Clique para expandir</span>
+              </summary>
+              <div class="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                  Token do Bot Próprio (BotFather)
+                </label>
+                <input type="password" id="cfgTelegramBotTokenCustom" placeholder="Deixe em branco para usar o bot oficial da plataforma"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-sky-500">
+                <span class="text-[11px] text-slate-400 block">Deixe vazio para usar automaticamente o bot central padrão da plataforma.</span>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -2048,7 +2196,7 @@
         <div>
           <label class="block font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Responsável /
             Lojista</label>
-          <input type="text" id="mLojaResponsavel" placeholder="Ex: Clara Silva"
+          <input type="text" id="mLojaResponsavel" placeholder="Ex: Maria Silva"
             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium">
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -2242,7 +2390,7 @@
 
         <div>
           <label class="block font-bold text-slate-500 uppercase tracking-wider mb-1">Nome do Responsável / Lojista</label>
-          <input type="text" id="editLojaResponsavel" placeholder="Ex: Clara Silva"
+          <input type="text" id="editLojaResponsavel" placeholder="Ex: Maria Silva"
             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium">
         </div>
 
@@ -3152,7 +3300,14 @@
             modeloParcelamento: conf.modelo_parcelamento || 'MODELO_1',
             valorMinimoParcela: Number(conf.valor_minimo_parcela) || 50,
             maxParcelas: conf.max_parcelas_geral || 6,
-            faixas: conf.tabela_faixas_json || []
+            faixas: conf.tabela_faixas_json || [],
+            // Notificações Telegram
+            telegramAtivo: !!conf.telegram_ativo,
+            telegramChatId: conf.telegram_chat_id || '',
+            telegramNotifOnline: (conf.telegram_notif_online !== undefined ? conf.telegram_notif_online !== false : conf.telegram_notificar_online !== false),
+            telegramNotifPdv: (conf.telegram_notif_pdv !== undefined ? conf.telegram_notif_pdv !== false : conf.telegram_notificar_pdv !== false),
+            telegramNotifCancelamento: (conf.telegram_notif_cancelamento !== undefined ? conf.telegram_notif_cancelamento !== false : conf.telegram_notificar_cancelamento !== false),
+            telegramBotTokenCustom: conf.telegram_bot_token_custom || conf.telegram_bot_token || ''
           };
 
           const produtosFormatados = (rProds.data || []).map(p => ({
@@ -3642,10 +3797,33 @@
           modelo_parcelamento: cfg.modeloParcelamento || 'MODELO_1',
           valor_minimo_parcela: Number(cfg.valorMinimoParcela) || 50,
           max_parcelas_geral: Number(cfg.maxParcelas) || 6,
-          tabela_faixas_json: cfg.faixas || []
+          tabela_faixas_json: cfg.faixas || [],
+          telegram_ativo: !!cfg.telegramAtivo,
+          telegram_chat_id: cfg.telegramChatId || '',
+          telegram_notif_online: cfg.telegramNotifOnline !== false,
+          telegram_notif_pdv: cfg.telegramNotifPdv !== false,
+          telegram_notif_cancelamento: cfg.telegramNotifCancelamento !== false,
+          telegram_bot_token_custom: cfg.telegramBotTokenCustom || ''
         };
-        const { error } = await this.supabase.from('configuracoes_loja').upsert(payload);
-        if (error) throw error;
+        try {
+          const { error } = await this.supabase.from('configuracoes_loja').upsert(payload);
+          if (error) throw error;
+        } catch (errUpsert) {
+          const msg = (errUpsert && errUpsert.message) ? errUpsert.message.toLowerCase() : '';
+          if (msg.includes('telegram') || msg.includes('column')) {
+            console.warn('[DatabaseAdapter] Colunas telegram ainda não migradas no Supabase. Salvando campos base...', errUpsert);
+            delete payload.telegram_ativo;
+            delete payload.telegram_chat_id;
+            delete payload.telegram_notif_online;
+            delete payload.telegram_notif_pdv;
+            delete payload.telegram_notif_cancelamento;
+            delete payload.telegram_bot_token_custom;
+            const { error: errRetry } = await this.supabase.from('configuracoes_loja').upsert(payload);
+            if (errRetry) throw errRetry;
+          } else {
+            throw errUpsert;
+          }
+        }
         return { status: 'sucesso', logoUrl };
       },
 
@@ -3699,10 +3877,10 @@
       async registrarMetrica(lojaId, evento, produto = null) {
         if (!this.isSupabase() || !lojaId) return;
         try {
-          let sessId = sessionStorage.getItem('CLARA_SESSION_ID');
+          let sessId = sessionStorage.getItem('GESTAO_SESSION_ID') || sessionStorage.getItem('CLARA_SESSION_ID');
           if (!sessId) {
             sessId = 'SESS-' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).substr(2, 6)));
-            sessionStorage.setItem('CLARA_SESSION_ID', sessId);
+            sessionStorage.setItem('GESTAO_SESSION_ID', sessId);
           }
           const payload = {
             loja_id: lojaId,
@@ -3776,6 +3954,238 @@
       }
     };
 
+    // =========================================================================
+    // SERVIÇO DE NOTIFICAÇÕES TELEGRAM (CENTRAL DA PLATAFORMA + BOT LOJISTA)
+    // =========================================================================
+    const TelegramNotifier = {
+      TOKEN_PADRAO_FALLBACK: '',
+
+      getMasterConfig() {
+        const db = getDB();
+        const confMaster = (db && db.configMaster) ? db.configMaster : {};
+        const token = confMaster.telegramBotToken || localStorage.getItem('master_telegram_bot_token') || localStorage.getItem('clara_master_telegram_bot_token') || this.TOKEN_PADRAO_FALLBACK;
+        const username = confMaster.telegramBotUsername || localStorage.getItem('master_telegram_bot_username') || localStorage.getItem('clara_master_telegram_bot_username') || 'GestaoNotificaBot';
+        return { token, username };
+      },
+
+      getToken(loja) {
+        if (loja && loja.telegramBotTokenCustom && loja.telegramBotTokenCustom.trim()) {
+          return loja.telegramBotTokenCustom.trim();
+        }
+        return this.getMasterConfig().token;
+      },
+
+      escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      },
+
+      formatarDataHora(isoStr) {
+        try {
+          const d = isoStr ? new Date(isoStr) : new Date();
+          return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        } catch (e) {
+          return new Date().toLocaleString('pt-BR');
+        }
+      },
+
+      isTelegramAtivo(loja) {
+        if (!loja) return false;
+        const ativo = (loja.telegramAtivo === true || loja.telegramAtivo === 'true' || loja.telegram_ativo === true);
+        const temChatId = !!(loja.telegramChatId && String(loja.telegramChatId).trim());
+        return ativo && temChatId;
+      },
+
+      async enviarMensagem(chatId, textoHtml, token = null) {
+        if (!chatId) {
+          return { status: 'erro', mensagem: 'Chat ID não informado.' };
+        }
+        const tokenFinal = token || this.getMasterConfig().token;
+        if (!tokenFinal) {
+          console.warn('[TelegramNotifier] Nenhum token configurado na plataforma ou na loja.');
+          return { status: 'erro', mensagem: 'Nenhum token do Bot do Telegram configurado no sistema.' };
+        }
+
+        const endpoint = `https://api.telegram.org/bot${tokenFinal}/sendMessage`;
+        try {
+          const resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: String(chatId).trim(),
+              text: textoHtml,
+              parse_mode: 'HTML',
+              disable_web_page_preview: true
+            })
+          });
+
+          const data = await resp.json();
+          if (data && data.ok) {
+            return { status: 'sucesso', data };
+          } else {
+            console.warn('[TelegramNotifier] Erro retornado pela API Telegram:', data);
+            return {
+              status: 'erro',
+              mensagem: data.description || 'Erro desconhecido retornado pela API do Telegram.',
+              errorCode: data.error_code
+            };
+          }
+        } catch (err) {
+          console.error('[TelegramNotifier] Falha de rede ao conectar com a API do Telegram:', err);
+          return { status: 'erro', mensagem: err.message || 'Falha de conexão com a API do Telegram.' };
+        }
+      },
+
+      formatarPedidoOnline(loja, pedido) {
+        const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
+        const idPed = this.escapeHtml(pedido.id || '');
+        const nomeCli = this.escapeHtml(pedido.clienteNome || 'Cliente');
+        const telCli = this.escapeHtml(pedido.clienteTelefone || '');
+        const modalidade = this.escapeHtml(pedido.modalidadeEntrega || 'Retirada');
+        const endereco = this.escapeHtml(pedido.enderecoEntrega || '');
+        const taxa = Number(pedido.taxaEntrega) || 0;
+        const total = Number(pedido.totalLiquido) || 0;
+        const parcelas = Number(pedido.parcelas) || 1;
+        const forma = this.escapeHtml(pedido.formaPagamento || 'Pix');
+        const condicao = parcelas > 1 ? `${parcelas}x de ${formatarMoeda(total / parcelas)}` : 'À Vista';
+
+        let msg = `🛍️ <b>NOVO PEDIDO ONLINE - ${nomeLoja.toUpperCase()}</b>\n`;
+        msg += `🆔 <b>Pedido:</b> #${idPed}\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
+        msg += `📱 <b>WhatsApp:</b> ${telCli}\n`;
+        msg += `🛵 <b>Modalidade:</b> ${modalidade}\n`;
+        if (modalidade === 'Delivery' && endereco) {
+          msg += `📍 <b>Endereço:</b> ${endereco}\n`;
+        }
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `📦 <b>ITENS DO PEDIDO:</b>\n`;
+
+        const itens = pedido.itens || [];
+        itens.forEach(it => {
+          const nomeItem = this.escapeHtml(it.nome || 'Item');
+          const varItem = it.variacao ? ` (${this.escapeHtml(it.variacao)})` : '';
+          const qtd = Number(it.quantidade) || 1;
+          const sub = Number(it.subtotal) || 0;
+          msg += `• ${qtd}x ${nomeItem}${varItem} - ${formatarMoeda(sub)}\n`;
+        });
+
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        if (taxa > 0) {
+          msg += `🛵 <b>Taxa de Entrega:</b> ${formatarMoeda(taxa)}\n`;
+        }
+        msg += `💰 <b>TOTAL:</b> ${formatarMoeda(total)}\n`;
+        msg += `💳 <b>Pagamento:</b> ${forma} (${condicao})\n`;
+        msg += `⏰ <i>${this.formatarDataHora(pedido.dataHora)}</i>\n\n`;
+        msg += `👉 <i>Gerado pelo Catálogo Gestão Multi-lojas e E-Commerce</i>`;
+        return msg;
+      },
+
+      formatarVendaPdv(loja, venda) {
+        const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
+        const idVenda = this.escapeHtml(venda.id || '');
+        const nomeCli = this.escapeHtml(venda.clienteNome || 'Consumidor Final');
+        const condicao = this.escapeHtml(venda.condicaoPagamento || 'À Vista');
+        const parcelas = Number(venda.parcelas) || 1;
+        const totalBruto = Number(venda.totalBruto) || 0;
+        const desconto = Number(venda.desconto) || 0;
+        const totalLiq = Number(venda.totalLiquido) || 0;
+        const saldoDev = Number(venda.saldoDevedor) || 0;
+
+        let msg = `⚡ <b>NOVA VENDA NO BALCÃO (PDV) - ${nomeLoja.toUpperCase()}</b>\n`;
+        msg += `🆔 <b>Venda:</b> #${idVenda}\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
+        msg += `💳 <b>Condição:</b> ${condicao}${condicao === 'A Prazo' && parcelas > 1 ? ` (${parcelas}x)` : ''}\n`;
+        if (desconto > 0) {
+          msg += `🏷️ <b>Subtotal:</b> ${formatarMoeda(totalBruto)}\n`;
+          msg += `✂️ <b>Desconto:</b> -${formatarMoeda(desconto)}\n`;
+        }
+        msg += `💰 <b>VALOR FINAL:</b> ${formatarMoeda(totalLiq)}\n`;
+        if (saldoDev > 0) {
+          msg += `⏳ <b>Saldo Devedor (A Receber):</b> ${formatarMoeda(saldoDev)}\n`;
+        }
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `📦 <b>ITENS VENDIDOS:</b>\n`;
+
+        const itens = venda.itens || [];
+        itens.forEach(it => {
+          const nomeItem = this.escapeHtml(it.nome || 'Item');
+          const varItem = it.variacao ? ` (${this.escapeHtml(it.variacao)})` : '';
+          const qtd = Number(it.quantidade) || 1;
+          const sub = Number(it.subtotal || it.precoVendaUnitario * qtd) || 0;
+          msg += `• ${qtd}x ${nomeItem}${varItem} - ${formatarMoeda(sub)}\n`;
+        });
+
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `⏰ <i>${this.formatarDataHora(venda.dataHora)}</i>\n\n`;
+        msg += `👉 <i>Registrado no PDV Gestão Multi-lojas e E-Commerce</i>`;
+        return msg;
+      },
+
+      formatarCancelamento(loja, venda, motivo) {
+        const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
+        const idVenda = this.escapeHtml(venda.id || '');
+        const nomeCli = this.escapeHtml(venda.clienteNome || 'Consumidor');
+        const valorEstornado = Number(venda.totalLiquido) || 0;
+        const motivoFormatado = this.escapeHtml(motivo || 'Cancelamento solicitado pelo lojista');
+
+        let msg = `⚠️ <b>VENDA CANCELADA - ${nomeLoja.toUpperCase()}</b>\n`;
+        msg += `🆔 <b>Venda/Pedido:</b> #${idVenda}\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
+        msg += `💰 <b>Valor Estornado:</b> ${formatarMoeda(valorEstornado)}\n`;
+        msg += `📦 <b>Itens Devolvidos ao Estoque:</b> Sim\n`;
+        msg += `📝 <b>Motivo:</b> ${motivoFormatado}\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `⏰ <i>${this.formatarDataHora(venda.dataCancelamento || new Date().toISOString())}</i>`;
+        return msg;
+      },
+
+      async notificarPedidoOnline(loja, pedido) {
+        if (!this.isTelegramAtivo(loja)) return;
+        if (loja.telegramNotifOnline === false || String(loja.telegramNotifOnline) === 'false') return;
+        const texto = this.formatarPedidoOnline(loja, pedido);
+        const token = this.getToken(loja);
+        return await this.enviarMensagem(loja.telegramChatId, texto, token);
+      },
+
+      async notificarVendaPdv(loja, venda) {
+        if (!this.isTelegramAtivo(loja)) return;
+        if (loja.telegramNotifPdv === false || String(loja.telegramNotifPdv) === 'false') return;
+        const texto = this.formatarVendaPdv(loja, venda);
+        const token = this.getToken(loja);
+        return await this.enviarMensagem(loja.telegramChatId, texto, token);
+      },
+
+      async notificarCancelamento(loja, venda, motivo) {
+        if (!this.isTelegramAtivo(loja)) return;
+        if (loja.telegramNotifCancelamento === false || String(loja.telegramNotifCancelamento) === 'false') return;
+        const texto = this.formatarCancelamento(loja, venda, motivo);
+        const token = this.getToken(loja);
+        return await this.enviarMensagem(loja.telegramChatId, texto, token);
+      },
+
+      async testarConexao(loja, chatId, tokenCustom = null) {
+        const nomeLoja = this.escapeHtml(loja?.nomeLoja || 'Sua Loja');
+        const token = (tokenCustom && tokenCustom.trim()) ? tokenCustom.trim() : this.getToken(loja);
+
+        let msg = `🔔 <b>TESTE DE CONEXÃO - GESTÃO MULTI-LOJAS E E-COMMERCE</b>\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `Olá! Esta é uma notificação de teste da sua loja <b>${nomeLoja}</b>.\n\n`;
+        msg += `✅ <b>Status:</b> O sistema de notificações automáticas via Telegram está configurado e pronto para o envio instantâneo!\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `⏰ <i>${this.formatarDataHora()}</i>`;
+
+        return await this.enviarMensagem(chatId, msg, token);
+      }
+    };
+
     // --- GERENCIADOR VISUAL DE CARREGAMENTO DO BANCO DE DADOS ---
     let timerCarregandoBancoSeguranca = null;
 
@@ -3822,7 +4232,7 @@
           nomeLoja: 'Mary Variedades',
           login: 'moda',
           senha: '',
-          nomeResponsavel: 'Clara Designer',
+          nomeResponsavel: 'Maria Designer',
           whatsapp: '(11) 98888-7777',
           slogan: 'Vestuário Feminino e Perfumaria',
           corPrimaria: '#c98e88',
@@ -3846,27 +4256,33 @@
       ]
     };
 
+    const DB_STORAGE_KEY = 'GESTAO_DB_V3';
+
     function inicializarBancoLocal() {
       let db = null;
       try {
-        const raw = localStorage.getItem('CLARA_DB_V3');
+        const raw = localStorage.getItem(DB_STORAGE_KEY) || localStorage.getItem('CLARA_DB_V3');
         if (raw) db = JSON.parse(raw);
       } catch (e) { }
 
       if (!db || !Array.isArray(db.lojas) || db.lojas.length === 0) {
-        localStorage.setItem('CLARA_DB_V3', JSON.stringify(DADOS_INICIAIS));
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(DADOS_INICIAIS));
         return;
+      }
+      if (!localStorage.getItem(DB_STORAGE_KEY)) {
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(db));
       }
     }
 
     function getDB() {
       inicializarBancoLocal();
-      return JSON.parse(localStorage.getItem('CLARA_DB_V3'));
+      const raw = localStorage.getItem(DB_STORAGE_KEY) || localStorage.getItem('CLARA_DB_V3');
+      return JSON.parse(raw);
     }
 
     function saveDB(dados) {
       try {
-        localStorage.setItem('CLARA_DB_V3', JSON.stringify(dados));
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(dados));
       } catch (e) {
         console.warn('Aviso: Falha ao persistir no localStorage (limite excedido?):', e);
       }
@@ -4038,7 +4454,7 @@
       atualizarStatusConexaoVisual(true);
 
       // Restaura sessão salva se houver
-      const sessaoSalva = localStorage.getItem('CLARA_SESSAO');
+      const sessaoSalva = localStorage.getItem('GESTAO_SESSAO') || localStorage.getItem('CLARA_SESSAO');
       if (sessaoSalva) {
         try {
           const s = JSON.parse(sessaoSalva);
@@ -4284,7 +4700,7 @@
       ESTADO.usuarioLogado = usuarioObj;
       ESTADO.lojaAtivaId = lojaId || (usuarioObj.perfil === 'MASTER' ? null : 'LOJA-1');
 
-      localStorage.setItem('CLARA_SESSAO', JSON.stringify({ usuario: usuarioObj, lojaId: ESTADO.lojaAtivaId }));
+      localStorage.setItem('GESTAO_SESSAO', JSON.stringify({ usuario: usuarioObj, lojaId: ESTADO.lojaAtivaId }));
       const mLogin = document.getElementById('modalLogin');
       if (mLogin) {
         mLogin.classList.add('hidden');
@@ -4309,6 +4725,7 @@
 
     function fazerLogout() {
       fecharMenuMobile();
+      localStorage.removeItem('GESTAO_SESSAO');
       localStorage.removeItem('CLARA_SESSAO');
       ESTADO.usuarioLogado = null;
       ESTADO.lojaAtivaId = null;
@@ -4357,7 +4774,7 @@
       fecharMenuMobile();
       ESTADO.lojaAtivaId = null;
       if (ESTADO.usuarioLogado) {
-        localStorage.setItem('CLARA_SESSAO', JSON.stringify({ usuario: ESTADO.usuarioLogado, lojaId: null }));
+        localStorage.setItem('GESTAO_SESSAO', JSON.stringify({ usuario: ESTADO.usuarioLogado, lojaId: null }));
       }
       configurarInterfaceMaster();
       navegar('master');
@@ -4862,6 +5279,38 @@
       document.getElementById('masterTotalDevedor').textContent = formatarMoeda(devGlobal);
 
       filtrarLojasMaster(resumoPorLoja);
+      carregarConfigMasterTelegram();
+    }
+
+    function carregarConfigMasterTelegram() {
+      const config = TelegramNotifier.getMasterConfig();
+      const inputUser = document.getElementById('masterTelegramBotUsername');
+      const inputToken = document.getElementById('masterTelegramBotToken');
+      if (inputUser) inputUser.value = config.username || '';
+      if (inputToken) inputToken.value = config.token || '';
+    }
+
+    function salvarConfigMasterTelegram() {
+      const username = (document.getElementById('masterTelegramBotUsername')?.value || '').trim().replace('@', '');
+      const token = (document.getElementById('masterTelegramBotToken')?.value || '').trim();
+
+      const db = getDB();
+      if (!db.configMaster) db.configMaster = {};
+      db.configMaster.telegramBotUsername = username;
+      db.configMaster.telegramBotToken = token;
+      saveDB(db);
+
+      localStorage.setItem('master_telegram_bot_username', username);
+      localStorage.setItem('master_telegram_bot_token', token);
+      localStorage.setItem('clara_master_telegram_bot_username', username);
+      localStorage.setItem('clara_master_telegram_bot_token', token);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Configurações Master Salvas!',
+        text: 'O Bot Central do Telegram da plataforma foi atualizado com sucesso.',
+        timer: 2000
+      });
     }
 
     function filtrarLojasMaster(cacheResumo = null) {
@@ -5447,9 +5896,96 @@
         document.getElementById('cfgIconeSemLogo').classList.remove('hidden');
       }
 
+      // Notificações Telegram
+      const chkTelegram = document.getElementById('cfgTelegramAtivo');
+      if (chkTelegram) chkTelegram.checked = !!(loja.telegramAtivo === true || loja.telegramAtivo === 'true' || loja.telegram_ativo === true);
+      const inputChatId = document.getElementById('cfgTelegramChatId');
+      if (inputChatId) inputChatId.value = loja.telegramChatId || '';
+      const chkOnline = document.getElementById('cfgTelegramNotifOnline');
+      if (chkOnline) chkOnline.checked = (loja.telegramNotifOnline !== false && String(loja.telegramNotifOnline) !== 'false');
+      const chkPdv = document.getElementById('cfgTelegramNotifPdv');
+      if (chkPdv) chkPdv.checked = (loja.telegramNotifPdv !== false && String(loja.telegramNotifPdv) !== 'false');
+      const chkCancel = document.getElementById('cfgTelegramNotifCancelamento');
+      if (chkCancel) chkCancel.checked = (loja.telegramNotifCancelamento !== false && String(loja.telegramNotifCancelamento) !== 'false');
+      const inputTokenCustom = document.getElementById('cfgTelegramBotTokenCustom');
+      if (inputTokenCustom) inputTokenCustom.value = loja.telegramBotTokenCustom || '';
+
+      const linkBot = document.getElementById('linkTelegramBotCentral');
+      const botConfig = TelegramNotifier.getMasterConfig();
+      if (linkBot && botConfig.username) {
+        const u = botConfig.username.replace('@', '');
+        linkBot.href = `https://t.me/${u}`;
+        linkBot.innerHTML = `@${u} <i data-lucide="external-link" class="w-3 h-3"></i>`;
+      }
+      alternarCamposTelegram();
+
       alternarModeloParcelamento(loja.modeloParcelamento || 'MODELO_1');
       renderizarEditorFaixas();
       aplicarIdentidadeVisualLoja(loja);
+    }
+
+    function alternarCamposTelegram() {
+      const chk = document.getElementById('cfgTelegramAtivo');
+      const label = document.getElementById('labelTelegramStatus');
+      const painel = document.getElementById('painelTelegramConfig');
+      if (!chk) return;
+      if (chk.checked) {
+        if (label) {
+          label.textContent = 'Ativado';
+          label.className = 'ml-2.5 text-xs font-bold text-sky-600';
+        }
+        if (painel) painel.classList.remove('opacity-40', 'pointer-events-none');
+      } else {
+        if (label) {
+          label.textContent = 'Desativado';
+          label.className = 'ml-2.5 text-xs font-bold text-slate-400';
+        }
+        if (painel) painel.classList.add('opacity-40', 'pointer-events-none');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function testarDisparoTelegram() {
+      const loja = getLojaAtiva();
+      const chatId = (document.getElementById('cfgTelegramChatId')?.value || '').trim();
+      const tokenCustom = (document.getElementById('cfgTelegramBotTokenCustom')?.value || '').trim();
+
+      if (!chatId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Chat ID Obrigatório',
+          html: 'Por favor, informe seu <b>Chat ID</b> para enviar a notificação de teste.<br><br><span class="text-xs text-slate-500">Dica: Inicie o bot <b>@userinfobot</b> no Telegram para descobrir seu ID numérico.</span>'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Enviando Notificação...',
+        text: 'Conectando ao bot do Telegram...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const res = await TelegramNotifier.testarConexao(loja, chatId, tokenCustom);
+      if (res && res.status === 'sucesso') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Notificação Enviada!',
+          html: 'A mensagem de teste foi entregue com sucesso no seu Telegram! Verifique a conversa com o bot.'
+        });
+      } else {
+        let dicaErro = '';
+        if (res.errorCode === 400 || (res.mensagem && res.mensagem.includes('chat not found'))) {
+          dicaErro = '<br><br><span class="text-xs text-amber-600 font-semibold">⚠️ Certifique-se de que você abriu a conversa com o bot no Telegram e clicou em <b>COMEÇAR (/start)</b> antes de testar.</span>';
+        } else if (res.errorCode === 401 || (res.mensagem && res.mensagem.includes('Unauthorized'))) {
+          dicaErro = '<br><br><span class="text-xs text-rose-600 font-semibold">⚠️ Token do bot inválido ou expirado. Verifique a configuração Master ou o Token Personalizado.</span>';
+        }
+        Swal.fire({
+          icon: 'error',
+          title: 'Falha no Envio',
+          html: `Não foi possível enviar a mensagem no Telegram.<br><b>Detalhes:</b> ${res.mensagem || 'Erro desconhecido'}${dicaErro}`
+        });
+      }
     }
 
     function renderizarEditorFaixas() {
@@ -5606,6 +6142,14 @@
       loja.bannerAtivo = document.getElementById('cfgExibirBanner').checked;
       loja.bannerTexto = document.getElementById('cfgTextoBanner').value.trim();
 
+      // Configurações Telegram
+      loja.telegramAtivo = document.getElementById('cfgTelegramAtivo')?.checked || false;
+      loja.telegramChatId = (document.getElementById('cfgTelegramChatId')?.value || '').trim();
+      loja.telegramNotifOnline = document.getElementById('cfgTelegramNotifOnline')?.checked !== false;
+      loja.telegramNotifPdv = document.getElementById('cfgTelegramNotifPdv')?.checked !== false;
+      loja.telegramNotifCancelamento = document.getElementById('cfgTelegramNotifCancelamento')?.checked !== false;
+      loja.telegramBotTokenCustom = (document.getElementById('cfgTelegramBotTokenCustom')?.value || '').trim();
+
       if (ESTADO.logoBase64Temp) {
         loja.logoUrl = ESTADO.logoBase64Temp;
       }
@@ -5630,6 +6174,12 @@
         corFundo: loja.corFundo,
         bannerAtivo: loja.bannerAtivo,
         bannerTexto: loja.bannerTexto,
+        telegramAtivo: loja.telegramAtivo,
+        telegramChatId: loja.telegramChatId,
+        telegramNotifOnline: loja.telegramNotifOnline,
+        telegramNotifPdv: loja.telegramNotifPdv,
+        telegramNotifCancelamento: loja.telegramNotifCancelamento,
+        telegramBotTokenCustom: loja.telegramBotTokenCustom,
         logoUrl: loja.logoUrl,
         logoBase64: ESTADO.logoBase64Temp || ''
       };
@@ -6511,6 +7061,13 @@
         console.warn('Falha silenciosa ao registrar métrica de checkout:', eMetrica);
       }
 
+      // Disparo automático e não-bloqueante no Telegram do Lojista
+      try {
+        TelegramNotifier.notificarPedidoOnline(loja, novoPedido);
+      } catch (eTel) {
+        console.warn('Erro ao disparar notificação Telegram de pedido online:', eTel);
+      }
+
       let textoMsg = `🛍️ *NOVO PEDIDO - ${loja.nomeLoja.toUpperCase()}*\n`;
       textoMsg += `🆔 *Pedido:* #${novoPedido.id}\n`;
       textoMsg += `----------------------------------------\n`;
@@ -6532,7 +7089,7 @@
       textoMsg += `💰 *TOTAL DO PEDIDO:* ${formatarMoeda(totalFinal)}\n`;
       textoMsg += `💳 *Pagamento:* ${ESTADO.formaCheckoutVitrine} (${parcelas > 1 ? parcelas + 'x de ' + formatarMoeda(valorParcela) : 'À Vista'})\n`;
       if (loja.chavePix) textoMsg += `🔑 *Chave Pix da Loja:* ${loja.chavePix}\n`;
-      textoMsg += `\n_Pedido gerado via Catálogo Clara Gestão_`;
+      textoMsg += `\n_Pedido gerado via Catálogo Gestão Multi-lojas e E-Commerce_`;
 
       fecharModalCheckoutCliente();
       ESTADO.carrinhoVitrine = [];
@@ -7699,6 +8256,13 @@
 
       DatabaseAdapter.registrarVenda(loja.id, novaVenda).catch(e => console.warn('Erro ao salvar venda:', e));
 
+      // Disparo automático e não-bloqueante no Telegram do Lojista
+      try {
+        TelegramNotifier.notificarVendaPdv(loja, novaVenda);
+      } catch (eTel) {
+        console.warn('Erro ao disparar notificação Telegram de venda PDV:', eTel);
+      }
+
       limparCarrinho();
       definirCondicaoPagamento('A Vista');
       renderizarPdv();
@@ -8572,6 +9136,13 @@
       // 4. Sincroniza cancelamento (Supabase com estorno atômico)
       DatabaseAdapter.cancelarVenda(loja.id, v.id, motivo).catch(err => console.warn('Erro ao sincronizar cancelamento:', err));
 
+      // 4.1 Notificação no Telegram do Lojista
+      try {
+        TelegramNotifier.notificarCancelamento(loja, v, motivo);
+      } catch (eTel) {
+        console.warn('Erro ao disparar notificação Telegram de cancelamento:', eTel);
+      }
+
       // 5. Atualiza as telas
       renderizarCobranca();
       renderizarPedidos();
@@ -9204,15 +9775,6 @@
           <td class="py-2.5 px-3 text-right">
             ${totalDevedor > 0 ? `
               <span class="font-black text-rose-600 block">${formatarMoeda(totalDevedor)}</span>
-              <span class="text-[9px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200 inline-block">PENDENTE</span>
-            ` : `
-              <span class="text-slate-400 font-medium">R$ 0,00</span>
-            `}
-          </td>
-          <td class="py-2.5 px-3 text-right space-x-1.5 whitespace-nowrap">
-            <button onclick="abrirHistoricoCliente('${c.id}')" title="Ver Histórico Completo de Vendas" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center space-x-1 transition active:scale-95 cursor-pointer">
-              <i data-lucide="receipt" class="w-3.5 h-3.5 text-blue-600"></i>
-              <span>Histórico</span>
               ${qtdVendas > 0 ? `<span class="bg-blue-200/80 text-blue-900 text-[9px] px-1.5 py-0.2 rounded-full font-black">${qtdVendas}</span>` : ''}
             </button>
             <button onclick="editarCliente('${c.id}')" title="Editar dados" class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg cursor-pointer transition">
@@ -10094,7 +10656,7 @@
     function exportarBackupCompletoJson() {
       const loja = getLojaAtiva();
       const backupData = {
-        app: 'Clara Gestão',
+        app: 'Gestão Multi-lojas e E-Commerce',
         versao: '3.0',
         dataExportacao: new Date().toISOString(),
         loja: loja

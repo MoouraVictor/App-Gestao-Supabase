@@ -1,4 +1,4 @@
-# 🛍️ Clara Gestão — Plataforma SaaS Multi-Lojas, PDV & E-Commerce
+# 🛍️ Gestão Multi-lojas e E-Commerce
 
 > Sistema completo de gestão empresarial, ponto de venda (PDV), vitrine online pública para clientes e controle financeiro integrado com backend moderno e seguro em **Supabase (PostgreSQL Multi-Tenant)** e **Supabase Storage**.
 
@@ -26,7 +26,7 @@
 
 ## 🌟 Visão Geral
 
-O **Clara Gestão** foi concebido como uma solução **Multi-Tenant (SaaS)** de alta performance e resiliência, permitindo gerenciar múltiplas lojas independentes a partir de um único painel administrativo central (**Painel Master**).
+A plataforma **Gestão Multi-lojas e E-Commerce** foi concebida como uma solução **Multi-Tenant (SaaS)** de alta performance e resiliência, permitindo gerenciar múltiplas lojas independentes a partir de um único painel administrativo central (**Painel Master**).
 
 A partir da versão **4.1.0**, o ecossistema opera de forma **100% nativa sobre Supabase (PostgreSQL Relacional)** com independência total do Google Drive:
 - **Transações ACID atômicas** para vendas e controle de estoque sem risco de inconsistências;
@@ -190,6 +190,12 @@ Não requer instalação de Node.js, compilação ou servidores locais:
    - Ativa as regras de Row Level Security (RLS);
    - Configura as permissões públicas de leitura e upload no bucket `arquivos-lojas`.
 
+### 3. Notificações Automáticas no Telegram (Opcional & Recomendado)
+1. Para ativar o envio automático de notificações de vendas para o Telegram dos lojistas:
+2. No painel do **Supabase -> SQL Editor**, execute o script [`telegram_notifications.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/telegram_notifications.sql);
+3. No painel do **Administrador Master**, informe o `@username` e o `Token HTTP` do seu bot oficial gerado no BotFather do Telegram;
+4. No painel de cada loja, na aba **Minha Loja Online & Marca**, basta ativar o switch e preencher o **Chat ID** do lojista (com botão de teste instantâneo).
+
 ---
 
 ## 🔑 Credenciais de Acesso
@@ -213,12 +219,15 @@ O sistema possui telas protegidas e exige login obrigatório:
 - **Leitor de Código de Barras:** [Html5-QRCode](https://github.com/mebjas/html5-qrcode);
 - **Backend em Nuvem & Banco de Dados:** [Supabase](https://supabase.com) + [PostgreSQL](https://www.postgresql.org) (Stored Procedures, RLS, Views e Triggers);
 - **Armazenamento de Mídia:** [Supabase Storage](https://supabase.com/storage) (Bucket `arquivos-lojas` com CDN global);
-- **Mensageria & Checkout:** Integração com a API do WhatsApp (`wa.me`).
+- **Mensageria & Notificações:**
+  - **WhatsApp (`wa.me`):** Envio manual de pedidos gerados pelo cliente final na vitrine pública;
+  - **Telegram Bot API (`api.telegram.org`):** Disparo automatizado instantâneo de novos pedidos online, vendas no PDV e cancelamentos diretamente para o Telegram do lojista.
 
 ---
 
 ## 📜 Histórico de Versões
 
+- **Versão 4.3.0 (14/11/2026):** Integração automatizada de notificações de vendas via Telegram Bot API (novos pedidos da vitrine online, vendas no balcão/PDV e cancelamentos de vendas); card de configuração do Bot Central da plataforma no Painel Master; painel do lojista na aba Loja Online com toggle de ativação, guia passo a passo, campo de Chat ID, checkboxes de granularidade de eventos, botão de teste imediato e suporte a bot próprio; script de migração Supabase [`telegram_notifications.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/telegram_notifications.sql) com fallback defensivo no frontend.
 - **Versão 4.2.0 (14/11/2026):** Módulo de Histórico Completo de Vendas do Cliente na aba Clientes com filtros de período (Hoje, 7 dias, Mês, Todas) e status financeiro (Quitadas, Pendentes, Canceladas), cards de resumo financeiro por cliente e links diretos para detalhes da venda; funcionalidade de atribuição de vendas online e balcão a clientes cadastrados com busca instantânea e atalho de cadastro pré-preenchido.
 - **Versão 4.1.1 (14/11/2026):** Correção do roteamento inicial do Painel Master no login de admin e retorno direto ao sair da impersonação de loja; compressão automática de fotos de celulares via HTML5 Canvas (evitando estouro de cota de armazenamento local); filtros dinâmicos de período (Hoje, 7 Dias, Mês e Todas) no Gráfico de Vendas e nas Métricas da Vitrine Online.
 - **Versão 4.1.0 (14/11/2026):** Descontinuação definitiva do Google Drive, migração de 100% das imagens para o Supabase Storage (`arquivos-lojas`), blindagem de segurança PostgreSQL (`security_hardening.sql`) com proteção de `senha_hash` para liberação do repositório público no GitHub.
