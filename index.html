@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Gestão Multi-lojas e E-Commerce</title>
 
   <!-- Tailwind CSS & Font -->
@@ -13,8 +15,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons (Versão Estável Fixada) -->
+  <script src="https://unpkg.com/lucide@0.460.0"></script>
 
   <!-- Chart.js for Dashboards -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -3186,6 +3188,20 @@
   <!-- JAVASCRIPT GLOBAL DO ECOSSISTEMA -->
   <!-- ========================================================================= -->
   <script>
+    // =========================================================================
+    // UTILITÁRIO GLOBAL DE SEGURANÇA E HIGIENIZAÇÃO (XSS DEFENSE - SEC-01)
+    // =========================================================================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    window.escapeHtml = escapeHtml;
+
     // --- ESTADO GLOBAL DA APLICAÇÃO ---
     const ESTADO = {
       usuarioLogado: null,
@@ -4035,13 +4051,7 @@
       },
 
       escapeHtml(str) {
-        if (str === null || str === undefined) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
+        return escapeHtml(str);
       },
 
       formatarDataHora(isoStr) {
@@ -4700,6 +4710,10 @@
         }
         if (json && json.status === 'sucesso') {
           if (json.perfil === 'MASTER') {
+            const dbLocal = getDB();
+            if (!dbLocal.master) dbLocal.master = { login: 'admin', nome: 'Super Administrador' };
+            dbLocal.master.senha = sHash;
+            saveDB(dbLocal);
             aplicarLogin({ login: uNorm, nome: 'Super Administrador', perfil: 'MASTER' }, null);
             return;
           } else if (json.perfil === 'LOJISTA' && json.loja) {
@@ -4708,12 +4722,15 @@
             if (idx < 0) {
               dbLocal.lojas.push({
                 ...json.loja,
+                senha: sHash,
                 produtos: [],
                 clientes: [],
                 vendas: []
               });
-              saveDB(dbLocal);
+            } else {
+              dbLocal.lojas[idx].senha = sHash;
             }
+            saveDB(dbLocal);
             aplicarLogin({ login: uNorm, nome: json.loja.nomeResponsavel || json.loja.nomeLoja, perfil: 'LOJISTA' }, json.loja.id);
             return;
           }
@@ -4728,9 +4745,9 @@
         console.warn('Erro ao autenticar online, tentando base local...', errAuth);
       }
 
-      // 2. Fallback para base local
-      const senhasMasterPermitidas = ['123', 'admin123', 'admin'];
-      if (uNorm === 'admin' && (senhasMasterPermitidas.includes(s) || (db.master && (s === db.master.senha || sHash === db.master.senha)))) {
+      // 2. Fallback para base local (Blindagem SEC-03: remoção de senhas fracas fixas no código ['123', 'admin123', 'admin'])
+      const senhaMasterConfigurada = (db.master && db.master.senha) ? String(db.master.senha).trim() : '';
+      if (uNorm === 'admin' && senhaMasterConfigurada && (s === senhaMasterConfigurada || sHash === senhaMasterConfigurada)) {
         aplicarLogin({ login: 'admin', nome: 'Super Administrador', perfil: 'MASTER' }, null);
         return;
       }
@@ -5451,27 +5468,27 @@
           <td class="py-3 px-4">
             <div onclick="abrirModalVerLojaMaster('${idParaAcao}')" class="flex items-center space-x-2.5 cursor-pointer group" title="Clique para ver os detalhes da loja">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs shrink-0 group-hover:scale-105 transition-transform" style="background-color: ${l.corPrimaria || '#2563EB'}">
-                ${String(l.nomeLoja || 'L').substring(0, 2).toUpperCase()}
+                ${escapeHtml(String(l.nomeLoja || 'L').substring(0, 2).toUpperCase())}
               </div>
               <div>
-                <span class="font-bold text-slate-900 block group-hover:text-blue-600 transition-colors">${l.nomeLoja}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${l.id}</span>
+                <span class="font-bold text-slate-900 block group-hover:text-blue-600 transition-colors">${escapeHtml(l.nomeLoja)}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(l.id)}</span>
               </div>
             </div>
           </td>
-          <td class="py-3 px-4 font-medium text-slate-700">${l.nomeResponsavel || '-'}</td>
-          <td class="py-3 px-4 font-mono font-bold text-slate-600">${l.login}</td>
+          <td class="py-3 px-4 font-medium text-slate-700">${escapeHtml(l.nomeResponsavel || '-')}</td>
+          <td class="py-3 px-4 font-mono font-bold text-slate-600">${escapeHtml(l.login)}</td>
           <td class="py-3 px-4 font-mono">
             <span class="text-xs font-bold text-emerald-600 block">${formatarMoeda(resumo.fatLoja)}</span>
             <span class="text-[10px] text-slate-400 font-sans">${resumo.prodLoja} produto(s)</span>
           </td>
           <td class="py-3 px-4">
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ativa ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
-              ${l.status || 'Ativa'}
+              ${escapeHtml(l.status || 'Ativa')}
             </span>
           </td>
           <td class="py-3 px-4">
-            <span class="text-[10px] font-semibold text-slate-500 block truncate max-w-xs font-mono">${l.spreadsheetId || 'Banco Local / Drive'}</span>
+            <span class="text-[10px] font-semibold text-slate-500 block truncate max-w-xs font-mono">${escapeHtml(l.spreadsheetId || 'Banco Local / Supabase')}</span>
           </td>
           <td class="py-3 px-4 text-right space-x-1">
             <button onclick="abrirModalVerLojaMaster('${idParaAcao}')" title="Ver Informações Detalhadas"
@@ -6504,8 +6521,8 @@
               ${!esgotado && !isPromo && p.destaque ? `<span class="absolute top-1.5 left-1.5 text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full shadow-md">⭐ Destaque</span>` : ''}
               ${!esgotado && isPromo && isAVista ? `<span class="absolute bottom-1.5 left-1.5 text-[9px] font-black bg-rose-700/90 text-white px-2 py-0.5 rounded-full shadow-sm">⚡ À Vista</span>` : ''}
             </div>
-            <h4 class="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">${p.nome}</h4>
-            <p class="text-[11px] text-slate-400 truncate mb-1">${p.variacao || p.categoria || 'Geral'}</p>
+            <h4 class="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">${escapeHtml(p.nome)}</h4>
+            <p class="text-[11px] text-slate-400 truncate mb-1">${escapeHtml(p.variacao || p.categoria || 'Geral')}</p>
           </div>
           <div class="flex items-center justify-between pt-2 border-t border-slate-100">
             <div onclick="abrirModalDetalhesProdutoVitrine('${p.id}')" class="cursor-pointer">
@@ -6588,8 +6605,8 @@
               ${!esgotado && !isPromo && p.destaque ? `<span class="absolute top-1.5 left-1.5 text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full shadow-md">⭐ Destaque</span>` : ''}
               ${!esgotado && isPromo && isAVista ? `<span class="absolute bottom-1.5 left-1.5 text-[9px] font-black bg-rose-700/90 text-white px-2 py-0.5 rounded-full shadow-sm">⚡ À Vista</span>` : ''}
             </div>
-            <h4 class="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">${p.nome}</h4>
-            <p class="text-[11px] text-slate-400 truncate mb-1">${p.variacao || p.categoria || 'Geral'}</p>
+            <h4 class="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">${escapeHtml(p.nome)}</h4>
+            <p class="text-[11px] text-slate-400 truncate mb-1">${escapeHtml(p.variacao || p.categoria || 'Geral')}</p>
           </div>
           <div class="flex items-center justify-between pt-2 border-t border-slate-100">
             <div onclick="abrirModalDetalhesProdutoVitrine('${p.id}')" class="cursor-pointer">
@@ -6934,8 +6951,8 @@
         div.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs';
         div.innerHTML = `
           <div class="truncate mr-2">
-            <span class="font-bold text-slate-900 block truncate">${it.nome}</span>
-            <span class="text-[10px] text-slate-400">${it.variacao ? it.variacao + ' • ' : ''}${formatarMoeda(it.precoVendaUnitario)} un</span>
+            <span class="font-bold text-slate-900 block truncate">${escapeHtml(it.nome)}</span>
+            <span class="text-[10px] text-slate-400">${it.variacao ? escapeHtml(it.variacao) + ' • ' : ''}${formatarMoeda(it.precoVendaUnitario)} un</span>
           </div>
           <div class="flex items-center space-x-1.5 shrink-0">
             <span class="font-bold text-slate-900">${it.quantidade}x</span>
@@ -7094,7 +7111,37 @@
       }
 
       const loja = getLojaAtiva();
-      const subtotal = ESTADO.carrinhoVitrine.reduce((a, b) => a + b.subtotal, 0);
+
+      // SEC-04: Revalidação canônica de preços contra o catálogo oficial da loja
+      const itensValidados = ESTADO.carrinhoVitrine.map(it => {
+        const prod = (loja.produtos || []).find(p => p.id === it.produtoId);
+        const qtd = Math.max(1, parseInt(it.quantidade) || 1);
+        let precoUnitario = Number(it.precoVendaUnitario) || 0;
+        let precoCheio = Number(it.precoCheioUnitario) || precoUnitario;
+        let emPromo = false;
+
+        if (prod) {
+          const isPromo = (prod.emPromocao && Number(prod.precoPromocional) > 0);
+          precoUnitario = isPromo ? Number(prod.precoPromocional) : Number(prod.precoVenda);
+          precoCheio = Number(prod.precoVenda) || precoUnitario;
+          emPromo = isPromo;
+        }
+
+        const subtotalItem = precoUnitario * qtd;
+        return {
+          ...it,
+          quantidade: qtd,
+          precoCheioUnitario: precoCheio,
+          precoVendaUnitario: precoUnitario,
+          emPromocao: emPromo,
+          subtotal: subtotalItem
+        };
+      });
+
+      // Atualiza o carrinho em memória com os valores canônicos e auditados
+      ESTADO.carrinhoVitrine = itensValidados;
+
+      const subtotal = itensValidados.reduce((a, b) => a + b.subtotal, 0);
       const taxa = (ESTADO.modalidadeEntregaVitrine === 'Delivery') ? (Number(loja.taxaEntrega) || 0) : 0;
       const totalFinal = subtotal + taxa;
 
@@ -7103,7 +7150,7 @@
       const valorParcela = totalFinal / parcelas;
 
       let lucroCalculado = 0;
-      ESTADO.carrinhoVitrine.forEach(it => {
+      itensValidados.forEach(it => {
         const prod = (loja.produtos || []).find(p => p.id === it.produtoId);
         const custo = prod ? (Number(prod.precoCusto) || 0) : (Number(it.precoCustoUnitario) || 0);
         const precoVenda = Number(it.precoVendaUnitario) || 0;
@@ -7611,7 +7658,7 @@
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between gap-1 mb-0.5">
-              <p class="text-xs font-bold text-slate-900 truncate" title="${item.nome}">${item.nome}</p>
+              <p class="text-xs font-bold text-slate-900 truncate" title="${escapeHtml(item.nome)}">${escapeHtml(item.nome)}</p>
               <span class="text-xs font-black text-blue-600 shrink-0">${item.qtd} un</span>
             </div>
             <div class="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
@@ -7856,7 +7903,7 @@
                 <div class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-100 shadow-xs">
                   <div class="flex items-center space-x-2.5 truncate mr-2">
                     <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[10px] flex items-center justify-center shrink-0">#${idx + 1}</span>
-                    <span class="font-medium text-slate-800 truncate text-xs" title="${tp.produto_nome}">${tp.produto_nome}</span>
+                    <span class="font-medium text-slate-800 truncate text-xs" title="${escapeHtml(tp.produto_nome)}">${escapeHtml(tp.produto_nome)}</span>
                   </div>
                   <div class="flex items-center space-x-2 shrink-0 text-right">
                     <span class="text-xs font-bold text-indigo-600">${sacolas}x sacola</span>
@@ -7908,7 +7955,7 @@
         return `
           <div class="bg-white p-3 rounded-2xl border border-amber-200 flex items-center justify-between shadow-xs">
             <div class="truncate mr-2">
-              <span class="font-bold text-slate-900 block truncate">${p.nome}</span>
+              <span class="font-bold text-slate-900 block truncate">${escapeHtml(p.nome)}</span>
               <span class="text-[10px] text-slate-400 font-mono">Validade: ${valFmt}</span>
             </div>
             <div class="text-right shrink-0">
@@ -7936,8 +7983,8 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-bold text-slate-900">${p.nome}</td>
-          <td class="py-2.5 px-3 text-slate-500">${p.variacao || '-'}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">${escapeHtml(p.nome)}</td>
+          <td class="py-2.5 px-3 text-slate-500">${escapeHtml(p.variacao || '-')}</td>
           <td class="py-2.5 px-3 font-extrabold text-rose-600">${p.estoqueAtual} un</td>
           <td class="py-2.5 px-3 text-slate-400">${p.estoqueMinimo} un</td>
           <td class="py-2.5 px-3"><span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-full text-[10px]">BAIXO</span></td>
@@ -8013,8 +8060,8 @@
               ${badgeEstoque}
               ${isPromo ? `<span class="absolute bottom-1 left-1 text-[8px] font-black px-1.5 py-0.5 rounded-md badge-destaque shadow-sm">🔥 PROMO</span>` : ''}
             </div>
-            <h4 class="font-bold text-xs text-slate-900 line-clamp-1">${p.nome}</h4>
-            <p class="text-[10px] text-slate-400 truncate">${p.variacao || ''}</p>
+            <h4 class="font-bold text-xs text-slate-900 line-clamp-1">${escapeHtml(p.nome)}</h4>
+            <p class="text-[10px] text-slate-400 truncate">${escapeHtml(p.variacao || '')}</p>
           </div>
           <div class="flex items-end justify-between pt-1.5 border-t border-slate-100 mt-1">
             <div>
@@ -8116,10 +8163,10 @@
           <div class="flex items-start justify-between gap-1.5">
             <div class="truncate flex-1">
               <div class="flex items-center space-x-1.5">
-                <p class="font-bold text-slate-900 truncate">${it.nome}</p>
+                <p class="font-bold text-slate-900 truncate">${escapeHtml(it.nome)}</p>
                 ${it.emPromocao ? '<span class="text-[8px] font-black px-1.5 py-0.2 rounded badge-destaque shrink-0">PROMO</span>' : ''}
               </div>
-              ${it.variacao ? `<p class="text-[10px] text-slate-400 truncate">${it.variacao}</p>` : ''}
+              ${it.variacao ? `<p class="text-[10px] text-slate-400 truncate">${escapeHtml(it.variacao)}</p>` : ''}
             </div>
             <button onclick="removerItemPdv(${idx})" title="Remover item" class="text-slate-300 hover:text-rose-500 transition p-0.5">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -8553,23 +8600,24 @@
         const cliCadastrado = (loja.clientes || []).find(c => c.id === v.clienteId || (c.nome && v.clienteNome && c.nome.trim().toLowerCase() === v.clienteNome.trim().toLowerCase()));
 
         let infoClienteHtml = '';
+        const nomeExibicao = escapeHtml(v.clienteNome || (cliCadastrado ? cliCadastrado.nome : 'Cliente Balcão'));
         if (cliCadastrado) {
           infoClienteHtml = `
-            <div class="font-bold ${isCancelada ? 'text-slate-400' : (deve ? 'text-rose-950' : 'text-slate-900')} leading-tight">${v.clienteNome || cliCadastrado.nome}</div>
+            <div class="font-bold ${isCancelada ? 'text-slate-400' : (deve ? 'text-rose-950' : 'text-slate-900')} leading-tight">${nomeExibicao}</div>
             <div class="flex items-center space-x-1 mt-0.5">
-              <button type="button" onclick="abrirHistoricoCliente('${cliCadastrado.id}')" title="Ver Histórico deste Cliente" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-200 inline-flex items-center space-x-0.5 cursor-pointer transition">
+              <button type="button" onclick="abrirHistoricoCliente('${escapeHtml(cliCadastrado.id)}')" title="Ver Histórico deste Cliente" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-200 inline-flex items-center space-x-0.5 cursor-pointer transition">
                 <i data-lucide="user-check" class="w-2.5 h-2.5 text-emerald-600"></i>
                 <span>Cadastrado</span>
               </button>
-              <button type="button" onclick="abrirModalAtribuirClienteVenda('${v.id}')" title="Alterar vínculo de cliente" class="text-[9px] text-slate-400 hover:text-blue-600 cursor-pointer p-0.5">
+              <button type="button" onclick="abrirModalAtribuirClienteVenda('${escapeHtml(v.id)}')" title="Alterar vínculo de cliente" class="text-[9px] text-slate-400 hover:text-blue-600 cursor-pointer p-0.5">
                 <i data-lucide="edit-2" class="w-2.5 h-2.5"></i>
               </button>
             </div>
           `;
         } else {
           infoClienteHtml = `
-            <div class="font-bold ${isCancelada ? 'text-slate-400' : (deve ? 'text-rose-950' : 'text-slate-900')} leading-tight">${v.clienteNome || 'Cliente Balcão'}</div>
-            <button type="button" onclick="abrirModalAtribuirClienteVenda('${v.id}')" title="Atribuir esta venda a um cliente cadastrado" class="mt-1 inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-bold transition active:scale-95 cursor-pointer">
+            <div class="font-bold ${isCancelada ? 'text-slate-400' : (deve ? 'text-rose-950' : 'text-slate-900')} leading-tight">${nomeExibicao}</div>
+            <button type="button" onclick="abrirModalAtribuirClienteVenda('${escapeHtml(v.id)}')" title="Atribuir esta venda a um cliente cadastrado" class="mt-1 inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-bold transition active:scale-95 cursor-pointer">
               <i data-lucide="user-plus" class="w-3 h-3 text-blue-500"></i>
               <span>Atribuir Cliente</span>
             </button>
@@ -8578,16 +8626,16 @@
 
         tr.innerHTML = `
           <td class="py-2.5 px-3 font-mono font-bold ${isCancelada ? 'text-slate-400 line-through' : 'text-slate-800'}">
-            <button onclick="abrirModalDetalhesVenda('${v.id}')" title="Clique para ver os itens e detalhes" class="text-blue-600 hover:underline font-mono font-bold inline-flex items-center space-x-1 cursor-pointer">
-              <span>${v.id}</span>
+            <button onclick="abrirModalDetalhesVenda('${escapeHtml(v.id)}')" title="Clique para ver os itens e detalhes" class="text-blue-600 hover:underline font-mono font-bold inline-flex items-center space-x-1 cursor-pointer">
+              <span>${escapeHtml(v.id)}</span>
               <i data-lucide="external-link" class="w-3 h-3 text-blue-400"></i>
             </button>
             <span class="text-[10px] text-slate-400 block font-normal">${v.dataHora ? new Date(v.dataHora).toLocaleDateString('pt-BR') : ''}</span>
             ${infoVencimentoHtml}
           </td>
           <td class="py-2.5 px-3">${infoClienteHtml}</td>
-          <td class="py-2.5 px-3"><span class="bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded-full">${v.origem || 'Balcao'}</span></td>
-          <td class="py-2.5 px-3 text-slate-500">${v.formaPagamento} (${v.condicaoPagamento}${v.parcelas > 1 ? ' ' + v.parcelas + 'x' : ''})</td>
+          <td class="py-2.5 px-3"><span class="bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded-full">${escapeHtml(v.origem || 'Balcao')}</span></td>
+          <td class="py-2.5 px-3 text-slate-500">${escapeHtml(v.formaPagamento || 'Pix')} (${escapeHtml(v.condicaoPagamento || 'A Vista')}${v.parcelas > 1 ? ' ' + v.parcelas + 'x' : ''})</td>
           <td class="py-2.5 px-3 font-bold ${isCancelada ? 'text-slate-400 line-through' : 'text-slate-900'}">
             ${descTotal > 0 ? `
               <div class="space-y-0.5">
@@ -8775,10 +8823,10 @@
           tr.innerHTML = `
             <td class="py-2.5 px-2.5">
               <div class="flex items-center space-x-1">
-                <span class="font-bold text-slate-900 block">${it.nome || 'Item sem nome'}</span>
+                <span class="font-bold text-slate-900 block">${escapeHtml(it.nome || 'Item sem nome')}</span>
                 ${it.emPromocao ? '<span class="text-[8px] font-black px-1.5 py-0.2 rounded badge-destaque shrink-0">PROMO</span>' : ''}
               </div>
-              ${it.variacao ? `<span class="text-[10px] text-slate-400 block">${it.variacao}</span>` : ''}
+              ${it.variacao ? `<span class="text-[10px] text-slate-400 block">${escapeHtml(it.variacao)}</span>` : ''}
             </td>
             <td class="py-2.5 px-2 text-center font-bold text-slate-700">${qtd} un</td>
             <td class="py-2.5 px-2 text-right text-slate-500 font-medium">${formatarMoeda(precoCheio)}</td>
@@ -9356,21 +9404,21 @@
 
         tr.innerHTML = `
           <td class="py-2.5 px-3 font-mono font-bold ${isCancelada ? 'text-slate-400 line-through' : ''}">
-            <button onclick="abrirModalDetalhesVenda('${p.id}')" title="Clique para ver os itens deste pedido" class="text-blue-600 hover:underline font-mono font-bold inline-flex items-center space-x-1 cursor-pointer">
-              <span>${p.id}</span>
+            <button onclick="abrirModalDetalhesVenda('${escapeHtml(p.id)}')" title="Clique para ver os itens deste pedido" class="text-blue-600 hover:underline font-mono font-bold inline-flex items-center space-x-1 cursor-pointer">
+              <span>${escapeHtml(p.id)}</span>
               <i data-lucide="external-link" class="w-3 h-3 text-blue-400"></i>
             </button>
           </td>
           <td class="py-2.5 px-3">
-            <span class="font-bold ${isCancelada ? 'text-slate-400' : 'text-slate-900'} block">${p.clienteNome}</span>
-            <span class="text-[10px] text-slate-400">${p.clienteTelefone || ''}</span>
+            <span class="font-bold ${isCancelada ? 'text-slate-400' : 'text-slate-900'} block">${escapeHtml(p.clienteNome || 'Cliente')}</span>
+            <span class="text-[10px] text-slate-400">${escapeHtml(p.clienteTelefone || '')}</span>
           </td>
           <td class="py-2.5 px-3">
-            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${p.origem || 'Online'}</span>
-            <span class="text-[10px] text-slate-500 block">${p.modalidadeEntrega || 'Retirada'}</span>
+            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${escapeHtml(p.origem || 'Online')}</span>
+            <span class="text-[10px] text-slate-500 block">${escapeHtml(p.modalidadeEntrega || 'Retirada')}</span>
           </td>
           <td class="py-2.5 px-3 font-extrabold ${isCancelada ? 'text-slate-400 line-through' : 'text-slate-900'}">${formatarMoeda(p.totalLiquido)}</td>
-          <td class="py-2.5 px-3 text-slate-500">${p.formaPagamento} (${p.condicaoPagamento})</td>
+          <td class="py-2.5 px-3 text-slate-500">${escapeHtml(p.formaPagamento || 'Pix')} (${escapeHtml(p.condicaoPagamento || 'A Vista')})</td>
           <td class="py-2.5 px-3">${statusBadge}</td>
           <td class="py-2.5 px-3 text-right">${acoesHtml}</td>
         `;
@@ -9462,7 +9510,7 @@
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
           <td class="py-2.5 px-3">
-            <div class="font-bold text-slate-900">${p.nome}</div>
+            <div class="font-bold text-slate-900">${escapeHtml(p.nome)}</div>
             <div class="flex flex-wrap items-center gap-1 mt-0.5">
               ${tipoBadge}
               ${condicaoBadge}
@@ -9472,7 +9520,7 @@
               ${p.somenteAVista ? '<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">⚡ À Vista</span>' : ''}
             </div>
           </td>
-          <td class="py-2.5 px-3 text-slate-500">${p.variacao || '-'}</td>
+          <td class="py-2.5 px-3 text-slate-500">${escapeHtml(p.variacao || '-')}</td>
           <td class="py-2.5 px-3">${formatarMoeda(p.precoCusto)}</td>
           <td class="py-2.5 px-3 font-bold text-emerald-600">+${p.margemPercentual}%</td>
           <td class="py-2.5 px-3">${precoHtml}</td>
@@ -9500,7 +9548,7 @@
             return `
               <div class="p-2 rounded-xl bg-white border border-amber-200 flex items-center justify-between shadow-xs">
                 <div class="truncate mr-2">
-                  <span class="font-bold text-slate-900 block truncate text-xs">${item.prod.nome}</span>
+                  <span class="font-bold text-slate-900 block truncate text-xs">${escapeHtml(item.prod.nome)}</span>
                   <span class="text-[10px] text-slate-400 font-mono">Val: ${item.valFmt}</span>
                 </div>
                 <div class="text-right shrink-0">
@@ -9852,18 +9900,18 @@
         tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
           <td class="py-2.5 px-3">
-            <div class="font-bold text-slate-900">${c.nome}</div>
-            ${c.historicoPreferencias ? `<div class="text-[11px] text-purple-700 bg-purple-50 rounded-lg px-2 py-0.5 mt-0.5 max-w-sm font-medium border border-purple-100 line-clamp-1" title="${c.historicoPreferencias}">📝 ${c.historicoPreferencias}</div>` : ''}
+            <div class="font-bold text-slate-900">${escapeHtml(c.nome)}</div>
+            ${c.historicoPreferencias ? `<div class="text-[11px] text-purple-700 bg-purple-50 rounded-lg px-2 py-0.5 mt-0.5 max-w-sm font-medium border border-purple-100 line-clamp-1" title="${escapeHtml(c.historicoPreferencias)}">📝 ${escapeHtml(c.historicoPreferencias)}</div>` : ''}
           </td>
           <td class="py-2.5 px-3 text-slate-600 font-medium">
             ${numLimpo ? `
               <a href="https://wa.me/55${numLimpo}" target="_blank" class="hover:text-emerald-600 inline-flex items-center space-x-1" title="Chamar no WhatsApp">
-                <span>${c.telefone}</span>
+                <span>${escapeHtml(c.telefone)}</span>
                 <i data-lucide="message-circle" class="w-3 h-3 text-emerald-500"></i>
               </a>
-            ` : (c.telefone || '-')}
+            ` : (escapeHtml(c.telefone) || '-')}
           </td>
-          <td class="py-2.5 px-3 text-slate-500 max-w-xs truncate" title="${c.endereco || ''}">${c.endereco || '-'}</td>
+          <td class="py-2.5 px-3 text-slate-500 max-w-xs truncate" title="${escapeHtml(c.endereco || '')}">${escapeHtml(c.endereco || '-')}</td>
           <td class="py-2.5 px-3 text-right">
             <div class="font-bold text-slate-900">${formatarMoeda(totalCompras)}</div>
             <span class="text-[10px] text-slate-400 block font-normal">${qtdVendas} ${qtdVendas === 1 ? 'venda' : 'vendas'}</span>
@@ -10180,19 +10228,19 @@
         tr.innerHTML = `
           <td class="py-2.5 px-3">
             <button onclick="abrirModalDetalhesVenda('${v.id}')" title="Clique para ver os itens e comprovante completo" class="text-blue-600 hover:underline font-mono font-bold inline-flex items-center space-x-1 cursor-pointer">
-              <span>${v.id}</span>
+              <span>${escapeHtml(v.id)}</span>
               <i data-lucide="external-link" class="w-3 h-3 text-blue-400"></i>
             </button>
             <span class="text-[10px] text-slate-400 block">${dataFmt} ${horaFmt ? 'às ' + horaFmt : ''}</span>
           </td>
           <td class="py-2.5 px-3">
             <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-              ${v.origem || (v.tipo === 'PEDIDO_ONLINE' ? 'Loja Online' : 'Balcão')}
+              ${escapeHtml(v.origem || (v.tipo === 'PEDIDO_ONLINE' ? 'Loja Online' : 'Balcão'))}
             </span>
           </td>
           <td class="py-2.5 px-3 text-slate-600">
-            ${v.formaPagamento || 'Pix'}
-            <span class="text-[10px] text-slate-400 block">${v.condicaoPagamento || 'A Vista'}${v.parcelas > 1 ? ' ' + v.parcelas + 'x' : ''}</span>
+            ${escapeHtml(v.formaPagamento || 'Pix')}
+            <span class="text-[10px] text-slate-400 block">${escapeHtml(v.condicaoPagamento || 'A Vista')}${v.parcelas > 1 ? ' ' + v.parcelas + 'x' : ''}</span>
           </td>
           <td class="py-2.5 px-3 text-right font-extrabold ${isCancelada ? 'text-slate-400 line-through' : 'text-slate-900'}">
             ${formatarMoeda(v.totalLiquido)}
@@ -10486,12 +10534,12 @@
 
         tr.innerHTML = `
           <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${dataFmt}</td>
-          <td class="py-2.5 px-3 font-bold text-slate-900">${d.descricao}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">${escapeHtml(d.descricao)}</td>
           <td class="py-2.5 px-3">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">${d.categoria || 'Outros'}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(d.categoria || 'Outros')}</span>
           </td>
           <td class="py-2.5 px-3 font-extrabold text-rose-600 font-mono">${formatarMoeda(d.valor || 0)}</td>
-          <td class="py-2.5 px-3 text-slate-500 text-xs">${d.observacoes || '-'}</td>
+          <td class="py-2.5 px-3 text-slate-500 text-xs">${escapeHtml(d.observacoes || '-')}</td>
           <td class="py-2.5 px-3 text-right">
             <button onclick="excluirDespesa('${d.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-bold hover:underline cursor-pointer">
               Excluir

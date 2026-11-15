@@ -4,6 +4,38 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 4.4.0 — Blindagem Global de Segurança (OWASP Top 10 & Supabase Hardening)
+**Data:** 15/11/2026  
+**Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
+
+### 1. Auditoria de Segurança e Diagnóstico:
+- Realizada auditoria profunda de conformidade com as diretrizes do **OWASP Top 10** e boas práticas de segurança em aplicações Client-Side e Cloud Backend (Supabase/PostgreSQL).
+- Identificados e neutralizados 6 pontos de atenção (SEC-01 a SEC-06), englobando injeção de script (XSS), autorização em banco de dados (Row Level Security), integridade de cadeia de suprimentos e autenticação offline.
+
+### 2. Melhorias e Blindagens Implementadas:
+- 🛡️ **SEC-01 (Prevenção Total contra Stored XSS):**
+  - Implementada função nativa de sanitização `escapeHtml(str)` no escopo global e integrada a `window.escapeHtml`.
+  - Higienização sistemática aplicada em todos os pontos de injeção dinâmica no DOM (`innerHTML`), incluindo:
+    - Vitrine pública online (`renderizarVitrineCliente`, `filtrarVitrineCliente`, `checkoutItensLista`);
+    - Tabelas do painel administrativo (`renderizarCobranca`, `renderizarPedidos`, `renderizarClientes`, `renderizarProdutosTabela`, `renderizarDespesasTabela`);
+    - Modais de auditoria e detalhes (`abrirModalDetalhesVenda`, `renderizarConteudoHistoricoCliente`, `renderizarPainelMaster`);
+    - Telemetria de produtos e alertas (`renderizarRankingMaisVendidos`, `renderizarTelemetriaVitrineDashboard`, `renderizarAlertasValidadeDashboard`, `renderizarEstoqueCritico`, `filtrarPdv`, `renderizarCarrinhoPdv`).
+- 🔒 **SEC-02 (Refinamento de Row Level Security no Supabase):**
+  - Atualizado o script `security_hardening.sql` eliminando políticas permissivas `FOR ALL USING (true)`.
+  - Estabelecidas regras estritas de integridade de dados para `produtos`, `vendas`, `itens_venda`, `clientes`, `despesas`, `configuracoes_loja` e `metricas_eventos`.
+  - Preservada a coluna `senha_hash` da tabela `lojas` com acesso estritamente revogado para usuários `anon` e `authenticated`, utilizando RPC `autenticar_usuario` com permissões `SECURITY DEFINER`.
+- 🔑 **SEC-03 (Eliminação de Senhas Padrão em Modo Offline):**
+  - Removido o array de senhas master fracas pré-programadas (`['123', 'admin123', 'admin']`) da função `autenticarCredenciais`.
+  - O fallback offline agora exige estritamente a conferência contra o hash seguro SHA-256 armazenado previamente (`db.master.senha`), impedindo acesso indevido por bypass de rede.
+- 💰 **SEC-04 (Proteção contra Adulteração de Preços no Checkout):**
+  - Em `concluirPedidoOnlineWhatsApp`, adicionada rotina de auditoria canônica que revalida e recalcula compulsoriamente os preços unitários, subtotais e promoções de cada item contra o catálogo oficial `loja.produtos`.
+  - Impede qualquer manipulação de preços em memória ou console pelo navegador do cliente antes do envio do pedido.
+- 📦 **SEC-05 & SEC-06 (Integridade de Dependências e Cabeçalhos HTTP):**
+  - Fixada versão canônica estrita para a biblioteca Lucide (`lucide@0.460.0`), prevenindo quebras e ataques por dependências dinâmicas `@latest`.
+  - Adicionadas meta-tags de segurança no `<head>` do documento: `X-Content-Type-Options: nosniff` (prevenção de MIME-sniffing) e `Referrer-Policy: strict-origin-when-cross-origin` (proteção de privacidade de URLs e referrers).
+
+---
+
 ## 📌 Versão 4.3.2 — Blindagem de Segurança e Persistência do Bot Central do Telegram
 **Data:** 14/11/2026  
 **Status:** Concluído e Homologado (100% dos testes E2E aprovados via Microsoft Edge Headless CDP)
