@@ -46,15 +46,12 @@ DO $$ BEGIN
   IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'metricas_eventos') THEN
     ALTER TABLE public.metricas_eventos ENABLE ROW LEVEL SECURITY;
   END IF;
-  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'configuracoes_plataforma') THEN
-    ALTER TABLE public.configuracoes_plataforma ENABLE ROW LEVEL SECURITY;
-  END IF;
 END $$;
 
 -- ----------------------------------------------------------------------------
 -- 3. LIMPEZA TOTAL E IDEMPOTENTE DE POLÍTICAS EXISTENTES
--- Remove dinamicamente qualquer política pré-existente (ex: "Acesso Leitura Produtos",
--- "Acesso Escrita Produtos", "Acesso Vendas Geral", etc.) para evitar o erro 42710 (policy already exists).
+-- Remove dinamicamente apenas as políticas antigas das tabelas alvo da aplicação
+-- para evitar o erro 42710 sem interferir em outras tabelas do banco ou do Supabase.
 -- ----------------------------------------------------------------------------
 DO $$ 
 DECLARE 
@@ -64,7 +61,7 @@ BEGIN
     SELECT policyname, tablename 
     FROM pg_policies 
     WHERE schemaname = 'public' 
-      AND tablename IN ('lojas', 'configuracoes_loja', 'produtos', 'vendas', 'itens_venda', 'clientes', 'despesas', 'metricas_eventos', 'configuracoes_plataforma')
+      AND tablename IN ('lojas', 'configuracoes_loja', 'produtos', 'vendas', 'itens_venda', 'clientes', 'despesas', 'metricas_eventos')
   ) LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I;', r.policyname, r.tablename);
   END LOOP;
