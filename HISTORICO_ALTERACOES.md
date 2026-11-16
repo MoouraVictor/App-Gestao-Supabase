@@ -190,7 +190,7 @@ Este documento registra todas as alterações, manutenções, implementações d
     - Modais de auditoria e detalhes (`abrirModalDetalhesVenda`, `renderizarConteudoHistoricoCliente`, `renderizarPainelMaster`);
     - Telemetria de produtos e alertas (`renderizarRankingMaisVendidos`, `renderizarTelemetriaVitrineDashboard`, `renderizarAlertasValidadeDashboard`, `renderizarEstoqueCritico`, `filtrarPdv`, `renderizarCarrinhoPdv`).
 - 🔒 **SEC-02 (Refinamento de Row Level Security no Supabase):**
-  - Atualizado o script `security_hardening.sql` eliminando políticas permissivas `FOR ALL USING (true)`.
+  - Atualizado o script `sql/security_hardening.sql` eliminando políticas permissivas `FOR ALL USING (true)`.
   - Estabelecidas regras estritas de integridade de dados para `produtos`, `vendas`, `itens_venda`, `clientes`, `despesas`, `configuracoes_loja` e `metricas_eventos`.
   - Preservada a coluna `senha_hash` da tabela `lojas` com acesso estritamente revogado para usuários `anon` e `authenticated`, utilizando RPC `autenticar_usuario` com permissões `SECURITY DEFINER`.
 - 🔑 **SEC-03 (Eliminação de Senhas Padrão em Modo Offline):**
@@ -216,7 +216,7 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ### 2. Ações Implementadas & Segurança da Informação:
 - **Zero Hardcode de Credenciais no HTML/GitHub:** O token do Bot NUNCA é inserido em texto plano dentro do repositório público, garantindo que terceiros não interceptem o bot, façam spam ou roubem dados de clientes.
-- **Persistência Segura em Nuvem (`configuracoes_plataforma.sql`):** Criado script SQL para provisionamento da tabela `configuracoes_plataforma` no Supabase com Row Level Security (RLS) para sincronizar o Bot Central (`@GestaoNotificaBot`) entre todos os lojistas e vitrines.
+- **Persistência Segura em Nuvem (`sql/configuracoes_plataforma.sql`):** Criado script SQL para provisionamento da tabela `configuracoes_plataforma` no Supabase com Row Level Security (RLS) para sincronizar o Bot Central (`@GestaoNotificaBot`) entre todos os lojistas e vitrines.
 - **Sincronização Direta na Loja:** A loja ativa (`LOJA-1`) teve seu token sincronizado no Supabase (`configuracoes_loja.telegram_bot_token_custom`).
 - **Melhoria da Experiência do Usuário (UX):**
   - Adicionado botão de alternar visibilidade de senha (ícone de olho 👁️) nos campos de token do Master e do Lojista.
@@ -280,7 +280,7 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ### 5. Motor JavaScript e Banco de Dados (`TelegramNotifier` & `DatabaseAdapter`):
 - Implementação do objeto `TelegramNotifier` com formatação rica em HTML com emojis, escape de caracteres especiais (`escapeHtml`), timestamp humanizado em horário de Brasília e despacho via `fetch` assíncrono.
-- Script de migração PostgreSQL criado em `telegram_notifications.sql` adicionando colunas `telegram_ativo`, `telegram_chat_id`, `telegram_notif_online`, `telegram_notif_pdv`, `telegram_notif_cancelamento` e `telegram_bot_token_custom` na tabela `configuracoes_loja`.
+- Script de migração PostgreSQL criado em `sql/telegram_notifications.sql` adicionando colunas `telegram_ativo`, `telegram_chat_id`, `telegram_notif_online`, `telegram_notif_pdv`, `telegram_notif_cancelamento` e `telegram_bot_token_custom` na tabela `configuracoes_loja`.
 - Implementação de fallback defensivo em `DatabaseAdapter.salvarConfiguracoesLoja`: se o lojista salvar as configurações antes de executar o script SQL no Supabase, a aplicação trata graciosamente a ausência das colunas e preserva os dados no armazenamento local sem emitir erros impeditivos.
 
 ---
@@ -397,7 +397,7 @@ Este documento registra todas as alterações, manutenções, implementações d
   - Eliminação de campos obsoletos de inserção de URL do Google Script na tela de configurações (`tela-config`) e no Painel Master.
 
 ### 2. Blindagem de Segurança para Abertura Pública do Repositório (Open Source):
-- **Criação do Script de Blindagem PostgreSQL (`security_hardening.sql`):**
+- **Criação do Script de Blindagem PostgreSQL (`sql/security_hardening.sql`):**
   - **Proteção da Coluna de Senhas (`senha_hash`):** Revogação de acesso irrestrito na tabela `lojas` para o perfil `anon` (usuários não autenticados da API pública). Concessão de `SELECT` apenas para colunas públicas seguras (`id, nome_loja, login, nome_responsavel, whatsapp, status, created_at`), impedindo que a chave pública anônima do Supabase exponha as senhas ou hashes das lojas.
   - **Autenticação Segura via RPC:** Garantia de execução da procedure `autenticar_usuario` com `SECURITY DEFINER`, autenticando lojistas e administradores no backend sem vazar dados confidenciais.
   - **Políticas RLS e Storage:** Criação de regras de Row Level Security (RLS) para as tabelas `produtos`, `vendas`, `itens_venda` e políticas de leitura pública e upload controlado no bucket `arquivos-lojas`.

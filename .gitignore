@@ -1,1 +1,11 @@
+# Arquivos temporários e scratch
 scratch/
+
+# Binários e executáveis pesados
+*.exe
+.agent/
+
+# Estado de runtime local e relatórios temporários
+.impeccable/live/
+.impeccable/audit/
+.impeccable/critique/

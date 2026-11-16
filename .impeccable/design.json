@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T01:29:30Z",
+  "title": "Design System: Gestão Multi-lojas e E-Commerce",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Azul Cobalto Operacional",
+        "canonical": "oklch(55% 0.22 260)",
+        "tonalRamp": ["#091E42", "#133774", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#EFF6FF"]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Rubi Alerta",
+        "canonical": "oklch(55% 0.22 25)",
+        "tonalRamp": ["#450A0A", "#7F1D1D", "#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FCA5A5", "#FEF2F2"]
+      },
+      "neutral-dark": {
+        "role": "neutral",
+        "displayName": "Ardósia Noturno",
+        "canonical": "oklch(20% 0.03 260)",
+        "tonalRamp": ["#020617", "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#E2E8F0"]
+      },
+      "neutral-app": {
+        "role": "neutral",
+        "displayName": "Fundo do Ecossistema",
+        "canonical": "oklch(98% 0.005 240)",
+        "tonalRamp": ["#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F1F5F9", "#F8FAFC"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Títulos de impacto principal de telas e boas-vindas." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de seções de primeiro nível." },
+      "title": { "displayName": "Title", "purpose": "Cabeçalhos de cartões, modais e agrupamentos." },
+      "body": { "displayName": "Body", "purpose": "Corpo de texto, descrições e linhas de tabela." },
+      "label": { "displayName": "Label", "purpose": "Rótulos de formulário, badges e cabeçalhos de coluna." }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Elevação sutil de botões e cartões de métrica." },
+      { "name": "shadow-md", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Elevação de hover e botões destacados." },
+      { "name": "shadow-xl", "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)", "purpose": "Elevação profunda para modais centralizados e gavetas." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Curva exponencial suave para transições e micro-interações táteis." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Transição rápida para cliques ativos e hovers." },
+      { "name": "duration-standard", "value": "200ms", "purpose": "Duração padrão de abertura e alternância de estado." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão Primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal de confirmação, checkout e salvamento.",
+      "html": "<button class=\"ds-btn-primary\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg><span>Salvar Alterações</span></button>",
+      "css": ".ds-btn-primary { background: var(--cor-tema, #2563EB); color: #FFFFFF; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; padding: 10px 18px; border-radius: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary:hover { filter: brightness(0.92); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); } .ds-btn-primary:active { transform: scale(0.98); } .ds-icon { stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Botão Secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação de apoio, cancelamento ou visualização rápida.",
+      "html": "<button class=\"ds-btn-secondary\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg><span>Ver Loja Online</span></button>",
+      "css": ".ds-btn-secondary { background: #FFFFFF; color: #1E293B; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 12px; border: 1px solid #E2E8F0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; } .ds-btn-secondary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Campo de Entrada",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Input padrão de formulários, preços e pesquisas com anel de foco acessível.",
+      "html": "<input type=\"text\" class=\"ds-input-field\" placeholder=\"Nome do produto ou cliente...\">",
+      "css": ".ds-input-field { background: #F8FAFC; color: #1E293B; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; width: 100%; transition: all 0.2s ease; caret-color: var(--cor-tema, #2563EB); } .ds-input-field:focus { background: #FFFFFF; border-color: var(--cor-tema, #2563EB); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }"
+    },
+    {
+      "name": "Cartão de Superfície",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Contêiner de primeiro nível para módulos e blocos de dados.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><h3 class=\"ds-card-title\">Vendas Hoje</h3><span class=\"ds-badge-success\">+12%</span></div><div class=\"ds-card-value\">R$ 1.450,00</div><div class=\"ds-card-footer\">14 pedidos finalizados</div></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 24px; padding: 24px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); font-family: 'Plus Jakarta Sans', sans-serif; } .ds-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; } .ds-card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin: 0; } .ds-card-value { font-size: 24px; font-weight: 800; color: #0F172A; font-variant-numeric: tabular-nums; margin-bottom: 4px; } .ds-card-footer { font-size: 11px; font-weight: 600; color: #10B981; } .ds-badge-success { background: #ECFDF5; color: #065F46; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; }"
+    },
+    {
+      "name": "Selo de Status",
+      "kind": "chip",
+      "refersTo": "badge-status",
+      "description": "Tag de identificação de promoção, estoque ou situação do pedido.",
+      "html": "<span class=\"ds-badge-destaque\">🔥 -25% OFF</span>",
+      "css": ".ds-badge-destaque { background: var(--cor-destaque, #DC2626); color: #FFFFFF; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }"
+    },
+    {
+      "name": "Controle Segmentado",
+      "kind": "custom",
+      "refersTo": "button-secondary",
+      "description": "Alternador plano de opções binárias (ex: À Vista / A Prazo).",
+      "html": "<div class=\"ds-segmented\"><button class=\"ds-seg-btn active\">À Vista</button><button class=\"ds-seg-btn\">A Prazo</button></div>",
+      "css": ".ds-segmented { background: rgba(226, 232, 240, 0.7); padding: 2px; border-radius: 12px; display: inline-flex; gap: 2px; font-family: 'Plus Jakarta Sans', sans-serif; } .ds-seg-btn { padding: 4px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: #475569; transition: all 0.15s ease; } .ds-seg-btn.active { background: var(--cor-tema, #2563EB); color: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Balcão Moderno",
+    "overview": "O sistema visual é construído sobre a metáfora do balcão de varejo de alta eficiência: tudo está ao alcance das mãos, cada ação responde com feedback físico imediato e a informação crítica é transmitida com legibilidade instantânea. No ambiente do lojista, a densidade é utilitária e ágil; no ambiente do cliente, a experiência é elegante e conduz à conversão via WhatsApp.",
+    "keyCharacteristics": [
+      "Clareza de Balcão: Informações financeiras e de estoque em hierarquia direta e sem ambiguidades.",
+      "Tonal Flat com Elevação Funcional: Fundo neutro suave com superfícies de conteúdo alvas e sombras reservadas estritamente para estados interativos e modais.",
+      "Ergonomia Tátil: Alvos de toque generosos (>= 44x44px), cantos arredondados acolhedores (12px a 24px) e resposta elástica ao clique.",
+      "Resiliência Multi-Tenant: Identidade visual viva e configurável por loja sem quebra de contraste ou vazamento de estilos."
+    ],
+    "rules": [
+      {
+        "name": "The High-Contrast Destaque Rule",
+        "body": "Toda cor de promoção ou destaque dinâmico deve manter uma taxa de contraste mínima de 4.5:1 em relação ao fundo onde repousa. O tom #DC2626 é a base normativa; tons mais claros são proibidos em textos e badges com fundo branco.",
+        "section": "colors"
+      },
+      {
+        "name": "The Multi-Tenant Scope Rule",
+        "body": "As cores customizadas de lojistas (--cor-tema) injetam-se estritamente via variáveis CSS no escopo do lojista ativo. Cabeçalhos e botões dinâmicos devem declarar color: #FFFFFF ou herança explícita para evitar contraste insuficiente.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Currency Rule",
+        "body": "Todo valor monetário, quantidade fracionada e métrica de desempenho numérico deve aplicar compulsoriamente tabular-nums para garantir alinhamento vertical estável.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Skip Heading Rule",
+        "body": "A hierarquia estrutural do documento não pode saltar níveis semânticos. Um <h2> deve ser seguido por <h3> ou texto de apoio.",
+        "section": "typography"
+      },
+      {
+        "name": "The Zero-Nested-Card Rule",
+        "body": "É estritamente proibido aninhar um cartão com borda e sombra dentro de outro cartão com borda e sombra. Divisões internas devem ser estabelecidas unicamente por variações tonais de fundo ou linhas sutis.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do manter todos os botões de ação e itens tocáveis com no mínimo 44x44px de área de interação efetiva ou padding compensatório.",
+      "Do aplicar loading=\"lazy\" e decoding=\"async\" em todas as tags <img> de produtos injetadas dinamicamente via JavaScript.",
+      "Do respeitar o modo de movimento reduzido com @media (prefers-reduced-motion: reduce).",
+      "Do formatar todo número monetário ou métrica com a classe e estilização tabular-nums.",
+      "Do utilizar exclusivamente ícones da biblioteca Lucide com espessura de traço consistente de 1.75 a 2px."
+    ],
+    "donts": [
+      "Don't aninhar cartões com bordas e sombras dentro de outros cartões (nested-cards).",
+      "Don't utilizar fontes genéricas de IA como Inter, Roboto ou Geist; a identidade visual é estritamente vinculada à Plus Jakarta Sans.",
+      "Don't utilizar texto com gradiente colorido decorativo; ênfase visual deve ser alcançada através de peso tipográfico ou escala de tamanho.",
+      "Don't aplicar cores de destaque com contraste inferior a 4.5:1 com branco.",
+      "Don't deixar campos de formulário sem rótulos semânticos explícitos e anéis de foco visíveis."
+    ]
+  }
+}
