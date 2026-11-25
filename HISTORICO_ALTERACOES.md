@@ -4,6 +4,26 @@ Este documento registra todas as alterações, manutenções, implementações d
 
 ---
 
+## 📌 Versão 5.0.0 — Blindagem Arquitetural Completa (Auth JWT, RLS Multi-Tenant Estrito & Telegram Server-Side)
+**Data:** 25/11/2026  
+**Status:** Implementado e Verificado Localmente (Aguardando Deploy das Edge Functions & Scripts SQL no Supabase)
+
+### 1. Eliminação de Exposição do Bot do Telegram (`TG-01` a `TG-03`):
+- 🚫 **Zero Tokens no Repositório ou no Navegador:** Removido token exposto anteriormente de `sql/configuracoes_plataforma.sql` e bloqueado qualquer acesso direto de `anon` e `authenticated` à tabela `configuracoes_plataforma` (`REVOKE ALL`).
+- 🔒 **Isolamento via Edge Function `telegram-notify`:** Todo envio à API `api.telegram.org` agora ocorre exclusivamente no servidor (`supabase/functions/telegram-notify/index.ts`), onde os tokens e `chat_id` são resolvidos no backend e jamais retornam ao navegador ou ao `localStorage`.
+- 🛡️ **Anti-Spam no Checkout Público:** Disparo de `PEDIDO_ONLINE` valida atomicamente a coluna `telegram_notificado = false` na tabela `public.vendas` dentro da janela de 15 minutos, impedindo repetições abusivas.
+
+### 2. Autenticação JWT Real e RLS Multi-Tenant Efetivo (`DB-01` a `DB-04`):
+- 🔑 **Edge Functions `auth-login` e `master-admin`:** Autenticação agora emite sessão JWT oficial do Supabase Auth com claims imutáveis (`app_metadata.app_role` e `app_metadata.loja_id`). Senhas legadas em texto puro na tabela `lojas` passam por upgrade transparente automático para SHA-256 no primeiro login.
+- 🧱 **Bloqueio Total de Leitura/Escrita Anônima:** `sql/security_hardening.sql` (v5.0.0) revoga privilégios de `anon` em `lojas`, `configuracoes_loja`, `produtos`, `vendas`, `itens_venda`, `clientes`, `despesas` e Views de telemetria (`security_invoker = true`), além de blindar as RPCs `registrar_venda_completa` e `cancelar_venda_completa` com validação de JWT.
+- 🛍️ **RPCs Públicas Seguras para Vitrine:** Criadas `obter_vitrine_publica` (projeta apenas campos públicos da vitrine, omitindo custos, consignantes, `chat_id` e tokens) e `criar_pedido_online` (recalcula preços, taxas e totais compulsoriamente no PostgreSQL).
+- 📦 **Storage Escopado por Loja (`arquivos-lojas`):** Leitura pública mantida via CDN; upload, atualização e exclusão restritos a usuários autenticados dentro da pasta correspondente ao seu `loja_id` (ou `MASTER`).
+
+### 3. Correções Críticas de Sintaxe JavaScript (Herdadas da v4.5.5):
+- 🛠️ Corrigidos 4 erros de sintaxe/duplicação no `<script>` principal de `index.html` detectados via Chrome DevTools Protocol (Edge Headless): declaração duplicada de `corTextoMenu`, `forEach` não fechado em `navegar()`, declaração duplicada/não fechada de `abrirModalCheckoutCliente()` com linhas duplicadas em `renderizarItensCheckoutVitrine()`, e bloco duplicado/truncado de `renderizarPedidos()` / `solicitarCancelamentoVenda()`.
+
+---
+
 ## 📌 Versão 4.5.5 — Isolamento do Painel Master, Menus em Alto Contraste, Gestão do Carrinho da Vitrine e Responsividade Mobile Total
 **Data:** 16/11/2026  
 **Status:** Concluído e Homologado (Detector Impeccable: 0 anti-patterns, 0 avisos)

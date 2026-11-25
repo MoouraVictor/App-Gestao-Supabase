@@ -191,11 +191,12 @@ flowchart TD
 - **Navegação por Teclado:** Anéis de foco nítidos (`:focus-visible`) e tecla `Esc` global;
 - **Responsividade Mobile Guard:** Proteção `pb-24` contra sobreposição da barra de navegação inferior móvel (`#mobileBottomNav`) e rolagem horizontal suave em todas as tabelas.
 
-### 5. Blindagem de Segurança (OWASP Top 10 & LGPD)
+### 5. Blindagem de Segurança (OWASP Top 10, JWT Multi-Tenant & LGPD)
+- **Autenticação JWT & Edge Functions (v5.0.0):** Login via `supabase/functions/auth-login` emitindo sessão JWT real do Supabase Auth com claims verificáveis (`app_role` e `loja_id`), e ações Master isoladas em `supabase/functions/master-admin`;
+- **Bot Telegram Server-Side (v5.0.0):** Chamadas à API do Telegram isoladas na Edge Function `supabase/functions/telegram-notify`; tokens nunca são baixados pelo navegador nem expostos no `localStorage`;
+- **RLS Multi-Tenant & Vitrine Segura:** Tabelas privadas bloqueadas para acesso anônimo em [`sql/security_hardening.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/security_hardening.sql); a vitrine pública utiliza as RPCs `obter_vitrine_publica` e `criar_pedido_online` (com recálculo canônico de preços no PostgreSQL);
+- **Storage Escopado por Loja:** Upload e exclusão em `arquivos-lojas` restritos a usuários autenticados na pasta `${loja_id}/...`;
 - **SEC-01 (Stored XSS):** Higienização de todas as saídas dinâmicas no DOM com `escapeHtml()` nativo;
-- **SEC-02 (Supabase RLS):** Políticas de Row Level Security estritas e 100% idempotentes com limpeza dinâmica de regras legadas em [sql/security_hardening.sql](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/security_hardening.sql);
-- **SEC-03 (Autenticação Offline Segura):** Remoção de senhas fracas hardcoded; o fallback offline exige validação contra hash SHA-256 armazenado localmente;
-- **SEC-04 (Auditoria de Preços no Checkout):** Bloqueio de manipulação de preços em memória ou console do cliente;
 - **SEC-05 & SEC-06 (Integridade & Headers):** Fixação de CDN Lucide `0.460.0` e meta-tags HTTP `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`;
 - **LGPD:** Termos de privacidade no checkout e exclusão definitiva de clientes (Direito ao Esquecimento - Art. 18).
 
@@ -210,10 +211,15 @@ App-Gestao-Supabase/
 ├── HISTORICO_ALTERACOES.md         # Registro cronológico detalhado de versões (Changelog)
 ├── DESIGN.md                       # Especificação canônica do Design System ("O Balcão Moderno")
 ├── PRODUCT.md                      # Especificação do produto, personas e casos de uso
+├── supabase/
+│   └── functions/                  # Supabase Edge Functions (Deno / Backend Seguro)
+│       ├── auth-login/index.ts     # Autenticação com emissão de JWT real (MASTER/LOJISTA)
+│       ├── master-admin/index.ts   # Gestão administrativa de lojas e configurações globais
+│       └── telegram-notify/index.ts# Proxy server-side seguro para Telegram Bot API
 ├── sql/                            # Scripts SQL para PostgreSQL e Supabase
-│   ├── security_hardening.sql      # Script de blindagem OWASP e políticas RLS idempotentes
+│   ├── security_hardening.sql      # Blindagem v5.0.0 (JWT RLS, RPCs públicas e Storage)
 │   ├── telegram_notifications.sql  # Migração de campos de notificação do Telegram
-│   └── configuracoes_plataforma.sql# Provisionamento da tabela global e Bot Central
+│   └── configuracoes_plataforma.sql# Provisionamento seguro e bloqueado da plataforma
 └── docs/                           # Documentações técnicas de arquitetura
     └── PLANEJAMENTO_MIGRACAO_BANCO.md # Documentação da migração relacional
 ```
@@ -227,38 +233,38 @@ Não requer instalação de Node.js, compilação ou gerenciadores de pacotes:
 1. Abra o arquivo [`index.html`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/index.html) diretamente no Google Chrome, Microsoft Edge ou em qualquer navegador moderno;
 2. A aplicação carrega os recursos necessários via CDN e conecta-se diretamente ao Supabase.
 
-### 2. Configuração do Supabase & Scripts SQL
-No painel do seu projeto no [Supabase Dashboard](https://supabase.com/dashboard) $\rightarrow$ **SQL Editor**:
+### 2. Configuração do Supabase (Scripts SQL + Edge Functions)
+No painel do seu projeto no [Supabase Dashboard](https://supabase.com/dashboard):
 
-1. **Blindagem de Segurança e Políticas RLS:**
-   - Execute o script [`sql/security_hardening.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/security_hardening.sql);
-   - O script remove dinamicamente políticas antigas conflitantes, ativa o Row Level Security em todas as tabelas e protege a coluna `senha_hash`.
-2. **Notificações Automáticas no Telegram (Opcional):**
-   - Execute o script [`sql/telegram_notifications.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/telegram_notifications.sql);
-   - Ele adiciona as colunas de integração na tabela `configuracoes_loja`.
-3. **Bot Central da Plataforma (Opcional para Modo SaaS):**
-   - Execute o script [`sql/configuracoes_plataforma.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/configuracoes_plataforma.sql) para sincronizar o bot central da plataforma entre todas as lojas.
+1. **Scripts SQL (em SQL Editor):**
+   - Execute [`sql/configuracoes_plataforma.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/configuracoes_plataforma.sql) (bloqueia leitura/escrita direta da tabela de segredos globais);
+   - Execute [`sql/telegram_notifications.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/telegram_notifications.sql) (garante colunas de notificação em `configuracoes_loja`);
+   - Execute [`sql/security_hardening.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/security_hardening.sql) (ativa RLS baseado em JWT, cria `obter_vitrine_publica` / `criar_pedido_online` e protege o Storage).
+2. **Deploy das 3 Edge Functions (CLI ou Editor Web do Supabase):**
+   - `auth-login`, `master-admin` e `telegram-notify` (com verificação JWT de gateway desativada no roteador para suportar `sb_publishable_` / login inicial, validando o JWT internamente com `auth.getUser()`).
+3. **Secrets das Edge Functions:**
+   - Configure `MASTER_PASSWORD` (senha de acesso do usuário `admin`) e opcionalmente `TELEGRAM_CENTRAL_BOT_TOKEN` nos *Secrets* do Supabase.
 
 ### 3. Notificações Automáticas no Telegram
-1. No painel do **Administrador Master**, informe o `@username` e o `Token HTTP` do Bot Central;
+1. No painel do **Administrador Master**, informe o `@username` e o novo `Token HTTP` do Bot Central (gerado no `@BotFather`);
 2. No painel do lojista, acesse a aba **Minha Loja Online & Marca** $\rightarrow$ **Notificações Automáticas no Telegram**;
 3. Ative a integração e insira o seu **Chat ID** (obtido de forma guiada pelo `@userinfobot`);
-4. Clique em **Testar Notificação Agora** para validar o envio em tempo real.
+4. Clique em **Testar Notificação Agora** para validar o envio server-side em tempo real.
 
 ---
 
 ## 🔑 Credenciais de Acesso
 
-O sistema possui autenticação segura via RPC PostgreSQL no Supabase com fallback offline auditado:
+O sistema possui autenticação segura via Edge Function (`auth-login`) + JWT no Supabase:
 
-| Perfil | Usuário | Senha Padrão | Escopo de Acesso |
+| Perfil | Usuário | Senha | Escopo de Acesso |
 | :--- | :--- | :--- | :--- |
-| **👑 Administrador Master** | `admin` | `123` | Acesso global a todas as lojas, métricas consolidadas e impersonação. |
-| **🏪 Lojista 1 (Mary Variedades)** | `moda` | `123` | Painel exclusivo da loja: Estoque, PDV, Cobrança, Marca e Despesas. |
+| **👑 Administrador Master** | `admin` | Definida no Secret `MASTER_PASSWORD` | Acesso global a todas as lojas, configurações e impersonação. |
+| **🏪 Lojista** | Login da loja (ex: `moda`) | Senha cadastrada no painel | Painel exclusivo da loja: Estoque, PDV, Cobrança, Marca e Despesas. |
 | **🛍️ Cliente (Vitrine Pública)** | *Sem login* | *Sem senha* | Acesso direto via URL `index.html?loja=LOJA-1`. |
 
 > [!NOTE]
-> Em ambientes offline, o sistema aceita credenciais cujos hashes SHA-256 foram validados e armazenados localmente em sessões online prévias, eliminando senhas fracas fixas no código-fonte.
+> Toda comunicação autenticada envia o JWT oficial do Supabase Auth no cabeçalho `Authorization`, permitindo que o PostgreSQL valide o isolamento multi-tenant no próprio banco de dados.
 
 ---
 
@@ -279,6 +285,7 @@ O sistema possui autenticação segura via RPC PostgreSQL no Supabase com fallba
 
 ## 📜 Histórico de Versões
 
+- **Versão 5.0.0 (25/11/2026):** Blindagem arquitetural completa do banco de dados e do Bot Telegram: criação das Edge Functions `auth-login` (JWT oficial do Supabase Auth), `master-admin` e `telegram-notify` (isolamento total de tokens e `chat_id` no servidor); RLS estrito baseado em `auth.jwt()` em [`sql/security_hardening.sql`](file:///c:/Users/victo/OneDrive/Documentos/GitHub/App-Gestao-Supabase/sql/security_hardening.sql); criação das RPCs seguras `obter_vitrine_publica` e `criar_pedido_online` (recalculando preços no PostgreSQL); Storage escopado por loja; correção de 4 erros de sintaxe JS no `index.html`.
 - **Versão 4.5.5 (16/11/2026):** Isolamento estrito do tema do Painel Master com `CORES_PADRAO_MASTER`; menus e sidebar em alto contraste dinâmico normativo ($L > 0.35$); gestão completa da sacola na loja online (stepper de quantidade, exclusão individual rápida e limpeza segura); responsividade e scroll horizontal com proteção `pb-24` contra sobreposição da barra inferior móvel em todas as tabelas.
 - **Versão 4.5.4 (16/11/2026):** Blindagem defensiva com SweetAlert2 na exclusão de produtos e na limpeza de carrinho PDV ativo com itens; semântica WAI-ARIA nas abas segmentadas de nicho; contraste e acessibilidade aprimorados no modal de login; sincronização bidirecional entre aba "Serviços" e tipo de item com estoque virtual.
 - **Versão 4.5.3 (16/11/2026):** Operação ergonômica de caixa com atalhos de teclado no PDV (`/`, `F2`, `F4`, `1-4`, `Esc` global); descoberta progressiva no cadastro de produtos com abas de nicho (Varejo Geral, Moda & Brechó, Perfumaria & Beleza, Serviços & Salão); visualização de risco financeiro / débitos pendentes de clientes no PDV com atalho `Ver Contas`; guarda dinâmica de contraste por cálculo de luminância relativa no espaço sRGB ($L > 0.35$).

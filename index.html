@@ -4025,20 +4025,56 @@
 
                     init() {
                       const client = this.supabase;
+                      // Limpa tokens antigos caso tenham ficado em cache de versões legadas
+                      try {
+                        localStorage.removeItem('master_telegram_bot_token');
+                        localStorage.removeItem('clara_master_telegram_bot_token');
+                        const rawDb = localStorage.getItem('GESTAO_DB_V3');
+                        if (rawDb) {
+                          const parsed = JSON.parse(rawDb);
+                          if (parsed?.configMaster?.telegramBotToken) {
+                            delete parsed.configMaster.telegramBotToken;
+                            localStorage.setItem('GESTAO_DB_V3', JSON.stringify(parsed));
+                          }
+                        }
+                      } catch (eClean) { }
+
                       if (client) {
-                        this.getConfigPlataforma().then(cfg => {
-                          if (cfg && cfg.telegramBotToken) {
-                            const db = getDB();
-                            if (!db.configMaster) db.configMaster = {};
-                            db.configMaster.telegramBotToken = cfg.telegramBotToken;
-                            if (cfg.telegramBotUsername) db.configMaster.telegramBotUsername = cfg.telegramBotUsername;
-                            saveDB(db);
-                            localStorage.setItem('master_telegram_bot_token', cfg.telegramBotToken);
-                            if (cfg.telegramBotUsername) localStorage.setItem('master_telegram_bot_username', cfg.telegramBotUsername);
+                        client.rpc('obter_username_bot_central').then(({ data }) => {
+                          if (data && typeof data === 'string') {
+                            localStorage.setItem('master_telegram_bot_username', data);
                           }
                         }).catch(() => { });
                       }
                       return client;
+                    },
+
+                    async _invokeEdge(fnName, body) {
+                      let bearer = this.SUPABASE_ANON_KEY;
+                      try {
+                        if (this.supabase?.auth) {
+                          const { data: sessData } = await this.supabase.auth.getSession();
+                          if (sessData?.session?.access_token) {
+                            bearer = sessData.session.access_token;
+                          }
+                        }
+                      } catch (eSess) { }
+
+                      const resp = await fetch(`${this.SUPABASE_URL}/functions/v1/${fnName}`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'apikey': this.SUPABASE_ANON_KEY,
+                          'Authorization': `Bearer ${bearer}`
+                        },
+                        body: JSON.stringify(body || {})
+                      });
+
+                      const json = await resp.json().catch(() => ({}));
+                      if (!resp.ok && !json.status) {
+                        throw new Error(json.mensagem || json.error || `Erro HTTP ${resp.status}`);
+                      }
+                      return json;
                     },
 
                     getProvedorAtivo() {
@@ -4051,15 +4087,20 @@
                       return this.supabase !== null;
                     },
 
-                    // 1. AUTENTICAÇÃO SEGURA (RPC POSTGRES SECURITY DEFINER)
+                    // 1. AUTENTICAÇÃO SEGURA VIA EDGE FUNCTION (EMISSÃO DE JWT REAL PARA O RLS)
                     async autenticar(usuario, senha, senhaHash) {
-                      const { data, error } = await this.supabase.rpc('autenticar_usuario', {
-                        p_usuario: usuario,
-                        p_senha: senha || '',
-                        p_senha_hash: senhaHash || ''
+                      const json = await this._invokeEdge('auth-login', {
+                        usuario,
+                        senha: senha || '',
+                        senhaHash: senhaHash || ''
                       });
-                      if (error) throw error;
-                      return data;
+                      if (json && json.status === 'sucesso' && json.session?.access_token && this.supabase?.auth) {
+                        await this.supabase.auth.setSession({
+                          access_token: json.session.access_token,
+                          refresh_token: json.session.refresh_token
+                        });
+                      }
+                      return json;
                     },
 
                     // 2. DADOS MASTER DE TODAS AS LOJAS
@@ -4222,70 +4263,20 @@
                       };
                     },
 
-                    // 4. VITRINE / E-COMMERCE PÚBLICO
+                    // 4. VITRINE / E-COMMERCE PÚBLICO (RPC SEGURA SEM EXPOSIÇÃO DE DADOS PRIVADOS)
                     async getLojaPublica(lojaId) {
-                      const [rLoja, rConfig, rProds] = await Promise.all([
-                        this.supabase.from('lojas').select('id, nome_loja, status, whatsapp').eq('id', lojaId).maybeSingle(),
-                        this.supabase.from('configuracoes_loja').select('*').eq('loja_id', lojaId).maybeSingle(),
-                        this.supabase.from('produtos').select('*').eq('loja_id', lojaId).eq('visivel_online', true)
-                      ]);
-
-                      if (!rLoja.data || rLoja.data.status === 'Bloqueada') {
-                        return { status: 'erro', mensagem: 'Loja não encontrada ou inativa.' };
-                      }
-
-                      const conf = rConfig.data || {};
-                      const prods = (rProds.data || []).map(p => ({
-                        id: p.id,
-                        nome: p.nome,
-                        variacao: p.variacao || '',
-                        categoria: p.categoria || 'Geral',
-                        precoVenda: Number(p.preco_venda) || 0,
-                        estoqueAtual: Number(p.estoque_atual) || 0,
-                        fotoUrl: p.foto_url || '',
-                        visivelOnline: true,
-                        emPromocao: !!p.em_promocao,
-                        precoPromocional: Number(p.preco_promocional) || 0,
-                        destaque: !!p.destaque,
-                        descricao: p.descricao || '',
-                        somenteAVista: !!p.somente_a_vista,
-                        tipoItem: (p.tipo_item === 'Serviço' || p.tipo_item === 'SERVICO') ? 'SERVICO' : 'PRODUTO',
-                        condicaoPeca: p.condicao_peca || '',
-                        medidas: p.medidas || '',
-                        pecaUnica: !!p.peca_unica
-                      }));
-
-                      return {
-                        status: 'sucesso',
-                        loja: {
-                          id: rLoja.data.id,
-                          nomeLoja: rLoja.data.nome_loja,
-                          whatsapp: rLoja.data.whatsapp || conf.whatsapp || '',
-                          slogan: conf.slogan || '',
-                          corPrimaria: conf.cor_primaria || '#2563EB',
-                          corDestaque: conf.cor_destaque || '#EF4444',
-                          corMenu: conf.cor_menu || '#0F172A',
-                          corFundo: conf.cor_fundo || '#F8FAFC',
-                          bannerAtivo: !!conf.banner_ativo,
-                          bannerTexto: conf.banner_texto || '',
-                          logoUrl: conf.logo_url || '',
-                          chavePix: conf.chave_pix || '',
-                          permiteDelivery: conf.permite_delivery !== false,
-                          taxaEntrega: Number(conf.taxa_entrega) || 0,
-                          modeloParcelamento: conf.modelo_parcelamento || 'MODELO_1',
-                          valorMinimoParcela: Number(conf.valor_minimo_parcela) || 50,
-                          maxParcelas: conf.max_parcelas_geral || 6,
-                          faixas: conf.tabela_faixas_json || [],
-                          produtos: prods
-                        }
-                      };
+                      const { data, error } = await this.supabase.rpc('obter_vitrine_publica', {
+                        p_identificador: lojaId
+                      });
+                      if (error) throw error;
+                      return data || { status: 'erro', mensagem: 'Loja não encontrada ou inativa.' };
                     },
 
                     // 5. PRODUTOS (SALVAR COM UPLOAD PARA SUPABASE STORAGE)
                     async salvarProduto(lojaId, p) {
                       let fotoUrl = p.fotoUrl || '';
                       if (p.fotoBase64) {
-                        fotoUrl = await this.uploadBase64('produtos', `${p.id || Date.now()}.jpg`, p.fotoBase64);
+                        fotoUrl = await this.uploadBase64(`${lojaId}/produtos`, `${p.id || Date.now()}.jpg`, p.fotoBase64);
                       }
                       const tipoItemNorm = (p.tipoItem === 'SERVICO' || p.tipoItem === 'Serviço') ? 'Serviço' : 'Produto Físico';
                       const payload = {
@@ -4399,20 +4390,25 @@
                         lucro_item: Number(it.lucroItem) || 0
                       }));
 
-                      // Se for pedido online pendente de aprovação, insere direto sem abater o estoque físico antes do lojista aprovar
+                      // Se for pedido online pendente de aprovação, utiliza RPC SECURITY DEFINER com recálculo canônico no servidor
                       if (statusPedidoNorm === 'Pendente') {
-                        const { error: errVenda } = await this.supabase
-                          .from('vendas')
-                          .insert([vendaPayload]);
-                        if (errVenda) throw errVenda;
-
-                        if (itensPayload.length > 0) {
-                          const { error: errItens } = await this.supabase
-                            .from('itens_venda')
-                            .insert(itensPayload);
-                          if (errItens) throw errItens;
-                        }
-                        return { status: 'sucesso', id: v.id };
+                        const { data, error } = await this.supabase.rpc('criar_pedido_online', {
+                          p_loja_id: lojaId,
+                          p_dados: {
+                            clienteNome: v.clienteNome || 'Cliente Online',
+                            clienteTelefone: v.clienteTelefone || '',
+                            formaPagamento: v.formaPagamento || 'Pix',
+                            parcelas: Number(v.parcelas) || 1,
+                            modalidadeEntrega: v.modalidadeEntrega || 'Retirada',
+                            enderecoEntrega: v.enderecoEntrega || '',
+                            itens: (v.itens || []).map(it => ({
+                              produtoId: it.produtoId || it.produto_id,
+                              quantidade: Number(it.quantidade) || 1
+                            }))
+                          }
+                        });
+                        if (error) throw error;
+                        return data || { status: 'sucesso', id: v.id };
                       } else {
                         // Venda PDV ou Aprovada: insere e baixa estoque atomicamente via procedure
                         const { data, error } = await this.supabase.rpc('registrar_venda_completa', {
@@ -4593,7 +4589,7 @@
                     async salvarConfiguracoesLoja(lojaId, cfg) {
                       let logoUrl = cfg.logoUrl || '';
                       if (cfg.logoBase64) {
-                        logoUrl = await this.uploadBase64('logos', `${lojaId}.jpg`, cfg.logoBase64);
+                        logoUrl = await this.uploadBase64(`${lojaId}/logos`, `${lojaId}.jpg`, cfg.logoBase64);
                       }
                       const payload = {
                         loja_id: lojaId,
@@ -4641,50 +4637,38 @@
                       return { status: 'sucesso', logoUrl };
                     },
 
-                    // 14. AÇÕES MASTER
+                    // 14. AÇÕES MASTER (PROTEGIDAS VIA EDGE FUNCTION COM JWT MASTER)
                     async criarLoja(dadosLoja) {
-                      const lojaId = dadosLoja.id || ('LOJA-' + Math.floor(100000 + Math.random() * 900000));
-                      const { error: errL } = await this.supabase.from('lojas').insert({
-                        id: lojaId,
-                        nome_loja: dadosLoja.nomeLoja,
-                        login: dadosLoja.login,
-                        senha_hash: dadosLoja.senha,
-                        nome_responsavel: dadosLoja.nomeResponsavel || '',
-                        whatsapp: dadosLoja.whatsapp || '',
-                        status: dadosLoja.status || 'Ativa'
+                      const res = await this._invokeEdge('master-admin', {
+                        action: 'criarLoja',
+                        payload: { dadosLoja }
                       });
-                      if (errL) throw errL;
-
-                      await this.supabase.from('configuracoes_loja').insert({
-                        loja_id: lojaId,
-                        slogan: dadosLoja.slogan || 'Os melhores produtos com as melhores condições',
-                        cor_primaria: dadosLoja.corPrimaria || '#2563EB',
-                        cor_destaque: dadosLoja.corDestaque || '#EF4444',
-                        cor_menu: dadosLoja.corMenu || '#0F172A',
-                        cor_fundo: dadosLoja.corFundo || '#F8FAFC'
-                      });
-
-                      return { status: 'sucesso', lojaId };
+                      if (!res || res.status !== 'sucesso') {
+                        throw new Error(res?.mensagem || 'Falha ao criar loja.');
+                      }
+                      return res;
                     },
 
                     async atualizarLojaMaster(lojaId, dados) {
-                      const updatePayload = {};
-                      if (dados.nomeLoja !== undefined) updatePayload.nome_loja = dados.nomeLoja;
-                      if (dados.login !== undefined) updatePayload.login = dados.login;
-                      if (dados.senha !== undefined) updatePayload.senha_hash = dados.senha;
-                      if (dados.nomeResponsavel !== undefined) updatePayload.nome_responsavel = dados.nomeResponsavel;
-                      if (dados.whatsapp !== undefined) updatePayload.whatsapp = dados.whatsapp;
-                      if (dados.status !== undefined) updatePayload.status = dados.status;
-
-                      const { error } = await this.supabase.from('lojas').update(updatePayload).eq('id', lojaId);
-                      if (error) throw error;
-                      return { status: 'sucesso' };
+                      const res = await this._invokeEdge('master-admin', {
+                        action: 'atualizarLojaMaster',
+                        payload: { lojaId, dados }
+                      });
+                      if (!res || res.status !== 'sucesso') {
+                        throw new Error(res?.mensagem || 'Falha ao atualizar loja.');
+                      }
+                      return res;
                     },
 
                     async excluirLoja(lojaId) {
-                      const { error } = await this.supabase.from('lojas').delete().eq('id', lojaId);
-                      if (error) throw error;
-                      return { status: 'sucesso' };
+                      const res = await this._invokeEdge('master-admin', {
+                        action: 'excluirLoja',
+                        payload: { lojaId }
+                      });
+                      if (!res || res.status !== 'sucesso') {
+                        throw new Error(res?.mensagem || 'Falha ao excluir loja.');
+                      }
+                      return res;
                     },
 
                     // 15. TELEMETRIA DA VITRINE ONLINE
@@ -4767,20 +4751,19 @@
                       }
                     },
 
-                    // 17. CONFIGURAÇÕES GLOBAIS DA PLATAFORMA (BOT CENTRAL DO TELEGRAM)
+                    // 17. CONFIGURAÇÕES GLOBAIS DA PLATAFORMA (SOMENTE MASTER VIA EDGE FUNCTION, SEM RETORNAR TOKEN)
                     async getConfigPlataforma() {
                       if (!this.supabase) return null;
                       try {
-                        const { data, error } = await this.supabase
-                          .from('configuracoes_plataforma')
-                          .select('chave, valor');
-                        if (error) return null;
-                        const conf = {};
-                        (data || []).forEach(row => {
-                          if (row.chave === 'telegram_bot_token') conf.telegramBotToken = row.valor;
-                          if (row.chave === 'telegram_bot_username') conf.telegramBotUsername = row.valor;
+                        const res = await this._invokeEdge('master-admin', {
+                          action: 'getConfigPlataforma',
+                          payload: {}
                         });
-                        return conf;
+                        if (!res || res.status !== 'sucesso') return null;
+                        return {
+                          telegramBotUsername: res.telegramBotUsername || 'GestaoNotificaBot',
+                          telegramTokenConfigured: !!res.telegramTokenConfigured
+                        };
                       } catch (e) {
                         return null;
                       }
@@ -4789,37 +4772,26 @@
                     async salvarConfigPlataforma(token, username) {
                       if (!this.supabase) return;
                       try {
-                        const rows = [];
-                        if (token !== undefined) rows.push({ chave: 'telegram_bot_token', valor: token });
-                        if (username !== undefined) rows.push({ chave: 'telegram_bot_username', valor: username });
-                        if (rows.length > 0) {
-                          await this.supabase.from('configuracoes_plataforma').upsert(rows);
-                        }
+                        await this._invokeEdge('master-admin', {
+                          action: 'salvarConfigPlataforma',
+                          payload: { token, username }
+                        });
                       } catch (e) {
                         console.warn('[DatabaseAdapter] Falha ao persistir configuracoes_plataforma no Supabase:', e);
+                        throw e;
                       }
                     }
                   };
 
                   // =========================================================================
-                  // SERVIÇO DE NOTIFICAÇÕES TELEGRAM (CENTRAL DA PLATAFORMA + BOT LOJISTA)
+                  // SERVIÇO DE NOTIFICAÇÕES TELEGRAM (ISOLADO NO SERVIDOR VIA EDGE FUNCTION)
                   // =========================================================================
                   const TelegramNotifier = {
-                    TOKEN_PADRAO_FALLBACK: '',
-
                     getMasterConfig() {
                       const db = getDB();
                       const confMaster = (db && db.configMaster) ? db.configMaster : {};
-                      const token = confMaster.telegramBotToken || localStorage.getItem('master_telegram_bot_token') || localStorage.getItem('clara_master_telegram_bot_token') || this.TOKEN_PADRAO_FALLBACK;
                       const username = confMaster.telegramBotUsername || localStorage.getItem('master_telegram_bot_username') || localStorage.getItem('clara_master_telegram_bot_username') || 'GestaoNotificaBot';
-                      return { token, username };
-                    },
-
-                    getToken(loja) {
-                      if (loja && loja.telegramBotTokenCustom && loja.telegramBotTokenCustom.trim()) {
-                        return loja.telegramBotTokenCustom.trim();
-                      }
-                      return this.getMasterConfig().token;
+                      return { username };
                     },
 
                     escapeHtml(str) {
@@ -4842,188 +4814,53 @@
                       return ativo && temChatId;
                     },
 
-                    async enviarMensagem(chatId, textoHtml, token = null) {
-                      if (!chatId) {
-                        return { status: 'erro', mensagem: 'Chat ID não informado.' };
-                      }
-                      const tokenFinal = token || this.getMasterConfig().token;
-                      if (!tokenFinal) {
-                        console.warn('[TelegramNotifier] Nenhum token configurado na plataforma ou na loja.');
-                        return { status: 'erro', mensagem: 'Nenhum token do Bot do Telegram configurado no sistema.' };
-                      }
-
-                      const endpoint = `https://api.telegram.org/bot${tokenFinal}/sendMessage`;
+                    async _dispatch(payload) {
                       try {
-                        const resp = await fetch(endpoint, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            chat_id: String(chatId).trim(),
-                            text: textoHtml,
-                            parse_mode: 'HTML',
-                            disable_web_page_preview: true
-                          })
-                        });
-
-                        const data = await resp.json();
-                        if (data && data.ok) {
-                          return { status: 'sucesso', data };
-                        } else {
-                          console.warn('[TelegramNotifier] Erro retornado pela API Telegram:', data);
-                          return {
-                            status: 'erro',
-                            mensagem: data.description || 'Erro desconhecido retornado pela API do Telegram.',
-                            errorCode: data.error_code
-                          };
-                        }
+                        return await DatabaseAdapter._invokeEdge('telegram-notify', payload);
                       } catch (err) {
-                        console.error('[TelegramNotifier] Falha de rede ao conectar com a API do Telegram:', err);
-                        return { status: 'erro', mensagem: err.message || 'Falha de conexão com a API do Telegram.' };
+                        console.warn('[TelegramNotifier] Erro ao acionar Edge Function telegram-notify:', err);
+                        return { status: 'erro', mensagem: err.message || 'Falha ao conectar com o serviço de notificações.' };
                       }
-                    },
-
-                    formatarPedidoOnline(loja, pedido) {
-                      const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
-                      const idPed = this.escapeHtml(pedido.id || '');
-                      const nomeCli = this.escapeHtml(pedido.clienteNome || 'Cliente');
-                      const telCli = this.escapeHtml(pedido.clienteTelefone || '');
-                      const modalidade = this.escapeHtml(pedido.modalidadeEntrega || 'Retirada');
-                      const endereco = this.escapeHtml(pedido.enderecoEntrega || '');
-                      const taxa = Number(pedido.taxaEntrega) || 0;
-                      const total = Number(pedido.totalLiquido) || 0;
-                      const parcelas = Number(pedido.parcelas) || 1;
-                      const forma = this.escapeHtml(pedido.formaPagamento || 'Pix');
-                      const condicao = parcelas > 1 ? `${parcelas}x de ${formatarMoeda(total / parcelas)}` : 'À Vista';
-
-                      let msg = `🛍️ <b>NOVO PEDIDO ONLINE - ${nomeLoja.toUpperCase()}</b>\n`;
-                      msg += `🆔 <b>Pedido:</b> #${idPed}\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
-                      msg += `📱 <b>WhatsApp:</b> ${telCli}\n`;
-                      msg += `🛵 <b>Modalidade:</b> ${modalidade}\n`;
-                      if (modalidade === 'Delivery' && endereco) {
-                        msg += `📍 <b>Endereço:</b> ${endereco}\n`;
-                      }
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `📦 <b>ITENS DO PEDIDO:</b>\n`;
-
-                      const itens = pedido.itens || [];
-                      itens.forEach(it => {
-                        const nomeItem = this.escapeHtml(it.nome || 'Item');
-                        const varItem = it.variacao ? ` (${this.escapeHtml(it.variacao)})` : '';
-                        const qtd = Number(it.quantidade) || 1;
-                        const sub = Number(it.subtotal) || 0;
-                        msg += `• ${qtd}x ${nomeItem}${varItem} - ${formatarMoeda(sub)}\n`;
-                      });
-
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      if (taxa > 0) {
-                        msg += `🛵 <b>Taxa de Entrega:</b> ${formatarMoeda(taxa)}\n`;
-                      }
-                      msg += `💰 <b>TOTAL:</b> ${formatarMoeda(total)}\n`;
-                      msg += `💳 <b>Pagamento:</b> ${forma} (${condicao})\n`;
-                      msg += `⏰ <i>${this.formatarDataHora(pedido.dataHora)}</i>\n\n`;
-                      msg += `👉 <i>Gerado pelo Catálogo Gestão Multi-lojas e E-Commerce</i>`;
-                      return msg;
-                    },
-
-                    formatarVendaPdv(loja, venda) {
-                      const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
-                      const idVenda = this.escapeHtml(venda.id || '');
-                      const nomeCli = this.escapeHtml(venda.clienteNome || 'Consumidor Final');
-                      const condicao = this.escapeHtml(venda.condicaoPagamento || 'À Vista');
-                      const parcelas = Number(venda.parcelas) || 1;
-                      const totalBruto = Number(venda.totalBruto) || 0;
-                      const desconto = Number(venda.desconto) || 0;
-                      const totalLiq = Number(venda.totalLiquido) || 0;
-                      const saldoDev = Number(venda.saldoDevedor) || 0;
-
-                      let msg = `⚡ <b>NOVA VENDA NO BALCÃO (PDV) - ${nomeLoja.toUpperCase()}</b>\n`;
-                      msg += `🆔 <b>Venda:</b> #${idVenda}\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
-                      msg += `💳 <b>Condição:</b> ${condicao}${condicao === 'A Prazo' && parcelas > 1 ? ` (${parcelas}x)` : ''}\n`;
-                      if (desconto > 0) {
-                        msg += `🏷️ <b>Subtotal:</b> ${formatarMoeda(totalBruto)}\n`;
-                        msg += `✂️ <b>Desconto:</b> -${formatarMoeda(desconto)}\n`;
-                      }
-                      msg += `💰 <b>VALOR FINAL:</b> ${formatarMoeda(totalLiq)}\n`;
-                      if (saldoDev > 0) {
-                        msg += `⏳ <b>Saldo Devedor (A Receber):</b> ${formatarMoeda(saldoDev)}\n`;
-                      }
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `📦 <b>ITENS VENDIDOS:</b>\n`;
-
-                      const itens = venda.itens || [];
-                      itens.forEach(it => {
-                        const nomeItem = this.escapeHtml(it.nome || 'Item');
-                        const varItem = it.variacao ? ` (${this.escapeHtml(it.variacao)})` : '';
-                        const qtd = Number(it.quantidade) || 1;
-                        const sub = Number(it.subtotal || it.precoVendaUnitario * qtd) || 0;
-                        msg += `• ${qtd}x ${nomeItem}${varItem} - ${formatarMoeda(sub)}\n`;
-                      });
-
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `⏰ <i>${this.formatarDataHora(venda.dataHora)}</i>\n\n`;
-                      msg += `👉 <i>Registrado no PDV Gestão Multi-lojas e E-Commerce</i>`;
-                      return msg;
-                    },
-
-                    formatarCancelamento(loja, venda, motivo) {
-                      const nomeLoja = this.escapeHtml(loja.nomeLoja || 'Minha Loja');
-                      const idVenda = this.escapeHtml(venda.id || '');
-                      const nomeCli = this.escapeHtml(venda.clienteNome || 'Consumidor');
-                      const valorEstornado = Number(venda.totalLiquido) || 0;
-                      const motivoFormatado = this.escapeHtml(motivo || 'Cancelamento solicitado pelo lojista');
-
-                      let msg = `⚠️ <b>VENDA CANCELADA - ${nomeLoja.toUpperCase()}</b>\n`;
-                      msg += `🆔 <b>Venda/Pedido:</b> #${idVenda}\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `👤 <b>Cliente:</b> ${nomeCli}\n`;
-                      msg += `💰 <b>Valor Estornado:</b> ${formatarMoeda(valorEstornado)}\n`;
-                      msg += `📦 <b>Itens Devolvidos ao Estoque:</b> Sim\n`;
-                      msg += `📝 <b>Motivo:</b> ${motivoFormatado}\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `⏰ <i>${this.formatarDataHora(venda.dataCancelamento || new Date().toISOString())}</i>`;
-                      return msg;
                     },
 
                     async notificarPedidoOnline(loja, pedido) {
-                      if (!this.isTelegramAtivo(loja)) return;
-                      if (loja.telegramNotifOnline === false || String(loja.telegramNotifOnline) === 'false') return;
-                      const texto = this.formatarPedidoOnline(loja, pedido);
-                      const token = this.getToken(loja);
-                      return await this.enviarMensagem(loja.telegramChatId, texto, token);
+                      if (!loja || !pedido?.id) return;
+                      return await this._dispatch({
+                        evento: 'PEDIDO_ONLINE',
+                        lojaId: loja.id,
+                        pedidoId: pedido.id
+                      });
                     },
 
                     async notificarVendaPdv(loja, venda) {
                       if (!this.isTelegramAtivo(loja)) return;
                       if (loja.telegramNotifPdv === false || String(loja.telegramNotifPdv) === 'false') return;
-                      const texto = this.formatarVendaPdv(loja, venda);
-                      const token = this.getToken(loja);
-                      return await this.enviarMensagem(loja.telegramChatId, texto, token);
+                      return await this._dispatch({
+                        evento: 'VENDA_PDV',
+                        lojaId: loja.id,
+                        venda
+                      });
                     },
 
                     async notificarCancelamento(loja, venda, motivo) {
                       if (!this.isTelegramAtivo(loja)) return;
                       if (loja.telegramNotifCancelamento === false || String(loja.telegramNotifCancelamento) === 'false') return;
-                      const texto = this.formatarCancelamento(loja, venda, motivo);
-                      const token = this.getToken(loja);
-                      return await this.enviarMensagem(loja.telegramChatId, texto, token);
+                      return await this._dispatch({
+                        evento: 'CANCELAMENTO',
+                        lojaId: loja.id,
+                        venda,
+                        motivo
+                      });
                     },
 
                     async testarConexao(loja, chatId, tokenCustom = null) {
-                      const nomeLoja = this.escapeHtml(loja?.nomeLoja || 'Sua Loja');
-                      const token = (tokenCustom && tokenCustom.trim()) ? tokenCustom.trim() : this.getToken(loja);
-
-                      let msg = `🔔 <b>TESTE DE CONEXÃO - GESTÃO MULTI-LOJAS E E-COMMERCE</b>\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `Olá! Esta é uma notificação de teste da sua loja <b>${nomeLoja}</b>.\n\n`;
-                      msg += `✅ <b>Status:</b> O sistema de notificações automáticas via Telegram está configurado e pronto para o envio instantâneo!\n`;
-                      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
-                      msg += `⏰ <i>${this.formatarDataHora()}</i>`;
-
-                      return await this.enviarMensagem(chatId, msg, token);
+                      if (!loja?.id) return { status: 'erro', mensagem: 'Loja não identificada.' };
+                      return await this._dispatch({
+                        evento: 'TESTE_CONEXAO',
+                        lojaId: loja.id,
+                        chatId: String(chatId || '').trim(),
+                        tokenCustom: tokenCustom ? String(tokenCustom).trim() : ''
+                      });
                     }
                   };
 
@@ -5378,7 +5215,7 @@
                   }
 
                   // --- AO CARREGAR A PÁGINA ---
-                  window.addEventListener('DOMContentLoaded', () => {
+                  window.addEventListener('DOMContentLoaded', async () => {
                     DatabaseAdapter.init();
                     lucide.createIcons();
                     inicializarBancoLocal();
@@ -5406,13 +5243,23 @@
                     // Restaura status de conexão com Supabase
                     atualizarStatusConexaoVisual(true);
 
-                    // Restaura sessão salva se houver
+                    // Restaura sessão salva SOMENTE se houver JWT válido do Supabase Auth ativo
                     const sessaoSalva = localStorage.getItem('GESTAO_SESSAO') || localStorage.getItem('CLARA_SESSAO');
                     if (sessaoSalva) {
                       try {
-                        const s = JSON.parse(sessaoSalva);
-                        aplicarLogin(s.usuario, s.lojaId);
-                        return;
+                        let temJwtValido = false;
+                        if (DatabaseAdapter.supabase?.auth) {
+                          const { data: sessData } = await DatabaseAdapter.supabase.auth.getSession();
+                          temJwtValido = Boolean(sessData?.session?.access_token);
+                        }
+                        if (temJwtValido) {
+                          const s = JSON.parse(sessaoSalva);
+                          aplicarLogin(s.usuario, s.lojaId);
+                          return;
+                        } else {
+                          localStorage.removeItem('GESTAO_SESSAO');
+                          localStorage.removeItem('CLARA_SESSAO');
+                        }
                       } catch (e) { }
                     }
 
@@ -5585,7 +5432,7 @@
                     const db = getDB();
                     const sHash = await hashSha256(s);
 
-                    // 1. Tenta autenticação direta pelo DatabaseAdapter (Supabase RPC ou Drive POST)
+                    // 1. Autenticação obrigatória via Edge Function auth-login (emite JWT real para RLS)
                     try {
                       Swal.showLoading();
                       const json = await DatabaseAdapter.autenticar(uNorm, s, sHash);
@@ -5594,10 +5441,6 @@
                       }
                       if (json && json.status === 'sucesso') {
                         if (json.perfil === 'MASTER') {
-                          const dbLocal = getDB();
-                          if (!dbLocal.master) dbLocal.master = { login: 'admin', nome: 'Super Administrador' };
-                          dbLocal.master.senha = sHash;
-                          saveDB(dbLocal);
                           aplicarLogin({ login: uNorm, nome: 'Super Administrador', perfil: 'MASTER' }, null);
                           return;
                         } else if (json.perfil === 'LOJISTA' && json.loja) {
@@ -5606,15 +5449,12 @@
                           if (idx < 0) {
                             dbLocal.lojas.push({
                               ...json.loja,
-                              senha: sHash,
                               produtos: [],
                               clientes: [],
                               vendas: []
                             });
-                          } else {
-                            dbLocal.lojas[idx].senha = sHash;
+                            saveDB(dbLocal);
                           }
-                          saveDB(dbLocal);
                           aplicarLogin({ login: uNorm, nome: json.loja.nomeResponsavel || json.loja.nomeLoja, perfil: 'LOJISTA' }, json.loja.id);
                           return;
                         }
@@ -5626,23 +5466,12 @@
                       if (typeof Swal !== 'undefined' && Swal.isVisible && Swal.isVisible()) {
                         Swal.close();
                       }
-                      console.warn('Erro ao autenticar online, tentando base local...', errAuth);
-                    }
-
-                    // 2. Fallback para base local (Blindagem SEC-03: remoção de senhas fracas fixas no código ['123', 'admin123', 'admin'])
-                    const senhaMasterConfigurada = (db.master && db.master.senha) ? String(db.master.senha).trim() : '';
-                    if (uNorm === 'admin' && senhaMasterConfigurada && (s === senhaMasterConfigurada || sHash === senhaMasterConfigurada)) {
-                      aplicarLogin({ login: 'admin', nome: 'Super Administrador', perfil: 'MASTER' }, null);
-                      return;
-                    }
-
-                    const loja = (db.lojas || []).find(l => (l.login || '').toLowerCase() === uNorm && (l.senha === s || l.senha === sHash));
-                    if (loja) {
-                      if (loja.status === 'Bloqueada') {
-                        Swal.fire('Loja Bloqueada', 'Esta loja está temporariamente desativada pelo administrador master.', 'warning');
-                        return;
-                      }
-                      aplicarLogin({ login: uNorm, nome: loja.nomeResponsavel || loja.nomeLoja, perfil: 'LOJISTA' }, loja.id);
+                      console.warn('Falha de rede ao autenticar no servidor:', errAuth);
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Erro de Conexão',
+                        text: 'Não foi possível validar suas credenciais no servidor. Verifique sua internet e tente novamente.'
+                      });
                       return;
                     }
 
@@ -5683,10 +5512,17 @@
                     }
                   }
 
-                  function fazerLogout() {
+                  async function fazerLogout() {
                     fecharMenuMobile();
+                    try {
+                      if (DatabaseAdapter.supabase?.auth) {
+                        await DatabaseAdapter.supabase.auth.signOut();
+                      }
+                    } catch (eOut) { }
                     localStorage.removeItem('GESTAO_SESSAO');
                     localStorage.removeItem('CLARA_SESSAO');
+                    localStorage.removeItem('master_telegram_bot_token');
+                    localStorage.removeItem('clara_master_telegram_bot_token');
                     ESTADO.usuarioLogado = null;
                     ESTADO.lojaAtivaId = null;
 
@@ -6094,7 +5930,6 @@
 
                     // Menu Alto Contraste
                     document.documentElement.style.setProperty('--cor-menu-sidebar', corMenu);
-                    const corTextoMenu = isCorClara(corMenu) ? '#0F172A' : '#F8FAFC';
                     const isClaraMenu = isCorClara(corMenu);
                     const corTextoMenu = isClaraMenu ? '#0F172A' : '#FFFFFF';
                     const corTextoMenuSec = isClaraMenu ? '#475569' : '#94A3B8';
@@ -6237,22 +6072,14 @@
                     const alvo = document.getElementById(`tela-${telaId}`);
                     if (alvo) alvo.classList.remove('hidden');
 
-                    // Atualiza estilo dos botões da sidebar desktop
-                    document.querySelectorAll('.nav-item-desktop').forEach(btn => {
-                      btn.classList.remove('bg-blue-600', 'text-white');
-                      btn.classList.add('text-slate-300', 'hover:bg-slate-800');
-                      // Atualiza estilo dos botões da sidebar desktop e gaveta mobile
-                      document.querySelectorAll('.nav-item-desktop, .nav-item-mob').forEach(btn => {
-                        btn.classList.remove('nav-item-ativo');
-                      });
-                      const activeNavDesk = document.getElementById(`nav-desktop-${telaId}`);
-                      if (activeNavDesk) {
-                        activeNavDesk.classList.add('bg-blue-600', 'text-white');
-                        activeNavDesk.classList.remove('text-slate-300', 'hover:bg-slate-800');
-                      }
-                      if (activeNavDesk) activeNavDesk.classList.add('nav-item-ativo');
-                      const activeNavMob = document.getElementById(`nav-mob-${telaId}`);
-                      if (activeNavMob) activeNavMob.classList.add('nav-item-ativo');
+                    // Atualiza estilo dos botões da sidebar desktop e gaveta mobile
+                    document.querySelectorAll('.nav-item-desktop, .nav-item-mob').forEach(btn => {
+                      btn.classList.remove('nav-item-ativo', 'bg-blue-600', 'text-white');
+                    });
+                    const activeNavDesk = document.getElementById(`nav-desktop-${telaId}`);
+                    if (activeNavDesk) activeNavDesk.classList.add('nav-item-ativo');
+                    const activeNavMob = document.getElementById(`nav-mob-${telaId}`);
+                    if (activeNavMob) activeNavMob.classList.add('nav-item-ativo');
 
                       // Atualiza bottom nav mobile
                       document.querySelectorAll('.nav-bottom-btn').forEach(btn => {
@@ -6349,12 +6176,29 @@
                         carregarConfigMasterTelegram();
                       }
 
-    function carregarConfigMasterTelegram() {
+    async function carregarConfigMasterTelegram() {
                         const config = TelegramNotifier.getMasterConfig();
                         const inputUser = document.getElementById('masterTelegramBotUsername');
                         const inputToken = document.getElementById('masterTelegramBotToken');
                         if (inputUser) inputUser.value = config.username || '';
-                        if (inputToken) inputToken.value = config.token || '';
+                        if (inputToken) {
+                          inputToken.value = '';
+                          inputToken.placeholder = 'Verificando configuração segura no servidor...';
+                        }
+
+                        const srvCfg = await DatabaseAdapter.getConfigPlataforma();
+                        if (srvCfg) {
+                          if (inputUser && srvCfg.telegramBotUsername) {
+                            inputUser.value = srvCfg.telegramBotUsername;
+                          }
+                          if (inputToken) {
+                            inputToken.placeholder = srvCfg.telegramTokenConfigured
+                              ? '✅ Token salvo no servidor (preencha somente para substituir)'
+                              : 'Ex: 7123456789:AAHxxxxx...';
+                          }
+                        } else if (inputToken) {
+                          inputToken.placeholder = 'Ex: 7123456789:AAHxxxxx...';
+                        }
                       }
 
     function alternarVisibilidadeToken(inputId, iconId) {
@@ -6371,29 +6215,41 @@
                         if (window.lucide) lucide.createIcons();
                       }
 
-    function salvarConfigMasterTelegram() {
+    async function salvarConfigMasterTelegram() {
                         const username = (document.getElementById('masterTelegramBotUsername')?.value || '').trim().replace(/^@/, '');
-                        const token = (document.getElementById('masterTelegramBotToken')?.value || '').trim();
+                        const inputToken = document.getElementById('masterTelegramBotToken');
+                        const token = (inputToken?.value || '').trim();
 
                         const db = getDB();
                         if (!db.configMaster) db.configMaster = {};
                         db.configMaster.telegramBotUsername = username;
-                        db.configMaster.telegramBotToken = token;
+                        delete db.configMaster.telegramBotToken;
                         saveDB(db);
 
                         localStorage.setItem('master_telegram_bot_username', username);
-                        localStorage.setItem('master_telegram_bot_token', token);
                         localStorage.setItem('clara_master_telegram_bot_username', username);
-                        localStorage.setItem('clara_master_telegram_bot_token', token);
+                        localStorage.removeItem('master_telegram_bot_token');
+                        localStorage.removeItem('clara_master_telegram_bot_token');
 
-                        DatabaseAdapter.salvarConfigPlataforma(token, username).catch(e => console.warn(e));
-
-                        Swal.fire({
-                          icon: 'success',
-                          title: 'Configurações Master Salvas!',
-                          text: 'O Bot Central do Telegram da plataforma foi atualizado com sucesso.',
-                          timer: 2000
-                        });
+                        try {
+                          await DatabaseAdapter.salvarConfigPlataforma(token, username);
+                          if (inputToken) {
+                            inputToken.value = '';
+                            inputToken.placeholder = '✅ Token salvo no servidor (preencha somente para substituir)';
+                          }
+                          Swal.fire({
+                            icon: 'success',
+                            title: 'Configurações Master Salvas!',
+                            text: 'O Bot Central do Telegram foi atualizado com segurança no servidor.',
+                            timer: 2000
+                          });
+                        } catch (e) {
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Erro ao Salvar',
+                            text: e.message || 'Não foi possível salvar a configuração no servidor.'
+                          });
+                        }
                       }
 
     function filtrarLojasMaster(cacheResumo = null) {
@@ -7043,30 +6899,9 @@
                           return;
                         }
 
-                        const tokenEfetivo = (tokenCustom && tokenCustom.trim()) || (loja && loja.telegramBotTokenCustom && loja.telegramBotTokenCustom.trim()) || TelegramNotifier.getMasterConfig().token;
-                        if (!tokenEfetivo) {
-                          Swal.fire({
-                            icon: 'warning',
-                            title: 'Token do Bot Não Configurado',
-                            html: `
-            <div class="text-left text-xs text-slate-600 space-y-2">
-              <p>O sistema ainda não possui o <b>Token do Bot</b> do Telegram configurado.</p>
-              <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1.5 text-amber-900">
-                <p class="font-bold flex items-center gap-1">
-                  <span>Como resolver:</span>
-                </p>
-                <p>• <b>Opção 1 (Bot Próprio do Lojista):</b> Abra a seção <i>"Configuração Avançada: Usar Token de Bot Próprio"</i> logo abaixo e informe o Token do seu bot.</p>
-                <p>• <b>Opção 2 (Bot Central):</b> Acesse o Painel Master (login <code>admin</code>) e configure o Bot Central da plataforma para que todas as lojas usem o mesmo bot automaticamente.</p>
-              </div>
-            </div>
-          `
-                          });
-                          return;
-                        }
-
                         Swal.fire({
                           title: 'Enviando Notificação...',
-                          text: 'Conectando ao bot do Telegram...',
+                          text: 'Conectando com segurança ao servidor de notificações...',
                           allowOutsideClick: false,
                           didOpen: () => Swal.showLoading()
                         });
@@ -7088,7 +6923,7 @@
                           Swal.fire({
                             icon: 'error',
                             title: 'Falha no Envio',
-                            html: `Não foi possível enviar a mensagem no Telegram.<br><b>Detalhes:</b> ${res.mensagem || 'Erro desconhecido'}${dicaErro}`
+                            html: `Não foi possível enviar a mensagem no Telegram.<br><b>Detalhes:</b> ${escapeHtml(res.mensagem || 'Erro desconhecido')}${dicaErro}`
                           });
                         }
                       }
@@ -7940,7 +7775,6 @@
                         }
                       }
 
-    function abrirModalCheckoutCliente() {
                         function removerItemCarrinhoVitrine(idx) {
                           if (idx >= 0 && idx < ESTADO.carrinhoVitrine.length) {
                             ESTADO.carrinhoVitrine.splice(idx, 1);
@@ -8040,21 +7874,15 @@
 
                           ESTADO.carrinhoVitrine.forEach((it, idx) => {
                             const div = document.createElement('div');
-                            div.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs';
                             div.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs transition hover:border-slate-200';
                             div.innerHTML = `
-          <div class="truncate mr-2">
           <div class="truncate mr-2 flex-1">
             <span class="font-bold text-slate-900 block truncate">${escapeHtml(it.nome)}</span>
-            <span class="text-[10px] text-slate-400">${it.variacao ? escapeHtml(it.variacao) + ' • ' : ''}${formatarMoeda(it.precoVendaUnitario)} un</span>
             <div class="flex items-center space-x-1.5 text-[10px] text-slate-500 mt-0.5">
               ${it.variacao ? `<span class="bg-slate-200/60 px-1.5 py-0.2 rounded font-medium">${escapeHtml(it.variacao)}</span>` : ''}
               <span>${formatarMoeda(it.precoVendaUnitario)} un</span>
             </div>
           </div>
-          <div class="flex items-center space-x-1.5 shrink-0">
-            <span class="font-bold text-slate-900">${it.quantidade}x</span>
-            <span class="font-extrabold text-blue-600">${formatarMoeda(it.subtotal)}</span>
           <div class="flex items-center space-x-2 shrink-0">
             <!-- Controle de Quantidade -->
             <div class="flex items-center border border-slate-200 rounded-xl bg-white overflow-hidden shadow-2xs">
@@ -8302,19 +8130,29 @@
                             itens: [...ESTADO.carrinhoVitrine]
                           };
 
+                          // Persiste o pedido no Supabase via RPC segura (recalculando no servidor) e registra a telemetria antes de redirecionar
+                          try {
+                            const resPed = await DatabaseAdapter.registrarVenda(loja.id, novoPedido);
+                            if (resPed && resPed.id) {
+                              novoPedido.id = resPed.id;
+                              if (resPed.totalBruto !== undefined) novoPedido.totalBruto = Number(resPed.totalBruto);
+                              if (resPed.taxaEntrega !== undefined) novoPedido.taxaEntrega = Number(resPed.taxaEntrega);
+                              if (resPed.totalLiquido !== undefined) {
+                                novoPedido.totalLiquido = Number(resPed.totalLiquido);
+                                novoPedido.saldoDevedor = Number(resPed.totalLiquido);
+                              }
+                              if (resPed.valorParcela !== undefined) novoPedido.valorParcela = Number(resPed.valorParcela);
+                            }
+                          } catch (eRegVenda) {
+                            console.error('Falha ao persistir pedido online no banco:', eRegVenda);
+                          }
+
                           const db = getDB();
                           const idx = db.lojas.findIndex(l => l.id === loja.id);
                           if (idx >= 0) {
                             if (!db.lojas[idx].vendas) db.lojas[idx].vendas = [];
                             db.lojas[idx].vendas.unshift(novoPedido);
                             saveDB(db);
-                          }
-
-                          // Persiste o pedido no Supabase/Drive e registra a telemetria antes de redirecionar
-                          try {
-                            await DatabaseAdapter.registrarVenda(loja.id, novoPedido);
-                          } catch (eRegVenda) {
-                            console.error('Falha ao persistir pedido online no banco:', eRegVenda);
                           }
 
                           try {
@@ -8329,6 +8167,10 @@
                           } catch (eTel) {
                             console.warn('Erro ao disparar notificação Telegram de pedido online:', eTel);
                           }
+
+                          const taxaFinalMsg = Number(novoPedido.taxaEntrega) || 0;
+                          const totalFinalMsg = Number(novoPedido.totalLiquido) || totalFinal;
+                          const valorParcelaMsg = totalFinalMsg / parcelas;
 
                           let textoMsg = `🛍️ *NOVO PEDIDO - ${loja.nomeLoja.toUpperCase()}*\n`;
                           textoMsg += `🆔 *Pedido:* #${novoPedido.id}\n`;
@@ -8347,9 +8189,9 @@
                           });
 
                           textoMsg += `----------------------------------------\n`;
-                          if (taxa > 0) textoMsg += `🛵 *Taxa de Entrega:* ${formatarMoeda(taxa)}\n`;
-                          textoMsg += `💰 *TOTAL DO PEDIDO:* ${formatarMoeda(totalFinal)}\n`;
-                          textoMsg += `💳 *Pagamento:* ${ESTADO.formaCheckoutVitrine} (${parcelas > 1 ? parcelas + 'x de ' + formatarMoeda(valorParcela) : 'À Vista'})\n`;
+                          if (taxaFinalMsg > 0) textoMsg += `🛵 *Taxa de Entrega:* ${formatarMoeda(taxaFinalMsg)}\n`;
+                          textoMsg += `💰 *TOTAL DO PEDIDO:* ${formatarMoeda(totalFinalMsg)}\n`;
+                          textoMsg += `💳 *Pagamento:* ${ESTADO.formaCheckoutVitrine} (${parcelas > 1 ? parcelas + 'x de ' + formatarMoeda(valorParcelaMsg) : 'À Vista'})\n`;
                           if (loja.chavePix) textoMsg += `🔑 *Chave Pix da Loja:* ${loja.chavePix}\n`;
                           textoMsg += `\n_Pedido gerado via Catálogo Gestão Multi-lojas e E-Commerce_`;
 
@@ -10386,7 +10228,7 @@
               <span class="font-bold text-slate-700 block mb-1">Itens que retornarão ao estoque da loja:</span>
               ${v.itens.map(it => `
                 <div class="flex justify-between items-center text-slate-600">
-                  <span>• ${it.nome} ${it.variacao ? '(' + it.variacao + ')' : ''}</span>
+                  <span>• ${escapeHtml(it.nome)} ${it.variacao ? '(' + escapeHtml(it.variacao) + ')' : ''}</span>
                   <span class="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+${it.quantidade} un.</span>
                 </div>
               `).join('')}
@@ -10411,7 +10253,7 @@
                             title: 'Cancelar Venda?',
                             html: `
           <div class="text-sm text-slate-600 space-y-2 text-left">
-            <p class="text-center">Deseja realmente cancelar a venda <b class="text-slate-900">${v.id}</b> de <b>${v.clienteNome || 'Cliente Balcão'}</b>?</p>
+            <p class="text-center">Deseja realmente cancelar a venda <b class="text-slate-900">${escapeHtml(v.id)}</b> de <b>${escapeHtml(v.clienteNome || 'Cliente Balcão')}</b>?</p>
             <div class="text-xl font-black text-rose-600 text-center">${formatarMoeda(v.totalLiquido)}</div>
             ${alertaSaldo}
             ${itensDescHtml}
@@ -10518,7 +10360,7 @@
                           Swal.fire({
                             icon: 'success',
                             title: 'Venda Cancelada!',
-                            html: `A venda <b>${v.id}</b> foi cancelada com sucesso.<br><b>Motivo:</b> ${motivo}<br>Os produtos retornaram ao estoque da loja.`,
+                            html: `A venda <b>${escapeHtml(v.id)}</b> foi cancelada com sucesso.<br><b>Motivo:</b> ${escapeHtml(motivo)}<br>Os produtos retornaram ao estoque da loja.`,
                             timer: 3500,
                             showConfirmButton: true
                           });
@@ -10546,254 +10388,12 @@
           <div class="text-left text-xs text-slate-600 space-y-2.5">
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <span class="text-slate-400 uppercase text-[10px] block font-bold">Venda / Pedido</span>
-              <span class="text-sm font-bold text-slate-900">${v.id} (${v.clienteNome})</span>
-              <span class="text-[11px] text-slate-500 block">Total: ${formatarMoeda(v.totalLiquido)} • Origem: ${v.origem || 'Balcão'}</span>
+              <span class="text-sm font-bold text-slate-900">${escapeHtml(v.id)} (${escapeHtml(v.clienteNome)})</span>
+              <span class="text-[11px] text-slate-500 block">Total: ${formatarMoeda(v.totalLiquido)} • Origem: ${escapeHtml(v.origem || 'Balcão')}</span>
             </div>
             <div class="p-3 bg-rose-50 border border-rose-100 rounded-xl space-y-1">
               <span class="text-rose-800 uppercase text-[10px] block font-bold">Motivo Registrado na Auditoria</span>
-              <p class="text-sm font-semibold text-rose-950">${motivo}</p>
-              <span class="text-[10px] text-rose-500 block mt-1">Data/Hora: ${dataStr}</span>
-            </div>
-            ${estoqueInfoHtml}
-          </div>
-        `,
-                            icon: 'info',
-                            confirmButtonColor: '#2563EB',
-                            confirmButtonText: 'Fechar'
-                          });
-                        }
-
-                        // =========================================================================
-                        // PEDIDOS (LOJA ONLINE E BALCÃO)
-                        // =========================================================================
-                        function renderizarPedidos() {
-                          const loja = getLojaAtiva();
-                          const tbody = document.getElementById('tabelaPedidos');
-                          tbody.innerHTML = '';
-
-                          const pedidos = (loja.vendas || []).filter(v => v.tipo === 'PEDIDO_ONLINE' || v.tipo === 'PEDIDO');
-
-                          if (pedidos.length === 0) {
-                            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Nenhum pedido online ou orçamento registrado.</td></tr>`;
-                            return;
-                          }
-
-                          pedidos.forEach(p => {
-                            const isCancelada = (p.status === 'Cancelada');
-                            const tr = document.createElement('tr');
-                            tr.className = isCancelada ? 'bg-slate-50/70 opacity-60' : 'hover:bg-slate-50';
-
-                            let statusBadge = '';
-                            if (isCancelada) {
-                              statusBadge = `<button onclick="verDetalhesCancelamento('${p.id}')" title="Clique para ver auditoria do cancelamento" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 line-through hover:bg-rose-100 inline-flex items-center space-x-1 cursor-pointer"><span>Cancelada</span><i data-lucide="info" class="w-3 h-3 text-rose-500"></i></button>`;
-                            } else if (p.status === 'Finalizado') {
-                              statusBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Finalizado</span>';
-                            } else {
-                              statusBadge = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">${p.status}</span>`;
-                            }
-
-                            let acoesHtml = '';
-                            renderizarConteudoHistoricoCliente();
-                          }
-      Swal.fire('Recebido!', `Pagamento de ${formatarMoeda(valor)} registrado com sucesso!`, 'success');
-                        }
-
-                        // =========================================================================
-                        // CANCELAMENTO SEGURO DE VENDA (ESTORNO AO ESTOQUE & CAMADA DE CONFIRMAÇÃO)
-                        // =========================================================================
-                        function solicitarCancelamentoVenda(vId) {
-                          const db = getDB();
-                          const target = (ESTADO.lojaAtivaId || '').toLowerCase().trim();
-                          const loja = db.lojas.find(l => (l.id || '').toLowerCase() === target || ((l.login || '').toLowerCase() === target)) || db.lojas[0];
-                          if (!loja) return;
-
-                          const v = (loja.vendas || []).find(item => item.id === vId);
-                          if (!v) {
-                            Swal.fire('Erro', 'Venda não localizada.', 'error');
-                            return;
-                          }
-
-                          if (v.status === 'Cancelada') {
-                            Swal.fire('Aviso', 'Esta venda já se encontra cancelada.', 'info');
-                            return;
-                          }
-
-                          const estoqueFoiBaixado = (v.estoqueBaixado === true || v.tipo === 'PDV' || v.status === 'Finalizado' || v.statusFinanceiro === 'Pago');
-
-                          let itensDescHtml = '';
-                          if (v.itens && v.itens.length > 0) {
-                            if (estoqueFoiBaixado) {
-                              itensDescHtml = `
-            <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-1">
-              <span class="font-bold text-slate-700 block mb-1">Itens que retornarão ao estoque da loja:</span>
-              ${v.itens.map(it => `
-                <div class="flex justify-between items-center text-slate-600">
-                  <span>• ${it.nome} ${it.variacao ? '(' + it.variacao + ')' : ''}</span>
-                  <span class="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+${it.quantidade} un.</span>
-                </div>
-              `).join('')}
-            </div>
-          `;
-                            } else {
-                              itensDescHtml = `
-            <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs text-slate-500">
-              ℹ️ Como este pedido ainda estava aguardando aprovação/pagamento, o estoque da loja não havia sido abatido e permanecerá intacto.
-            </div>
-          `;
-                            }
-                          }
-
-                          const alertaSaldo = (v.saldoDevedor > 0)
-                            ? `<div class="mt-2 p-2 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold">
-             ⚠️ O débito pendente de <b>${formatarMoeda(v.saldoDevedor)}</b> será zerado e cancelado.
-           </div>`
-                            : '';
-
-                          Swal.fire({
-                            title: 'Cancelar Venda?',
-                            html: `
-          <div class="text-sm text-slate-600 space-y-2 text-left">
-            <p class="text-center">Deseja realmente cancelar a venda <b class="text-slate-900">${v.id}</b> de <b>${v.clienteNome || 'Cliente Balcão'}</b>?</p>
-            <div class="text-xl font-black text-rose-600 text-center">${formatarMoeda(v.totalLiquido)}</div>
-            ${alertaSaldo}
-            ${itensDescHtml}
-
-            <!-- Auditoria: Motivo do Cancelamento -->
-            <div class="mt-4 pt-3 border-t border-slate-200">
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo do Cancelamento (Auditoria) *</label>
-              <select id="swalMotivoSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 mb-2 focus:ring-2 focus:ring-rose-500">
-                <option value="Desistência do cliente">Desistência do cliente</option>
-                <option value="Erro de digitação / lançamento">Erro de digitação / lançamento</option>
-                <option value="Produto com defeito ou avaria">Produto com defeito ou avaria</option>
-                <option value="Troca por outro produto">Troca por outro produto</option>
-                <option value="Falta de pagamento / inadimplência">Falta de pagamento / inadimplência</option>
-                <option value="Outro motivo">Outro motivo (especificar abaixo)</option>
-              </select>
-              <input type="text" id="swalMotivoDetalhe" placeholder="Detalhes adicionais (opcional)..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rose-500">
-            </div>
-
-            <p class="text-[11px] text-slate-400 mt-2 text-center">Esta ação devolverá as quantidades ao estoque e cancelará as cobranças.</p>
-          </div>
-        `,
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#e11d48',
-                            cancelButtonColor: '#64748b',
-                            confirmButtonText: 'Sim, Cancelar Venda',
-                            cancelButtonText: 'Voltar (Manter Venda)',
-                            reverseButtons: true,
-                            focusCancel: true,
-                            preConfirm: () => {
-                              const sel = document.getElementById('swalMotivoSelect').value;
-                              const det = document.getElementById('swalMotivoDetalhe').value.trim();
-                              return det ? `${sel} - ${det}` : sel;
-                            }
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              const motivo = result.value || 'Cancelamento solicitado pelo lojista';
-                              executarCancelamentoVenda(vId, motivo);
-                            }
-                          });
-                        }
-
-                        function executarCancelamentoVenda(vOuId, motivo = 'Cancelamento efetuado pelo lojista') {
-                          const vId = (typeof vOuId === 'object' && vOuId !== null) ? vOuId.id : vOuId;
-                          const db = getDB();
-                          const target = (ESTADO.lojaAtivaId || '').toLowerCase().trim();
-                          const idx = db.lojas.findIndex(l => (l.id || '').toLowerCase() === target || ((l.login || '').toLowerCase() === target));
-                          if (idx === -1) {
-                            Swal.fire('Erro', 'Loja ativa não encontrada.', 'error');
-                            return;
-                          }
-
-                          const loja = db.lojas[idx];
-                          if (!loja.vendas) loja.vendas = [];
-                          const v = loja.vendas.find(item => item.id === vId);
-                          if (!v) {
-                            Swal.fire('Erro', 'Venda não localizada para cancelamento.', 'error');
-                            return;
-                          }
-
-                          // 1. Devolve itens ao estoque apenas se a venda tiver realmente baixado estoque
-                          const estoqueFoiBaixado = (v.estoqueBaixado === true || v.tipo === 'PDV' || v.status === 'Finalizado' || v.statusFinanceiro === 'Pago');
-                          if (estoqueFoiBaixado && v.itens && v.itens.length > 0) {
-                            if (!loja.produtos) loja.produtos = [];
-                            v.itens.forEach(it => {
-                              const prod = loja.produtos.find(p => p.id === it.produtoId);
-                              if (prod) {
-                                prod.estoqueAtual = (Number(prod.estoqueAtual) || 0) + Number(it.quantidade);
-                              }
-                            });
-                          }
-
-                          // 2. Marca a venda como Cancelada com auditoria do motivo e anula débitos
-                          v.status = 'Cancelada';
-                          v.statusFinanceiro = 'Cancelada';
-                          v.saldoDevedor = 0;
-                          v.motivoCancelamento = motivo;
-                          v.dataCancelamento = new Date().toISOString();
-
-                          // 3. Persiste na base local
-                          saveDB(db);
-
-                          // 4. Sincroniza cancelamento (Supabase com estorno atômico)
-                          DatabaseAdapter.cancelarVenda(loja.id, v.id, motivo).catch(err => console.warn('Erro ao sincronizar cancelamento:', err));
-
-                          // 4.1 Notificação no Telegram do Lojista
-                          try {
-                            TelegramNotifier.notificarCancelamento(loja, v, motivo);
-                          } catch (eTel) {
-                            console.warn('Erro ao disparar notificação Telegram de cancelamento:', eTel);
-                          }
-
-                          // 5. Atualiza as telas
-                          renderizarCobranca();
-                          renderizarPedidos();
-                          renderizarDashboard();
-                          renderizarProdutosEstoque();
-                          renderizarEstoqueCritico();
-                          renderizarClientes();
-                          if (ESTADO.historicoClienteAtivoId && !document.getElementById('modalHistoricoCliente')?.classList.contains('hidden')) {
-                            renderizarConteudoHistoricoCliente();
-                          }
-
-                          Swal.fire({
-                            icon: 'success',
-                            title: 'Venda Cancelada!',
-                            html: `A venda <b>${v.id}</b> foi cancelada com sucesso.<br><b>Motivo:</b> ${motivo}<br>Os produtos retornaram ao estoque da loja.`,
-                            timer: 3500,
-                            showConfirmButton: true
-                          });
-                        }
-
-                        function verDetalhesCancelamento(vId) {
-                          const loja = getLojaAtiva();
-                          const v = (loja.vendas || []).find(item => item.id === vId);
-                          if (!v) return;
-
-                          const dataStr = v.dataCancelamento ? new Date(v.dataCancelamento).toLocaleString('pt-BR') : 'Não registrada';
-                          const motivo = v.motivoCancelamento || 'Motivo não especificado no cancelamento.';
-                          const estoqueFoiEstornado = (v.estoqueBaixado === true || v.tipo === 'PDV' || v.statusFinanceiro === 'Pago');
-                          const estoqueInfoHtml = estoqueFoiEstornado
-                            ? `<div class="p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-[11px]">
-             ✅ Os itens desta venda foram estornados e retornaram ao estoque da loja.
-           </div>`
-                            : `<div class="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-[11px]">
-             ℹ️ O pedido foi cancelado antes de ser baixado/quitado. O estoque da loja não sofreu alterações.
-           </div>`;
-
-                          Swal.fire({
-                            title: 'Auditoria de Cancelamento',
-                            html: `
-          <div class="text-left text-xs text-slate-600 space-y-2.5">
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <span class="text-slate-400 uppercase text-[10px] block font-bold">Venda / Pedido</span>
-              <span class="text-sm font-bold text-slate-900">${v.id} (${v.clienteNome})</span>
-              <span class="text-[11px] text-slate-500 block">Total: ${formatarMoeda(v.totalLiquido)} • Origem: ${v.origem || 'Balcão'}</span>
-            </div>
-            <div class="p-3 bg-rose-50 border border-rose-100 rounded-xl space-y-1">
-              <span class="text-rose-800 uppercase text-[10px] block font-bold">Motivo Registrado na Auditoria</span>
-              <p class="text-sm font-semibold text-rose-950">${motivo}</p>
+              <p class="text-sm font-semibold text-rose-950">${escapeHtml(motivo)}</p>
               <span class="text-[10px] text-rose-500 block mt-1">Data/Hora: ${dataStr}</span>
             </div>
             ${estoqueInfoHtml}
