@@ -410,84 +410,69 @@
   <!-- BARRA LATERAL (DESKTOP) -->
   <!-- ========================================================================= -->
   <aside id="sidebarDesktop"
-    class="hidden md:flex flex-col w-64 bg-menu-custom text-menu-custom border-r border-slate-800/60 shrink-0 select-none">
-    <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
-      class="hidden md:flex flex-col w-64 bg-menu-custom text-menu-custom border-r menu-divisor shrink-0 select-none">
-      <div class="p-5 border-b menu-divisor flex items-center justify-between">
-        <div class="flex items-center space-x-3 truncate">
-          <div id="sidebarLogoContainer"
-            class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shrink-0 overflow-hidden">
-            <img id="sidebarLogoImg"
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
-              alt="Logotipo da Loja" class="w-full h-full object-cover hidden">
-            <i id="sidebarLogoIcon" data-lucide="layers" class="w-5 h-5"></i>
-          </div>
-          <div class="truncate">
-            <h1 id="sidebarTituloLoja" class="text-sm font-bold text-white truncate">Gestão Multi-lojas e E-Commerce
-            </h1>
-            <p id="sidebarSubtituloLoja" class="text-[11px] text-slate-400 truncate">Painel de Controle</p>
-            <h1 id="sidebarTituloLoja" class="text-sm font-bold truncate">Gestão Multi-lojas e E-Commerce</h1>
-            <p id="sidebarSubtituloLoja" class="text-[11px] truncate opacity-75">Painel de Controle</p>
-          </div>
+    class="hidden md:flex flex-col w-64 bg-menu-custom text-menu-custom border-r menu-divisor shrink-0 select-none">
+    <div class="p-5 border-b menu-divisor flex items-center justify-between">
+      <div class="flex items-center space-x-3 truncate">
+        <div id="sidebarLogoContainer"
+          class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shrink-0 overflow-hidden">
+          <img id="sidebarLogoImg"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+            alt="Logotipo da Loja" class="w-full h-full object-cover hidden">
+          <i id="sidebarLogoIcon" data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div class="truncate">
+          <h1 id="sidebarTituloLoja" class="text-sm font-bold truncate">Gestão Multi-lojas e E-Commerce</h1>
+          <p id="sidebarSubtituloLoja" class="text-[11px] truncate opacity-75">Painel de Controle</p>
         </div>
       </div>
+    </div>
 
-      <!-- Badge do Perfil Ativo -->
-      <div
-        class="px-4 py-2.5 mx-3 my-2.5 bg-slate-800/80 rounded-2xl border border-slate-700/60 flex items-center justify-between">
-        class="px-4 py-2.5 mx-3 my-2.5 menu-card-perfil rounded-2xl border flex items-center justify-between">
-        <div class="truncate mr-2">
-          <span id="badgePerfilTipo"
-            class="text-[9px] font-extrabold uppercase tracking-wider text-blue-400 block">LOJISTA</span>
-          <span id="sidebarNomeUsuario" class="text-xs font-bold text-white truncate block">Carregando...</span>
-          <span id="sidebarNomeUsuario" class="text-xs font-bold truncate block">Carregando...</span>
-        </div>
-        <button onclick="fazerLogout()" title="Sair / Trocar Usuário"
-          class="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition">
-          class="p-1.5 rounded-lg menu-btn-acao transition">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-        </button>
+    <!-- Badge do Perfil Ativo -->
+    <div class="px-4 py-2.5 mx-3 my-2.5 menu-card-perfil rounded-2xl border flex items-center justify-between">
+      <div class="truncate mr-2">
+        <span id="badgePerfilTipo"
+          class="text-[9px] font-extrabold uppercase tracking-wider text-blue-400 block">LOJISTA</span>
+        <span id="sidebarNomeUsuario" class="text-xs font-bold truncate block">Carregando...</span>
       </div>
+      <button onclick="fazerLogout()" title="Sair / Trocar Usuário"
+        class="p-1.5 rounded-lg menu-btn-acao transition">
+        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
 
-      <!-- Navegação Desktop -->
-      <nav class="flex-1 px-3 space-y-1 py-1 overflow-y-auto" id="navDesktopMenu">
-        <!-- Inserido dinamicamente via JS -->
-      </nav>
+    <!-- Navegação Desktop -->
+    <nav class="flex-1 px-3 space-y-1 py-1 overflow-y-auto" id="navDesktopMenu">
+      <!-- Inserido dinamicamente via JS -->
+    </nav>
 
-      <!-- Botão Rápido: Ver Minha Loja Online (para Lojistas) -->
-      <div id="btnVerLojaOnlineContainer" class="p-3 border-t border-slate-800">
-        <div id="btnVerLojaOnlineContainer" class="p-3 border-t menu-divisor">
-          <button onclick="abrirVitrineCliente()"
-            class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md shadow-emerald-900/20">
-            <i data-lucide="globe" class="w-4 h-4"></i>
-            <span>Abrir Loja Online</span>
-          </button>
-        </div>
+    <!-- Botão Rápido: Ver Minha Loja Online (para Lojistas) -->
+    <div id="btnVerLojaOnlineContainer" class="p-3 border-t menu-divisor">
+      <button onclick="abrirVitrineCliente()"
+        class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md shadow-emerald-900/20">
+        <i data-lucide="globe" class="w-4 h-4"></i>
+        <span>Abrir Loja Online</span>
+      </button>
+    </div>
 
-        <!-- Status Conexão Rodapé -->
-        <div class="p-3 border-t border-slate-800 text-[11px] flex items-center justify-between">
-          <div class="p-3 border-t menu-divisor text-[11px] flex items-center justify-between">
-            <div class="flex items-center space-x-1.5 truncate mr-2">
-              <div id="dotConexaoDesktop" class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></div>
-              <span id="statusConexaoDesktop" class="text-slate-400 truncate">Modo Local</span>
-              <span id="statusConexaoDesktop" class="truncate opacity-75">Modo Local</span>
-            </div>
-            <button onclick="navegar('config')" class="text-slate-400 hover:text-white shrink-0"><i
-                data-lucide="settings" <button onclick="navegar('config')" class="menu-btn-acao p-1 rounded-lg shrink-0"
-                title="Configurações"><i data-lucide="settings" class="w-3.5 h-3.5"></i></button>
-          </div>
+    <!-- Status Conexão Rodapé -->
+    <div class="p-3 border-t menu-divisor text-[11px] flex items-center justify-between">
+      <div class="flex items-center space-x-1.5 truncate mr-2">
+        <div id="dotConexaoDesktop" class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></div>
+        <span id="statusConexaoDesktop" class="truncate opacity-75">Modo Local</span>
+      </div>
+      <button onclick="navegar('config')" class="menu-btn-acao p-1 rounded-lg shrink-0" title="Configurações">
+        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
   </aside>
 
   <!-- ========================================================================= -->
   <!-- BARRA SUPERIOR (MOBILE) -->
   <!-- ========================================================================= -->
   <header
-    class="md:hidden bg-menu-custom text-menu-custom px-3.5 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-slate-800/60">
-    class="md:hidden bg-menu-custom text-menu-custom px-3.5 py-3 flex items-center justify-between sticky top-0 z-40
-    border-b menu-divisor">
+    class="md:hidden bg-menu-custom text-menu-custom px-3.5 py-3 flex items-center justify-between sticky top-0 z-40 border-b menu-divisor">
     <div class="flex items-center space-x-2.5 truncate">
       <button onclick="abrirMenuMobile()" title="Menu de Navegação"
-        class="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white border border-slate-700 shrink-0 transition active:scale-95">
         class="p-2 rounded-xl menu-btn-acao border shrink-0 transition active:scale-95">
         <i data-lucide="menu" class="w-4 h-4"></i>
       </button>
@@ -500,13 +485,11 @@
       </div>
       <div class="truncate">
         <h1 class="text-xs font-bold leading-tight truncate" id="nomeEmpresaMobile">Gestão Multi-lojas e E-Commerce</h1>
-        <p class="text-[10px] text-slate-400" id="perfilUsuarioMobile">Lojista</p>
         <p class="text-[10px] opacity-75 truncate" id="perfilUsuarioMobile">Lojista</p>
       </div>
     </div>
     <div class="flex items-center space-x-1.5 shrink-0">
       <button onclick="sincronizarComDrive()" title="Sincronizar com Banco de Dados Supabase"
-        class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 transition active:scale-95">
         class="p-2 rounded-xl menu-btn-acao text-blue-400 border transition active:scale-95">
         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
       </button>
@@ -515,7 +498,6 @@
         <i data-lucide="globe" class="w-4 h-4"></i>
       </button>
       <button onclick="fazerLogout()" title="Sair / Trocar Usuário"
-        class="p-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 border border-slate-700 transition active:scale-95">
         class="p-2 rounded-xl menu-btn-acao hover:bg-rose-900/40 hover:text-rose-400 border transition active:scale-95">
         <i data-lucide="log-out" class="w-4 h-4"></i>
       </button>
@@ -528,78 +510,64 @@
   <div id="drawerMenuMobile" role="dialog" aria-modal="true" aria-label="Menu de Navegação Mobile"
     class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex">
     <aside
-      class="w-72 max-w-[85vw] bg-menu-custom text-menu-custom h-full flex flex-col border-r border-slate-800/60 shadow-2xl p-4">
-      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/60">
-        <aside
-          class="w-72 max-w-[85vw] bg-menu-custom text-menu-custom h-full flex flex-col border-r menu-divisor shadow-2xl p-4">
-          <div class="flex items-center justify-between pb-3.5 border-b menu-divisor">
-            <div class="flex items-center space-x-2.5 truncate">
-              <div
-                class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shrink-0 overflow-hidden">
-                <i data-lucide="layers" class="w-4 h-4"></i>
-              </div>
-              <div class="truncate">
-                <h2 id="drawerTituloLoja" class="text-xs font-bold text-slate-100 truncate">Gestão Multi-lojas e
-                  E-Commerce</h2>
-                <h2 id="drawerTituloLoja" class="text-xs font-bold truncate">Gestão Multi-lojas e E-Commerce</h2>
-                <span id="drawerPerfilBadge"
-                  class="text-[9px] font-extrabold text-blue-400 uppercase tracking-wider block">LOJISTA</span>
-              </div>
-            </div>
-            <button onclick="fecharMenuMobile()"
-              class="p-1.5 rounded-lg bg-black/20 hover:bg-black/30 opacity-80 hover:opacity-100 transition">
-              class="p-1.5 rounded-lg menu-btn-acao transition">
-              <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
+      class="w-72 max-w-[85vw] bg-menu-custom text-menu-custom h-full flex flex-col border-r menu-divisor shadow-2xl p-4">
+      <div class="flex items-center justify-between pb-3.5 border-b menu-divisor">
+        <div class="flex items-center space-x-2.5 truncate">
+          <div
+            class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shrink-0 overflow-hidden">
+            <i data-lucide="layers" class="w-4 h-4"></i>
           </div>
-
-          <!-- Menu Items no Drawer Mobile -->
-          <nav id="navMobileMenu" class="flex-1 space-y-1.5 py-4 overflow-y-auto">
-            <!-- Preenchido dinamicamente via JS -->
-          </nav>
-
-          <!-- Rodapé do Drawer Mobile -->
-          <div class="pt-3 border-t border-slate-800/60 space-y-2">
-            <div class="pt-3 border-t menu-divisor space-y-2">
-              <div class="flex items-center justify-between text-[11px] opacity-80 px-1">
-                <div class="flex items-center space-x-1.5">
-                  <div id="dotConexaoMobile" class="w-2 h-2 rounded-full bg-amber-500"></div>
-                  <span id="statusConexaoMobile">Modo Local</span>
-                </div>
-                <button onclick="fecharMenuMobile(); navegar('config');" class="hover:text-white">
-                  <button onclick="fecharMenuMobile(); navegar('config');" class="menu-btn-acao p-1 rounded-lg"
-                    title="Configurações">
-                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                  </button>
-              </div>
-              <button onclick="fecharMenuMobile(); fazerLogout();"
-                class="w-full flex items-center justify-center space-x-2 py-2 rounded-xl bg-black/30 hover:bg-rose-950/40 text-rose-400 text-xs font-bold border border-white/10 transition">
-                class="w-full flex items-center justify-center space-x-2 py-2 rounded-xl menu-btn-acao
-                hover:bg-rose-950/40 text-rose-400 text-xs font-bold border transition">
-                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                <span>Sair / Trocar Usuário</span>
-              </button>
-            </div>
-        </aside>
-        <button type="button" class="flex-1 cursor-default bg-transparent border-0" onclick="fecharMenuMobile()"
-          aria-label="Fechar gaveta ao clicar fora"></button>
+          <div class="truncate">
+            <h2 id="drawerTituloLoja" class="text-xs font-bold truncate">Gestão Multi-lojas e E-Commerce</h2>
+            <span id="drawerPerfilBadge"
+              class="text-[9px] font-extrabold text-blue-400 uppercase tracking-wider block">LOJISTA</span>
+          </div>
+        </div>
+        <button onclick="fecharMenuMobile()" class="p-1.5 rounded-lg menu-btn-acao transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
       </div>
 
-      <!-- ========================================================================= -->
-      <!-- BARRA INFERIOR FIXA MOBILE (BOTTOM NAV) -->
-      <!-- ========================================================================= -->
-      <div id="mobileBottomNav"
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-menu-custom text-menu-custom backdrop-blur-md border-t border-slate-800/60 z-30 px-2 py-1 flex items-center justify-around">
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-menu-custom text-menu-custom backdrop-blur-md border-t
-        menu-divisor z-30 px-2 py-1 flex items-center justify-around">
+      <!-- Menu Items no Drawer Mobile -->
+      <nav id="navMobileMenu" class="flex-1 space-y-1.5 py-4 overflow-y-auto">
         <!-- Preenchido dinamicamente via JS -->
-      </div>
+      </nav>
 
-      <!-- ========================================================================= -->
-      <!-- ÁREA DE CONTEÚDO PRINCIPAL (SPA) -->
-      <!-- ========================================================================= -->
-      <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto pb-24 md:pb-6">
+      <!-- Rodapé do Drawer Mobile -->
+      <div class="pt-3 border-t menu-divisor space-y-2">
+        <div class="flex items-center justify-between text-[11px] opacity-80 px-1">
+          <div class="flex items-center space-x-1.5">
+            <div id="dotConexaoMobile" class="w-2 h-2 rounded-full bg-amber-500"></div>
+            <span id="statusConexaoMobile">Modo Local</span>
+          </div>
+          <button onclick="fecharMenuMobile(); navegar('config');" class="menu-btn-acao p-1 rounded-lg"
+            title="Configurações">
+            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <button onclick="fecharMenuMobile(); fazerLogout();"
+          class="w-full flex items-center justify-center space-x-2 py-2 rounded-xl menu-btn-acao hover:bg-rose-950/40 text-rose-400 text-xs font-bold border transition">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Sair / Trocar Usuário</span>
+        </button>
+      </div>
+    </aside>
+    <button type="button" class="flex-1 cursor-default bg-transparent border-0" onclick="fecharMenuMobile()"
+      aria-label="Fechar gaveta ao clicar fora"></button>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- BARRA INFERIOR FIXA MOBILE (BOTTOM NAV) -->
+  <!-- ========================================================================= -->
+  <div id="mobileBottomNav"
+    class="md:hidden fixed bottom-0 left-0 right-0 bg-menu-custom text-menu-custom backdrop-blur-md border-t menu-divisor z-30 px-2 py-1 flex items-center justify-around">
+    <!-- Preenchido dinamicamente via JS -->
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- ÁREA DE CONTEÚDO PRINCIPAL (SPA) -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto pb-24 md:pb-6">
 
           <!-- ===================================================================== -->
           <!-- TELA 0: PAINEL MASTER (SUPER ADMIN - GESTÃO DE TODAS AS LOJAS) -->
@@ -787,11 +755,8 @@
                 <span>Deslize a tabela para o lado para ver todos os dados e ações</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                  <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
-                    <table class="w-full text-left text-sm min-w-[720px]">
-                      <thead
-                        class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100 whitespace-nowrap">
+                <table class="w-full text-left text-sm min-w-[720px]">
+                  <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100 whitespace-nowrap">
                         <tr>
                           <th class="py-3 px-4">Loja / ID</th>
                           <th class="py-3 px-4">Responsável</th>
@@ -939,10 +904,8 @@
                   críticos</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                    <table class="w-full text-left text-xs min-w-[540px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
+                <table class="w-full text-left text-xs min-w-[540px]">
+                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
                         <tr>
                           <th class="py-2.5 px-3">Produto</th>
                           <th class="py-2.5 px-3">Variação</th>
@@ -2011,28 +1974,19 @@
                   <span>Deslize a tabela para o lado para ver valores e ações</span>
                 </div>
                 <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs">
-                    <table class="w-full text-left text-xs min-w-[680px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                        <tr>
-                          <th class="py-3 px-3">Data / ID</th>
-                          <th class="py-3 px-3">Cliente</th>
-                          <th class="py-3 px-3">Origem</th>
-                          <th class="py-3 px-3">Condição</th>
-                          <th class="py-3 px-3">Total</th>
-                          <th class="py-3 px-3 text-rose-600 font-bold">Saldo Devedor</th>
-                          <th class="py-3 px-3">Status</th>
-                          <th class="py-3 px-3 text-right">Ação</th>
-                          <th class="py-3 px-3 whitespace-nowrap">Data / ID</th>
-                          <th class="py-3 px-3 whitespace-nowrap min-w-[130px]">Cliente</th>
-                          <th class="py-3 px-3 whitespace-nowrap">Origem</th>
-                          <th class="py-3 px-3 whitespace-nowrap">Condição</th>
-                          <th class="py-3 px-3 whitespace-nowrap text-right">Total</th>
-                          <th class="py-3 px-3 text-rose-600 font-bold whitespace-nowrap text-right">Saldo Devedor</th>
-                          <th class="py-3 px-3 whitespace-nowrap text-center">Status</th>
-                          <th class="py-3 px-3 text-right whitespace-nowrap">Ação</th>
-                        </tr>
-                      </thead>
+                  <table class="w-full text-left text-xs min-w-[680px]">
+                    <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
+                      <tr>
+                        <th class="py-3 px-3 whitespace-nowrap">Data / ID</th>
+                        <th class="py-3 px-3 whitespace-nowrap min-w-[130px]">Cliente</th>
+                        <th class="py-3 px-3 whitespace-nowrap">Origem</th>
+                        <th class="py-3 px-3 whitespace-nowrap">Condição</th>
+                        <th class="py-3 px-3 whitespace-nowrap text-right">Total</th>
+                        <th class="py-3 px-3 text-rose-600 font-bold whitespace-nowrap text-right">Saldo Devedor</th>
+                        <th class="py-3 px-3 whitespace-nowrap text-center">Status</th>
+                        <th class="py-3 px-3 text-right whitespace-nowrap">Ação</th>
+                      </tr>
+                    </thead>
                       <tbody id="tabelaCobranca" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
@@ -2119,10 +2073,8 @@
                 <span>Deslize a tabela para o lado para ver valores e categorias</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                    <table class="w-full text-left text-xs min-w-[580px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
+                <table class="w-full text-left text-xs min-w-[580px]">
+                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
                         <tr>
                           <th class="py-3 px-3">Data</th>
                           <th class="py-3 px-3">Descrição</th>
@@ -2162,12 +2114,10 @@
                 <span>Deslize a tabela para o lado para ver todos os detalhes</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                    <table class="w-full text-left text-xs min-w-[680px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
-                        <tr>
-                          <th class="py-3 px-3">ID / Data</th>
+                <table class="w-full text-left text-xs min-w-[680px]">
+                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
+                    <tr>
+                      <th class="py-3 px-3">ID / Data</th>
                           <th class="py-3 px-3">Cliente / Contato</th>
                           <th class="py-3 px-3">Origem & Entrega</th>
                           <th class="py-3 px-3">Total</th>
@@ -2227,12 +2177,10 @@
                 <span>Deslize a tabela para o lado para ver todos os detalhes</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                    <table class="w-full text-left text-xs min-w-[680px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
-                        <tr>
-                          <th class="py-3 px-3">Item</th>
+                <table class="w-full text-left text-xs min-w-[680px]">
+                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
+                    <tr>
+                      <th class="py-3 px-3">Item</th>
                           <th class="py-3 px-3">Variação</th>
                           <th class="py-3 px-3">Custo</th>
                           <th class="py-3 px-3">Margem</th>
@@ -2289,12 +2237,10 @@
                 <span>Deslize a tabela para o lado para ver totais e histórico</span>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100">
-                    <table class="w-full text-left text-xs min-w-[680px]">
-                      <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
-                        <tr>
-                          <th class="py-3 px-3">Cliente</th>
+                <table class="w-full text-left text-xs min-w-[680px]">
+                  <thead class="bg-slate-50 text-slate-400 uppercase border-b border-slate-100 whitespace-nowrap">
+                    <tr>
+                      <th class="py-3 px-3">Cliente</th>
                           <th class="py-3 px-3">WhatsApp / Telefone</th>
                           <th class="py-3 px-3">Endereço</th>
                           <th class="py-3 px-3 text-right">Total em Compras</th>
@@ -2525,7 +2471,6 @@
               </div>
 
               <!-- Resumo dos Itens na Sacola -->
-              <div id="checkoutItensLista" class="max-h-40 overflow-y-auto space-y-2 pr-1 text-xs"></div>
               <div>
                 <div class="flex items-center justify-between mb-1.5">
                   <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px]">Itens na
@@ -3570,12 +3515,6 @@
                           <thead
                             class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200">
                             <tr>
-                              <th class="py-2.5 px-2.5">Produto</th>
-                              <th class="py-2.5 px-2 text-center">Qtd</th>
-                              <th class="py-2.5 px-2 text-right">Preço</th>
-                              <th class="py-2.5 px-2 text-right">Desconto</th>
-                              <th class="py-2.5 px-2 text-right">Preço Final</th>
-                              <th class="py-2.5 px-2.5 text-right">Subtotal</th>
                               <th class="py-2.5 px-3 min-w-[140px] whitespace-nowrap">Produto</th>
                               <th class="py-2.5 px-2 text-center whitespace-nowrap">Qtd</th>
                               <th class="py-2.5 px-2 text-right whitespace-nowrap">Preço</th>
@@ -3669,10 +3608,8 @@
             <div id="modalHistoricoCliente" role="dialog" aria-modal="true" aria-labelledby="histCliNome"
               class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
               <div
-                class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-5 sm:p-6 my-auto border border-slate-100 space-y-4 text-xs max-h-[92vh] flex flex-col">
-                <div
-                  class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-4 sm:p-6 my-auto border border-slate-100 space-y-4 text-xs max-h-[92vh] flex flex-col">
-                  <!-- Topo Modal -->
+                class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-4 sm:p-6 my-auto border border-slate-100 space-y-4 text-xs max-h-[92vh] flex flex-col">
+                <!-- Topo Modal -->
                   <div class="flex items-start justify-between pb-3 border-b border-slate-100 shrink-0">
                     <div class="flex items-center space-x-3">
                       <div id="histCliAvatar"
@@ -3771,29 +3708,19 @@
 
                   <!-- Tabela de Vendas do Cliente -->
                   <div
-                    class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex-1 min-h-[160px] max-h-[46vh] overflow-y-auto">
-                    <table class="w-full text-left text-xs">
-                      <div
-                        class="border border-slate-200 rounded-2xl overflow-x-auto shadow-sm flex-1 min-h-[160px] max-h-[46vh]">
-                        <table class="w-full text-left text-xs min-w-[620px]">
-                          <thead
-                            class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200 sticky top-0 z-10">
-                            <tr>
-                              <th class="py-2.5 px-3">Venda / Data</th>
-                              <th class="py-2.5 px-3">Origem</th>
-                              <th class="py-2.5 px-3">Forma / Condição</th>
-                              <th class="py-2.5 px-3 text-right">Valor Venda</th>
-                              <th class="py-2.5 px-3 text-right">Saldo Devedor</th>
-                              <th class="py-2.5 px-3 text-center">Status</th>
-                              <th class="py-2.5 px-3 text-right">Detalhes</th>
-                              <th class="py-2.5 px-3 whitespace-nowrap">Venda / Data</th>
-                              <th class="py-2.5 px-3 whitespace-nowrap">Origem</th>
-                              <th class="py-2.5 px-3 whitespace-nowrap">Forma / Condição</th>
-                              <th class="py-2.5 px-3 text-right whitespace-nowrap">Valor Venda</th>
-                              <th class="py-2.5 px-3 text-right whitespace-nowrap">Saldo Devedor</th>
-                              <th class="py-2.5 px-3 text-center whitespace-nowrap">Status</th>
-                              <th class="py-2.5 px-3 text-right whitespace-nowrap">Detalhes</th>
-                            </tr>
+                    class="border border-slate-200 rounded-2xl overflow-x-auto shadow-sm flex-1 min-h-[160px] max-h-[46vh]">
+                    <table class="w-full text-left text-xs min-w-[620px]">
+                      <thead
+                        class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200 sticky top-0 z-10">
+                        <tr>
+                          <th class="py-2.5 px-3 whitespace-nowrap">Venda / Data</th>
+                          <th class="py-2.5 px-3 whitespace-nowrap">Origem</th>
+                          <th class="py-2.5 px-3 whitespace-nowrap">Forma / Condição</th>
+                          <th class="py-2.5 px-3 text-right whitespace-nowrap">Valor Venda</th>
+                          <th class="py-2.5 px-3 text-right whitespace-nowrap">Saldo Devedor</th>
+                          <th class="py-2.5 px-3 text-center whitespace-nowrap">Status</th>
+                          <th class="py-2.5 px-3 text-right whitespace-nowrap">Detalhes</th>
+                        </tr>
                           </thead>
                           <tbody id="tabelaHistoricoVendasCliente" class="divide-y divide-slate-100 bg-white">
                             <!-- Linhas geradas via JavaScript -->
@@ -9874,7 +9801,6 @@
                               const tr = document.createElement('tr');
                               tr.className = 'hover:bg-slate-50 transition';
                               tr.innerHTML = `
-            <td class="py-2.5 px-2.5">
             <td class="py-2.5 px-3 min-w-[140px]">
               <div class="flex items-center space-x-1">
                 <span class="font-bold text-slate-900 block">${escapeHtml(it.nome || 'Item sem nome')}</span>
@@ -9882,9 +9808,6 @@
               </div>
               ${it.variacao ? `<span class="text-[10px] text-slate-400 block">${escapeHtml(it.variacao)}</span>` : ''}
             </td>
-            <td class="py-2.5 px-2 text-center font-bold text-slate-700">${qtd} un</td>
-            <td class="py-2.5 px-2 text-right text-slate-500 font-medium">${formatarMoeda(precoCheio)}</td>
-            <td class="py-2.5 px-2 text-right">
             <td class="py-2.5 px-2 text-center font-bold text-slate-700 whitespace-nowrap">${qtd} un</td>
             <td class="py-2.5 px-2 text-right text-slate-500 font-medium whitespace-nowrap">${formatarMoeda(precoCheio)}</td>
             <td class="py-2.5 px-2 text-right whitespace-nowrap">
@@ -9893,8 +9816,6 @@
                 ${qtd > 1 ? `<span class="text-[9px] text-slate-400 block font-normal">(-${formatarMoeda(descTotalItem)})</span>` : ''}
               ` : '<span class="text-slate-300">-</span>'}
             </td>
-            <td class="py-2.5 px-2 text-right font-bold text-slate-800">${formatarMoeda(precoFinal)}</td>
-            <td class="py-2.5 px-2.5 text-right font-extrabold text-slate-900">${formatarMoeda(subtotalFinal)}</td>
             <td class="py-2.5 px-2 text-right font-bold text-slate-800 whitespace-nowrap">${formatarMoeda(precoFinal)}</td>
             <td class="py-2.5 px-3 text-right font-extrabold text-slate-900 whitespace-nowrap">${formatarMoeda(subtotalFinal)}</td>
           `;
